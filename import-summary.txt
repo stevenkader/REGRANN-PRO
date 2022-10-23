@@ -61,7 +61,7 @@ Eclipse projects. Here's how the projects were restructured:
 * lint.xml => app/lint.xml
 * res/ => app/src/main/res/
 * src/ => app/src/main/java/
-* src/com/jaredco/regrann/activity/downloadbtn.png => app/src/main/resources/com/jaredco/regrann/activity/downloadbtn.png
+* src/com.nimmble.rgpro/activity/downloadbtn.png => app/src/main/resources/com.nimmble.rgpro/activity/downloadbtn.png
 
 Next Steps:
 -----------

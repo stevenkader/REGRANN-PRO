@@ -1,10 +1,10 @@
 syntax: glob
-captures/com.jaredco.regrann_2016.08.26_11.09.hprof
-captures/com.jaredco.regrann_2016.08.26_11.09.txt
-captures/com.jaredco.regrann_2016.08.26_11.10-2.txt
-captures/com.jaredco.regrann_2016.08.26_11.10.alloc
-captures/com.jaredco.regrann_2016.08.26_11.10.txt
-captures/com.jaredco.regrann_2016.08.26_11.11.hprof
-captures/com.jaredco.regrann_2016.08.26_11.12.hprof
-captures/com.jaredco.regrann_2016.08.26_17.11.hprof
-captures/com.jaredco.regrann_2016.08.26_17.11.txt
+captures/nimmble.regrann_2016.08.26_11.09.hprof
+captures/nimmble.regrann_2016.08.26_11.09.txt
+captures/nimmble.regrann_2016.08.26_11.10-2.txt
+captures/nimmble.regrann_2016.08.26_11.10.alloc
+captures/nimmble.regrann_2016.08.26_11.10.txt
+captures/nimmble.regrann_2016.08.26_11.11.hprof
+captures/nimmble.regrann_2016.08.26_11.12.hprof
+captures/nimmble.regrann_2016.08.26_17.11.hprof
+captures/nimmble.regrann_2016.08.26_17.11.txt

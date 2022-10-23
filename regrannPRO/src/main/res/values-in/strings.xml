@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?><resources>
+    <!--<string name="app_id" translatable="false">773402562742917</string>
+    <string name="app_name">Repost</string>-->
+    <string name="mode">Modus</string>
+    <string name="choose_mail_client">Pilih Klien Email</string>
+    <string name="share_email_no_email_client_installed">Klien email belum terinstal.</string>
+    <string name="progress_dialog_msg">Mohon tunggu...</string>
+    <string name="login">Masuk</string>
+    <string name="postlaterconfirmtoast">Foto disimpan untuk diposkan nanti. Kembali ke Instagram sekarang.</string>
+    <string name="therewasproblem">Maaf. Terjadi masalah. Silakan coba lagi</string>
+    <string name="porblemfindingphoto">Maaf. Ada masalah untuk menemukan foto tersebut. Mungkin sudah dihapus.</string>
+    <string name="problemfindingvideo">Maaf. Ada masalah untuk menemukan video tersebut. Silakan coba lagi nanti.</string>
+    <string name="howToTurnOffPostLater">Untuk mematikan POSKAN-NANTI CEPAT, cukup kembali ke sini ke pengaturan</string>
+    <string name="HowToTurnOffQuickSave">Untuk MEMATIKAN modus Simpan Cepat, buka Repost dengan mengetuk ikon aplikasi</string>
+    <string name="HowToTurnOffQuickPost">Untuk MEMATIKAN modus Pos Ulang Cepat, buka Repost dengan mengetuk ikon aplikasi</string>
+    <string name="quickKeepDescr">Setiap kali Anda mengklik pada 3 titik di suatu pos, Poskan-Nanti akan secara otomatis terpilih, menyimpan foto dan video yang akan Anda poskan nanti dan mengabaikan jendela Sembul Seleksi.</string>
+    <string name="quickRepostDescr">Setiap kali Anda mengklik pada 3 titik di suatu pos, Instagram akan secara otomatis terpilih sebagai tujuan Repost (pos ulang), mengabaikan jendela Sembul Seleksi.</string>
+    <string name="quickSaveDescr">Setiap kali Anda mengklik pada 3 titik di suatu pos, foto dan video akan secara otomatis disimpan ke ponsel Anda, mengabaikan jendela Sembul Seleksi.</string>
+    <string name="defaultModeDescr">Setiap kali Anda mengklik pada 3 titik di suatu pos, jendela sembul Seleksi akan muncul sehingga Anda dapat memilih antara mengeposkan ulang ke Facebook, menyimpan untuk diposkan ulang nanti, menyimpan ke ponsel Anda, atau berbagi dengan aplikasi lain.</string>
+    <string name="title_activity_post_photo">Poskan foto</string>
+    <string name="action_settings">Repost Pengaturan</string>
+    <string name="text_manage_signature">Sesuaikan Tanda Tangan Pos</string>
+    <string name="showPostLaterBtn">Tampilkan Foto Poskan-Nanti</string>
+    <string name="AddWatermark">Tambahkan tanda air untuk kredit</string>
+    <string name="txtChkboxForForeground">Beri tanda centang di sini jika Repost tidak selalu muncul. Android akan memaksa sebuah notifikasi konstan untuk Repost.</string>
+    <string name="Operation_Mode">Modus Operasi</string>
+    <string name="normal_mode">Modus Sembul Seleksi</string>
+    <string name="Quick_Repost_Mode">Modus Pos Ulang Cepat</string>
+    <string name="Quick_Save_Mode">Modus Simpan Cepat</string>
+    <string name="Quick_PostLater_Mode">Modus Poskan-Nanti Cepat</string>
+    <string name="PostLater_Methods">Metode Poskan-Nanti</string>
+    <string name="Post_using_Instagram">Mengeposkan dengan aplikasi Instagram (default)</string>
+    <string name="Kept_photos_desc">Foto yang disimpan diposkan menggunakan aplikasi Instagram. Keterangan foto harus direkatkan secara manual.</string>
+    <string name="DirectPost">Pos Langsung - beta (harus masuk)</string>
+    <string name="Kept_desc2">Foto yang disimpan diposkan menggunakan proses pengunggahan Repost. Lebih cepat dan keterangan pos ditambahkan secara otomatis ke pos. TIDAK BERLAKU UNTUK VIDEO. Berbagi di media sosial, fitur emoji atau penanda belum tersedia.  Untuk mengaktifkan fitur ini, masuk di bawah ke akun Instagram.</string>
+    <string name="rateText">Berikan nilai 5 bintang untuk aplikasi ini dan bantulah sesama pengguna Android menemukannya. Terima kasih atas dukungan Anda!</string>
+    <string name="rateHowIsExperience">Bagaimana pengalaman Anda menggunakan Repost sejauh ini?</string>
+    <string name="bad">Buruk</string>
+    <string name="good">Baik</string>
+    <string name="mayBeFromPrivateAcct">Foto tersebut mungkin berasal dari akun pribadi sehingga tidak dapat di-Repost untuk saat ini.</string>
+    <string name="noInternet">Tidak ada koneksi Internet. Pastikan Anda terhubung dan coba lagi.</string>
+
+    <string name="downloadingVideo">Mengunduh video!</string>
+    <string name="Run_Tutorial">Jalankan Tutorial</string>
+    <string name="emailSupport">Kirim email ke Dukungan</string>
+    <string name="noEmailClients">Tidak ada klien email yang terpasang.</string>
+    <string name="startupStr1">Mengeposkan ulang dengan Repost cepat dan mudah</string>
+    <string name="startupStr2">Mari saya tunjukkan caranya</string>
+    <string name="visit_support_site">Dukungan di Web</string>
+    <string name="title_activity_settings2">Pengaturan Repost</string>
+
+    <!-- Strings related to Settings -->
+
+    <!-- Example General settings -->
+    <string name="pref_header_general">Umum</string>
+
+    <string name="pref_title_watermark">Tanda Air Kredit</string>
+    <string name="pref_description_watermark">Sebuah tanda air dengan foto profil dan nama pengguna pembuat akan ditampilkan di bagian bawah foto</string>
+    <string name="pref_title_foreground">Selalu siap</string>
+
+    <!-- Example settings for Data & Sync -->
+
+
+    <string-array name="pref_signature_list_titles">
+    <item>Mati</item>
+    <item>Tambahkan ke keterangan</item>
+    <item>Ganti keterangan</item>
+  </string-array>
+    <!--<string-array name="pref_signature_list_values">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+
+    </string-array>-->
+
+
+    <!-- Example settings for Notifications -->
+    <string name="pref_header_signature">Tanda tangan</string>
+
+    <string name="pref_title_signature_type">Jenis</string>
+    <string name="pref_title_signature_text">Teks</string>
+    <string name="login_success">Sekarang Anda masuk sebagai</string>
+    <string name="the_caption_was_copied_to_the_clipboared">Keterangan disalin ke papan klip</string>
+    <string name="long_press_to_paste_in_instagram">Tekan dan tahan untuk merekatkan di Instagram</string>
+    <string name="share_app_buttontext">Kabarkan kepada Teman tentang Repost</string>
+
+    <string name="uploaded_success">Foto telah diposkan!</string>
+    <string name="uploaded_failure">Terjadi masalah saat mengunggah!</string>
+
+    <string name="edit_photo_buttontext">Edit Foto</string>
+    <string name="ad_button">Aplikasi yang Disarankan</string>
+    <string name="start_tutorial_buttontext">Mari Buka Instagram</string>
+    <string name="tutorial_tagline">Aplikasi pos ulang Nomor 1 di dunia!</string>
+    <string name="end_tutorial_buttontext">Klik untuk mencobanya sendiri</string>
+    <string name="instagram_bug">Instagram mungkin memerlukan izin baru untuk disetujui. Jika Instagram terhenti ketika menggunakan Repost, buka Instagram, tekan pada tombol pengunggahan, unggah sebuah foto dan setujui permohonan izin. Setelah itu, Anda dapat memulai lagi menggunakan Repost.</string>
+    <string name="instagram_bug_title">Anda telah memperbarui ke Android versi 6.0 Marshmellow</string>
+
+
+</resources>

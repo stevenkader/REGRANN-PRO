@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "154016569132",
+    "firebase_url": "https://regrannpro.firebaseio.com",
+    "project_id": "regrannpro",
+    "storage_bucket": "regrannpro.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:154016569132:android:e2a4263af1898871",
+        "android_client_info": {
+          "package_name": "com.nimmble.rgpro"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "154016569132-179dd6j2d87qo2v9d84n9927r862pnqq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyARV3mmjRd6W8ty6xqrSxyudo5-AW3SIT0"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

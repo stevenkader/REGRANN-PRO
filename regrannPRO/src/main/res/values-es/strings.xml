@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?><resources>
+    <!--<string name="app_id" translatable="false">773402562742917</string>
+    <string name="app_name">Repost</string>-->
+    <string name="mode">Modo</string>
+    <string name="choose_mail_client">Selecciona un cliente de correo electrónico</string>
+    <string name="share_email_no_email_client_installed">No hay clientes de correo electrónico instalados.</string>
+    <string name="progress_dialog_msg">Por favor espera...</string>
+    <string name="login">Iniciar sesión</string>
+    <string name="postlaterconfirmtoast">Foto guardada para publicar después. Ahora regresando a Instagram.</string>
+    <string name="therewasproblem">Lo siento. Ocurrió un problema. Por favor intenta de nuevo</string>
+    <string name="porblemfindingphoto">Lo siento. Ocurrió un problema al buscar esa foto. Puede haber sido eliminada.</string>
+    <string name="problemfindingvideo">Lo siento. Ocurrió un problema al buscar ese vídeo. Por favor intenta más tarde.</string>
+    <string name="howToTurnOffPostLater">Para desactivar el modo Publicar después rápidamente, solo regresa aquí a ajustes</string>
+    <string name="HowToTurnOffQuickSave">Para DESACTIVAR el modo Guardar rápidamente, abre Repost tocando el icono de la app</string>
+    <string name="HowToTurnOffQuickPost">Para DESACTIVAR el modo Republicar rápidamente, abre Repost tocando el icono de la app</string>
+    <string name="quickKeepDescr">Cada vez que haces clic en los tres puntos de una publicación, el modo Publicar después será seleccionado automáticamente, manteniendo las fotos y vídeos para los publiques más tarde y omitiendo la ventana emergente Selección.</string>
+    <string name="quickRepostDescr">Cada vez que haces clic en los tres puntos de la publicación, Instagram automáticamente será seleccionada como el destino Repost (republicar), omitiendo la ventana emergente Selección.</string>
+    <string name="quickSaveDescr">Cada vez que haces clic en los tres puntos de la publicación, las fotos y vídeos se guardarán automáticamente en el teléfono, omitiendo la ventana emergente Selección.</string>
+    <string name="defaultModeDescr">Cada vez que haces clic en los tres puntos de la publicación, aparecerá una ventana que permite que elijas entre republicar en Facebook, conservarla para republicar más tarde, guardarla en tu teléfono o compartirla con otras apps.</string>
+    <string name="title_activity_post_photo">Publicar foto</string>
+    <string name="action_settings">Repost Ajustes</string>
+    <string name="text_manage_signature">Personalizar la firma de la publicación</string>
+    <string name="showPostLaterBtn">Mostrar las fotos para publicar más tarde</string>
+    <string name="AddWatermark">Añadir marca de agua para créditos</string>
+    <string name="txtChkboxForForeground">Revisa esto si Repost no emerge siempre. Android fuerza una notificación constante para Repost.</string>
+    <string name="Operation_Mode">Modo de operación</string>
+    <string name="normal_mode">Modo Selección emergente</string>
+    <string name="Quick_Repost_Mode">Modo Republicar rápidamente</string>
+    <string name="Quick_Save_Mode">Modo Guardar rápidamente</string>
+    <string name="Quick_PostLater_Mode">Modo Publicar después rápidamente</string>
+    <string name="PostLater_Methods">Métodos para publicar más tarde</string>
+    <string name="Post_using_Instagram">Publicar usando la app Instagram (predeterminado)</string>
+    <string name="Kept_photos_desc">Las fotos almacenadas se publican usando la app Instagram. Las leyendas de las publicaciones de deben pegar manualmente.</string>
+    <string name="DirectPost">Publicación directa - Beta (se requiere iniciar sesión)</string>
+    <string name="Kept_desc2">Las fotos almacenadas se publican usando el proceso de carga Repost. Más rápido, y la leyenda de la publicación automáticamente se añade a la publicación. NO APLICA A VÍDEOS. Aún no están disponibles las funciones de compartir en redes sociales, emoji o etiquetas. Para habilitar esta característica, inicia sesión en cualquier cuenta Instagram.</string>
+    <string name="rateText">Por favor califica la app con 5 estrellas y ayuda a los demás usuarios Android a descubrirla. ¡Gracias por tu apoyo!</string>
+    <string name="rateHowIsExperience">¿Cómo ha sido tu experiencia con Repost hasta ahora?</string>
+    <string name="bad">Mala</string>
+    <string name="good">Buena</string>
+    <string name="mayBeFromPrivateAcct">Esa foto puede ser de una cuenta privada, así que no se puede usar con Repost en el momento.</string>
+    <string name="noInternet">No hay conexión a internet. Por favor comprueba si estás conectado e intenta de nuevo.</string>
+
+    <string name="downloadingVideo">¡Descargando vídeo!</string>
+    <string name="Run_Tutorial">Comenzar el tutorial</string>
+    <string name="emailSupport">Soporte por correo electrónico</string>
+    <string name="noEmailClients">No hay clientes de correo electrónico instalados.</string>
+    <string name="startupStr1">Republicar es fácil y rápido con Repost</string>
+    <string name="startupStr2">Déjame mostrarte como</string>
+    <string name="visit_support_site">Soporte en la web</string>
+    <string name="title_activity_settings2">Ajustes de Repost</string>
+
+    <!-- Strings related to Settings -->
+
+    <!-- Example General settings -->
+    <string name="pref_header_general">General</string>
+
+    <string name="pref_title_watermark">Marca de agua de créditos</string>
+    <string name="pref_description_watermark">Una marca de agua con la foto y nombre de usuario del perfil del autor se mostrará en la parte inferior de la foto</string>
+    <string name="pref_title_foreground">Siempre estar preparado</string>
+
+    <!-- Example settings for Data & Sync -->
+
+
+    <string-array name="pref_signature_list_titles">
+    <item>Apagado</item>
+    <item>Añadir a la leyenda</item>
+    <item>Reemplazar leyenda</item>
+  </string-array>
+    <!--<string-array name="pref_signature_list_values">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+
+    </string-array>-->
+
+
+    <!-- Example settings for Notifications -->
+    <string name="pref_header_signature">Firma</string>
+
+    <string name="pref_title_signature_type">Tipo</string>
+    <string name="pref_title_signature_text">Texto</string>
+    <string name="login_success">Ahora has iniciado sesión como</string>
+    <string name="the_caption_was_copied_to_the_clipboared">El texto ha sido copiado al portapapeles</string>
+    <string name="long_press_to_paste_in_instagram">Presiona largo para pegar en Instagram.</string>
+    <string name="share_app_buttontext">Contarles a los amigos sobre Repost</string>
+
+    <string name="uploaded_success">¡La foto ha sido publicada!</string>
+    <string name="uploaded_failure">¡Ocurrió un error al cargar!</string>
+
+    <string name="edit_photo_buttontext">Editar foto</string>
+    <string name="ad_button">Apps sugeridas</string>
+    <string name="start_tutorial_buttontext">Vamos a Instagram</string>
+    <string name="tutorial_tagline">¡La app No. 1 para republicar de todo el mundo!</string>
+    <string name="end_tutorial_buttontext">Haz clic para intentarlo tú mismo</string>
+    <string name="instagram_bug">Instagram puede requerir que apruebes nuevos permisos. Si Instagram se bloquea al usar Repost, abre Instagram, presiona el botón cargar, carga la foto y acepta la solicitud de permisos. Luego, puedes comenzar a usar Repost.</string>
+    <string name="instagram_bug_title">Has actualizado a la versión 6.0 Marshmellow de Android</string>
+
+
+</resources>

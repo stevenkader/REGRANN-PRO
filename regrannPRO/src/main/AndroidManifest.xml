@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:installLocation="internalOnly">
+
+    <uses-sdk tools:overrideLibrary="com.facebook, android.support.customtabs" />
+
+    <uses-permission
+        android:name="android.permission.CAMERA"
+        tools:node="remove" />
+    <uses-permission
+        android:name="com.google.android.gms.permission.AD_ID"
+        tools:node="remove" />
+
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.persistent" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.DOWNLOAD_WITHOUT_NOTIFICATION" />
+
+    <uses-permission android:name="com.android.vending.BILLING" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        tools:remove="android:maxSdkVersion" />
+
+    <supports-screens
+        android:anyDensity="true"
+        android:largeScreens="true"
+        android:normalScreens="true"
+        android:smallScreens="true" />
+
+
+    <application
+        android:name=".activity.RegrannApp"
+        android:hardwareAccelerated="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="RepostPRO"
+        android:networkSecurityConfig="@xml/network_security_config"
+        android:theme="@style/AppTheme"
+        android:requestLegacyExternalStorage="true"
+        android:preserveLegacyExternalStorage="true"
+        android:usesCleartextTraffic="true"
+        tools:replace="android:name, android:label">
+
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="com.nimmble.rgpro.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/provider_paths" />
+        </provider>
+
+        <activity
+            android:name="com.nimmble.rgpro.activity.RegrannMainActivity"
+            android:label="RepostPRO">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.nimmble.rgpro.activity.NewShareText"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar">
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:mimeType="text/plain" />
+            </intent-filter>
+        </activity>
+        <service
+            android:name="com.nimmble.rgpro.activity.FetchDownloadUrlService"
+            android:exported="false" />
+
+        <activity
+            android:name="com.nimmble.rgpro.activity.ShareActivity"
+
+            android:label="Repost"
+            android:launchMode="singleTask"
+            android:theme="@style/Theme.Transparent.Fullscreen" />
+
+        <activity
+            android:name="com.nimmble.rgpro.activity.OnBoardingActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".activity.CheckPermissions"
+            android:label="Repost - Permissions"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".activity.RequestPaymentActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+
+
+        <activity
+            android:name="com.nimmble.rgpro.activity.LoginRequestActivity"
+            android:label="Repost - Connect to Instagram"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.nimmble.rgpro.activity.InstagramLogin"
+            android:label="Regrann - Login to Instagram"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.nimmble.rgpro.activity.KeptForLaterActivity"
+            android:label="Saved Posts"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.nimmble.rgpro.activity.SettingsActivity2"
+            android:label="Repost Settings"
+            android:theme="@style/Pref" />
+        <activity
+            android:name="com.nimmble.rgpro.activity.SettingsActivityForeground"
+            android:exported="true"
+            android:label="Repost Settings"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.nimmble.rgpro.activity.ModeSettingsActivity"
+            android:label="Mode Settings" />
+
+        <activity
+            android:name="com.nimmble.rgpro.activity.KeepForLaterActivity"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar.Fullscreen" />
+        <activity
+            android:name="com.nimmble.rgpro.activity.PostFromKeptActivity"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar.Fullscreen" />
+
+        <receiver android:name="com.nimmble.rgpro.receiver.ServiceStarter">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </receiver>
+
+        <activity
+            android:name="com.nimmble.rgpro.activity.NoCropActivity"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar">
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="image/*" />
+            </intent-filter>
+        </activity>
+        <service
+            android:name="com.nimmble.rgpro.service.ClipboardListenerService"
+            android:label="Regrann Service">
+            <intent-filter>
+                <action
+                    android:name="com.nimmble.rgpro.service.ClipboardListenerService"
+                    android:process=":remote" />
+            </intent-filter>
+        </service>
+
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="73df97f9db600efd94ed4b1a6412c13eec31ed7f" />
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-8534786486141147~4402306255" />
+        <meta-data
+            android:name="com.facebook.sdk.ApplicationId"
+            android:value="@string/facebook_app_id" />
+    </application>
+
+</manifest>

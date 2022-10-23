@@ -1,7 +1,7 @@
 Applications Memory Usage (kB):
 Uptime: 111936269 Realtime: 420675625
 
-** MEMINFO in pid 8457 [com.jaredco.regrann] **
+** MEMINFO in pid 8457 [nimmble.regrann] **
                    Pss  Private  Private  Swapped     Heap     Heap     Heap
                  Total    Dirty    Clean    Dirty     Size    Alloc     Free
                 ------   ------   ------   ------   ------   ------   ------
@@ -37,4 +37,4 @@ Uptime: 111936269 Realtime: 420675625
  
  DATABASES
       pgsz     dbsz   Lookaside(b)          cache  Dbname
-         4       20             31         1/16/2  /data/data/com.jaredco.regrann/databases/InstaItemDB
+         4       20             31         1/16/2  /data/data/nimmble.regrann/databases/InstaItemDB

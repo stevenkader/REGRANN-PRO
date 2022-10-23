@@ -1,157 +1,157 @@
 Activity Resolver Table:
   Full MIME Types:
       text/plain:
-        216183a8 com.jaredco.regrann/.activity.NewShareText
+        216183a8 nimmble.regrann/.activity.NewShareText
       image/*:
-        e5e2666 com.jaredco.regrann/com.aviary.android.feather.sdk.FeatherActivity (3 filters)
-        28926ec1 com.jaredco.regrann/.activity.NoCropActivity
+        e5e2666 nimmble.regrann/com.aviary.android.feather.sdk.FeatherActivity (3 filters)
+        28926ec1 nimmble.regrann/.activity.NoCropActivity
 
   Base MIME Types:
       text:
-        216183a8 com.jaredco.regrann/.activity.NewShareText
+        216183a8 nimmble.regrann/.activity.NewShareText
 
   Wild MIME Types:
       image:
-        e5e2666 com.jaredco.regrann/com.aviary.android.feather.sdk.FeatherActivity (3 filters)
-        28926ec1 com.jaredco.regrann/.activity.NoCropActivity
+        e5e2666 nimmble.regrann/com.aviary.android.feather.sdk.FeatherActivity (3 filters)
+        28926ec1 nimmble.regrann/.activity.NoCropActivity
 
   Schemes:
       http:
-        e5e2666 com.jaredco.regrann/com.aviary.android.feather.sdk.FeatherActivity
+        e5e2666 nimmble.regrann/com.aviary.android.feather.sdk.FeatherActivity
       https:
-        e5e2666 com.jaredco.regrann/com.aviary.android.feather.sdk.FeatherActivity
-      com.jaredco.regrann.settingsactivity:
-        26ad9da7 com.jaredco.regrann/com.calldorado.android.ui.SettingsActivity
+        e5e2666 nimmble.regrann/com.aviary.android.feather.sdk.FeatherActivity
+      nimmble.regrann.settingsactivity:
+        26ad9da7 nimmble.regrann/com.calldorado.android.ui.SettingsActivity
 
   Non-Data Actions:
       android.intent.action.MAIN:
-        341f3254 com.jaredco.regrann/.activity.RegrannMainActivity
+        341f3254 nimmble.regrann/.activity.RegrannMainActivity
 
   MIME Typed Actions:
       aviary.intent.action.EDIT:
-        e5e2666 com.jaredco.regrann/com.aviary.android.feather.sdk.FeatherActivity (3 filters)
+        e5e2666 nimmble.regrann/com.aviary.android.feather.sdk.FeatherActivity (3 filters)
       android.intent.action.SEND:
-        216183a8 com.jaredco.regrann/.activity.NewShareText
-        28926ec1 com.jaredco.regrann/.activity.NoCropActivity
+        216183a8 nimmble.regrann/.activity.NewShareText
+        28926ec1 nimmble.regrann/.activity.NoCropActivity
 
 Receiver Resolver Table:
   Schemes:
       package:
-        339635fd com.jaredco.regrann/com.calldorado.android.actionreceiver.ActionReceiver
+        339635fd nimmble.regrann/com.calldorado.android.actionreceiver.ActionReceiver
 
   Non-Data Actions:
       android.intent.action.ACTION_POWER_DISCONNECTED:
-        3a1642f2 com.jaredco.regrann/com.aviary.android.feather.sdk.internal.cds.AviaryCdsReceiver
+        3a1642f2 nimmble.regrann/com.aviary.android.feather.sdk.internal.cds.AviaryCdsReceiver
       com.calldorado.android.intent.PACEMAKER:
-        339635fd com.jaredco.regrann/com.calldorado.android.actionreceiver.ActionReceiver
+        339635fd nimmble.regrann/com.calldorado.android.actionreceiver.ActionReceiver
       com.google.android.gms.measurement.UPLOAD:
-        3d0c6d43 com.jaredco.regrann/com.google.android.gms.measurement.AppMeasurementReceiver
+        3d0c6d43 nimmble.regrann/com.google.android.gms.measurement.AppMeasurementReceiver
       com.calldorado.android.intent.DYNAMIC_RE_ENGAGEMENT:
-        339635fd com.jaredco.regrann/com.calldorado.android.actionreceiver.ActionReceiver
+        339635fd nimmble.regrann/com.calldorado.android.actionreceiver.ActionReceiver
       android.intent.action.PHONE_STATE:
-        339635fd com.jaredco.regrann/com.calldorado.android.actionreceiver.ActionReceiver
+        339635fd nimmble.regrann/com.calldorado.android.actionreceiver.ActionReceiver
       com.calldorado.android.intent.SEND_RATING_REQ:
-        339635fd com.jaredco.regrann/com.calldorado.android.actionreceiver.ActionReceiver
+        339635fd nimmble.regrann/com.calldorado.android.actionreceiver.ActionReceiver
       com.calldorado.android.intent.WIC_POSITION:
-        339635fd com.jaredco.regrann/com.calldorado.android.actionreceiver.ActionReceiver
+        339635fd nimmble.regrann/com.calldorado.android.actionreceiver.ActionReceiver
       android.net.wifi.STATE_CHANGE:
-        3a1642f2 com.jaredco.regrann/com.aviary.android.feather.sdk.internal.cds.AviaryCdsReceiver
+        3a1642f2 nimmble.regrann/com.aviary.android.feather.sdk.internal.cds.AviaryCdsReceiver
       com.calldorado.android.intent.INITSDK:
-        339635fd com.jaredco.regrann/com.calldorado.android.actionreceiver.ActionReceiver
+        339635fd nimmble.regrann/com.calldorado.android.actionreceiver.ActionReceiver
       com.calldorado.android.intent.TARGETING:
-        339635fd com.jaredco.regrann/com.calldorado.android.actionreceiver.ActionReceiver
-      com.jaredco.startservice:
-        c671fc0 com.jaredco.regrann/.receiver.ServiceStarter
+        339635fd nimmble.regrann/com.calldorado.android.actionreceiver.ActionReceiver
+      nimmble.startservice:
+        c671fc0 nimmble.regrann/.receiver.ServiceStarter
       com.google.android.c2dm.intent.RECEIVE:
-        21534f9 com.jaredco.regrann/com.google.firebase.iid.FirebaseInstanceIdReceiver
+        21534f9 nimmble.regrann/com.google.firebase.iid.FirebaseInstanceIdReceiver
       com.calldorado.android.intent.TRIGGER_SEND:
-        339635fd com.jaredco.regrann/com.calldorado.android.actionreceiver.ActionReceiver
+        339635fd nimmble.regrann/com.calldorado.android.actionreceiver.ActionReceiver
       android.intent.action.BOOT_COMPLETED:
-        c671fc0 com.jaredco.regrann/.receiver.ServiceStarter
-        339635fd com.jaredco.regrann/com.calldorado.android.actionreceiver.ActionReceiver
+        c671fc0 nimmble.regrann/.receiver.ServiceStarter
+        339635fd nimmble.regrann/com.calldorado.android.actionreceiver.ActionReceiver
       android.intent.action.ACTION_POWER_CONNECTED:
-        339635fd com.jaredco.regrann/com.calldorado.android.actionreceiver.ActionReceiver
-        3a1642f2 com.jaredco.regrann/com.aviary.android.feather.sdk.internal.cds.AviaryCdsReceiver
+        339635fd nimmble.regrann/com.calldorado.android.actionreceiver.ActionReceiver
+        3a1642f2 nimmble.regrann/com.aviary.android.feather.sdk.internal.cds.AviaryCdsReceiver
       com.calldorado.android.intent.HEARTBEAT:
-        339635fd com.jaredco.regrann/com.calldorado.android.actionreceiver.ActionReceiver
+        339635fd nimmble.regrann/com.calldorado.android.actionreceiver.ActionReceiver
       com.calldorado.android.intent.PRIORITY:
-        339635fd com.jaredco.regrann/com.calldorado.android.actionreceiver.ActionReceiver
+        339635fd nimmble.regrann/com.calldorado.android.actionreceiver.ActionReceiver
       com.calldorado.android.intent.SEARCH:
-        339635fd com.jaredco.regrann/com.calldorado.android.actionreceiver.ActionReceiver
+        339635fd nimmble.regrann/com.calldorado.android.actionreceiver.ActionReceiver
       android.intent.action.DOWNLOAD_COMPLETE:
-        3a1642f2 com.jaredco.regrann/com.aviary.android.feather.sdk.internal.cds.AviaryCdsReceiver
+        3a1642f2 nimmble.regrann/com.aviary.android.feather.sdk.internal.cds.AviaryCdsReceiver
       com.calldorado.android.intent.CONTACT_MANUAL:
-        339635fd com.jaredco.regrann/com.calldorado.android.actionreceiver.ActionReceiver
+        339635fd nimmble.regrann/com.calldorado.android.actionreceiver.ActionReceiver
       com.calldorado.android.intent.SET_CUSTOM_ICON:
-        339635fd com.jaredco.regrann/com.calldorado.android.actionreceiver.ActionReceiver
+        339635fd nimmble.regrann/com.calldorado.android.actionreceiver.ActionReceiver
       com.calldorado.android.intent.COMM_END:
-        339635fd com.jaredco.regrann/com.calldorado.android.actionreceiver.ActionReceiver
+        339635fd nimmble.regrann/com.calldorado.android.actionreceiver.ActionReceiver
       com.google.android.c2dm.intent.REGISTRATION:
-        21534f9 com.jaredco.regrann/com.google.firebase.iid.FirebaseInstanceIdReceiver
+        21534f9 nimmble.regrann/com.google.firebase.iid.FirebaseInstanceIdReceiver
       android.intent.action.MY_PACKAGE_REPLACED:
-        3a1642f2 com.jaredco.regrann/com.aviary.android.feather.sdk.internal.cds.AviaryCdsReceiver
+        3a1642f2 nimmble.regrann/com.aviary.android.feather.sdk.internal.cds.AviaryCdsReceiver
       android.intent.action.NEW_OUTGOING_CALL:
-        339635fd com.jaredco.regrann/com.calldorado.android.actionreceiver.ActionReceiver
+        339635fd nimmble.regrann/com.calldorado.android.actionreceiver.ActionReceiver
       com.calldorado.android.intent.MAKE_CALL:
-        339635fd com.jaredco.regrann/com.calldorado.android.actionreceiver.ActionReceiver
+        339635fd nimmble.regrann/com.calldorado.android.actionreceiver.ActionReceiver
 
 Service Resolver Table:
   Non-Data Actions:
       com.google.firebase.INSTANCE_ID_EVENT:
-        ac19c3e com.jaredco.regrann/com.google.firebase.iid.FirebaseInstanceIdService
+        ac19c3e nimmble.regrann/com.google.firebase.iid.FirebaseInstanceIdService
       aviary.intent.action.CDS_DOWNLOAD_EXTRA_ASSETS:
-        27fe9a9f com.jaredco.regrann/com.aviary.android.feather.sdk.internal.cds.AviaryCdsAssetsDownloaderService
+        27fe9a9f nimmble.regrann/com.aviary.android.feather.sdk.internal.cds.AviaryCdsAssetsDownloaderService
       com.google.firebase.MESSAGING_EVENT:
-        107e77ec com.jaredco.regrann/com.google.firebase.messaging.FirebaseMessagingService
-      com.jaredco.regrann.service.ClipboardListenerService:
-        3aeb27b5 com.jaredco.regrann/.service.ClipboardListenerService
+        107e77ec nimmble.regrann/com.google.firebase.messaging.FirebaseMessagingService
+      nimmble.regrann.service.ClipboardListenerService:
+        3aeb27b5 nimmble.regrann/.service.ClipboardListenerService
       aviary.intent.action.CDS_DOWNLOAD_START:
-        27373e4a com.jaredco.regrann/com.aviary.android.feather.sdk.internal.cds.AviaryCdsService
+        27373e4a nimmble.regrann/com.aviary.android.feather.sdk.internal.cds.AviaryCdsService
       aviary.intent.action.CDS_RESTORE_USER_ITEMS:
-        27373e4a com.jaredco.regrann/com.aviary.android.feather.sdk.internal.cds.AviaryCdsService
+        27373e4a nimmble.regrann/com.aviary.android.feather.sdk.internal.cds.AviaryCdsService
       aviary.intent.action.CDS_RESTORE_OWNED_PACKS:
-        27373e4a com.jaredco.regrann/com.aviary.android.feather.sdk.internal.cds.AviaryCdsService
+        27373e4a nimmble.regrann/com.aviary.android.feather.sdk.internal.cds.AviaryCdsService
 
 Permissions:
-  Permission [com.jaredco.regrann.permission.C2D_MESSAGE] (3ebc41bb):
-    sourcePackage=com.jaredco.regrann
+  Permission [nimmble.regrann.permission.C2D_MESSAGE] (3ebc41bb):
+    sourcePackage=nimmble.regrann
     uid=10352 gids=[] type=0 prot=signature
-    packageSetting=PackageSetting{23d126d8 com.jaredco.regrann/10352}
-    perm=Permission{1cf38a31 com.jaredco.regrann.permission.C2D_MESSAGE}
+    packageSetting=PackageSetting{23d126d8 nimmble.regrann/10352}
+    perm=Permission{1cf38a31 nimmble.regrann.permission.C2D_MESSAGE}
 
 Registered ContentProviders:
-  com.jaredco.regrann/com.aviary.android.feather.sdk.internal.cds.AviaryCdsProvider:
-    Provider{1ab2f516 com.jaredco.regrann/com.aviary.android.feather.sdk.internal.cds.AviaryCdsProvider}
-  com.jaredco.regrann/com.google.firebase.provider.FirebaseInitProvider:
-    Provider{9e33e97 com.jaredco.regrann/com.google.firebase.provider.FirebaseInitProvider}
+  nimmble.regrann/com.aviary.android.feather.sdk.internal.cds.AviaryCdsProvider:
+    Provider{1ab2f516 nimmble.regrann/com.aviary.android.feather.sdk.internal.cds.AviaryCdsProvider}
+  nimmble.regrann/com.google.firebase.provider.FirebaseInitProvider:
+    Provider{9e33e97 nimmble.regrann/com.google.firebase.provider.FirebaseInitProvider}
 
 ContentProvider Authorities:
-  [com.jaredco.regrann.firebaseinitprovider]:
-    Provider{9e33e97 com.jaredco.regrann/com.google.firebase.provider.FirebaseInitProvider}
-      applicationInfo=ApplicationInfo{329dd884 com.jaredco.regrann}
-  [com.jaredco.regrann.AviaryCdsProvider]:
-    Provider{1ab2f516 com.jaredco.regrann/com.aviary.android.feather.sdk.internal.cds.AviaryCdsProvider}
-      applicationInfo=ApplicationInfo{329dd884 com.jaredco.regrann}
+  [nimmble.regrann.firebaseinitprovider]:
+    Provider{9e33e97 nimmble.regrann/com.google.firebase.provider.FirebaseInitProvider}
+      applicationInfo=ApplicationInfo{329dd884 nimmble.regrann}
+  [nimmble.regrann.AviaryCdsProvider]:
+    Provider{1ab2f516 nimmble.regrann/com.aviary.android.feather.sdk.internal.cds.AviaryCdsProvider}
+      applicationInfo=ApplicationInfo{329dd884 nimmble.regrann}
 
 Key Set Manager:
-  [com.jaredco.regrann]
+  [nimmble.regrann]
       Signing KeySets: 576
 
 Packages:
-  Package [com.jaredco.regrann] (23d126d8):
+  Package [nimmble.regrann] (23d126d8):
     userId=10352 gids=[3003, 1028, 1015]
-    pkg=Package{1f45986d com.jaredco.regrann}
-    codePath=/data/app/com.jaredco.regrann-1
-    resourcePath=/data/app/com.jaredco.regrann-1
-    legacyNativeLibraryDir=/data/app/com.jaredco.regrann-1/lib
+    pkg=Package{1f45986d nimmble.regrann}
+    codePath=/data/app/nimmble.regrann-1
+    resourcePath=/data/app/nimmble.regrann-1
+    legacyNativeLibraryDir=/data/app/nimmble.regrann-1/lib
     primaryCpuAbi=armeabi-v7a
     secondaryCpuAbi=null
     versionCode=116 targetSdk=22
     versionName=4.74
     splits=[base]
-    applicationInfo=ApplicationInfo{329dd884 com.jaredco.regrann}
+    applicationInfo=ApplicationInfo{329dd884 nimmble.regrann}
     flags=[ DEBUGGABLE HAS_CODE ALLOW_CLEAR_USER_DATA ALLOW_BACKUP ]
-    dataDir=/data/data/com.jaredco.regrann
+    dataDir=/data/data/nimmble.regrann
     supportsScreens=[small, medium, large, xlarge, resizeable, anyDensity]
     timeStamp=2016-08-26 10:22:19
     firstInstallTime=2016-08-26 10:22:20
@@ -166,10 +166,10 @@ Packages:
       android.permission.SYSTEM_ALERT_WINDOW
       android.permission.RECEIVE_BOOT_COMPLETED
       android.permission.INTERNET
-      android.permission.READ_EXTERNAL_STORAGE
+      android.permission.WRITE_EXTERNAL_STORAGE
       android.permission.ACCESS_COARSE_LOCATION
       android.permission.READ_PHONE_STATE
-      com.jaredco.regrann.permission.C2D_MESSAGE
+      nimmble.regrann.permission.C2D_MESSAGE
       android.permission.BROADCAST_STICKY
       android.permission.CALL_PHONE
       android.permission.WRITE_CONTACTS

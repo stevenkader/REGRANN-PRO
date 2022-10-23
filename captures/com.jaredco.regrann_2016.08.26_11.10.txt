@@ -1,2 +1,2 @@
-Bad activity command, or no activities match: com.jaredco.regrann
+Bad activity command, or no activities match: nimmble.regrann
 Use -h for help.

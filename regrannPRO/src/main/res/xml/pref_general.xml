@@ -1,0 +1,175 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+
+    <PreferenceCategory android:title="@string/pref_header_general">
+
+
+
+        <Preference
+            android:key="mode_string"
+
+            android:title="@string/mode">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:targetClass="com.nimmble.rgpro.activity.ModeSettingsActivity"
+                android:targetPackage="com.nimmble.rgpro" />
+
+        </Preference>
+
+
+
+        <CheckBoxPreference
+        android:defaultValue="false"
+        android:key="watermark_checkbox"
+        android:summary="@string/pref_description_watermark"
+        android:title="@string/pref_title_watermark"
+
+        />
+
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="custom_watermark"
+            android:summary="@string/pref_description_custom_watermark"
+            android:title="@string/pref_title_custom_watermark"
+
+            />
+
+
+<!--
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="foreground_checkbox"
+            android:summary="@string/txtChkboxForForeground"
+            android:title="@string/pref_title_foreground"
+
+            />
+-->
+
+        <ListPreference
+            android:defaultValue="1"
+            android:entries="@array/alpha_choice"
+            android:entryValues="@array/alpha_choice"
+            android:key="alpha_choice"
+            android:negativeButtonText="@null"
+            android:positiveButtonText="@null"
+            android:title="Watermark Background Color" />
+
+
+    </PreferenceCategory>
+
+    <!--
+        <PreferenceCategory android:title="@string/paid_settings">
+
+            <CheckBoxPreference
+                android:defaultValue="false"
+                android:key="paid_remove_regrann"
+
+                android:title="@string/remove_regrann"
+                android:summary="@string/remove_regrann_summary"
+
+                />
+
+            </PreferenceCategory>
+
+    -->
+
+    <PreferenceCategory android:title="@string/pref_header_signature">
+
+        <ListPreference
+            android:defaultValue="1"
+            android:entries="@array/pref_signature_list_titles"
+            android:entryValues="@array/pref_signature_list_values"
+            android:key="signature_type_list"
+            android:negativeButtonText="@null"
+            android:positiveButtonText="@null"
+            android:title="@string/pref_title_signature_type" />
+
+
+        <EditTextPreference
+
+            android:key="signature_text"
+            android:title="@string/pref_title_signature_text" />
+
+
+        <Preference
+            android:key=""
+            android:summary=" "
+            android:title="">
+
+
+        </Preference>
+
+
+    </PreferenceCategory>
+
+
+    <!--
+        <PreferenceCategory android:title="" >
+
+            <Preference
+                android:title=""
+                android:summary=" "
+                android:key="">
+            </Preference>
+
+
+            <Preference
+                android:title=""
+                android:summary=" "
+                android:key="">
+            </Preference>
+
+        </PreferenceCategory>
+        -->
+    <!---
+
+        <PreferenceCategory android:title="@string/pref_header_add_account">
+
+
+            <Preference
+                android:title="Login to Instagram"
+                android:summary=" "
+                android:key="username">
+                <intent
+                    android:action="android.intent.action.VIEW"
+                    android:targetPackage="nimmble.regrann"
+                    android:targetClass="nimmble.regrann.activity.LoginActivity"
+                    />
+
+            </Preference>
+
+
+
+            <CheckBoxPreference
+                android:defaultValue="false"
+                android:key="directmode"
+                android:summary="@string/txtDirectMode"
+                android:title="@string/pref_title_postlater"
+
+                />
+
+
+
+
+            <Preference
+                android:title=""
+                android:summary=" "
+                android:key="">
+
+
+            </Preference>
+
+
+            </PreferenceCategory>
+
+    -->
+    <PreferenceCategory android:title="PRIVACY">
+
+    <Preference android:title="Privacy Statement" >
+        <intent android:action="android.intent.action.VIEW"
+            android:data="http://jaredcompany.com/privacy-statement/" />
+    </Preference>
+    </PreferenceCategory>
+
+</PreferenceScreen>

@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?><resources>
+    <!--<string name="app_id" translatable="false">773402562742917</string>
+    <string name="app_name">Repost</string>-->
+    <string name="mode">Modo</string>
+    <string name="choose_mail_client">Escolha o cliente de e-mail</string>
+    <string name="share_email_no_email_client_installed">Não há um cliente de e-mail instalado.</string>
+    <string name="progress_dialog_msg">Aguarde...</string>
+    <string name="login">Login</string>
+    <string name="postlaterconfirmtoast">Foto armazenada para publicar mais tarde. Retornando ao Instagram.</string>
+    <string name="therewasproblem">Desculpe, ocorreu um problema. Tente novamente</string>
+    <string name="porblemfindingphoto">Desculpe, ocorreu um problema ao procurar pela foto. Ela pode ter sido removida.</string>
+    <string name="problemfindingvideo">Desculpe, ocorreu um problema ao procurar pelo vídeo. Tente novamente mais tarde.</string>
+    <string name="howToTurnOffPostLater">Para desativar o modo \"Publicar rapidamente mais tarde\", basta voltar às Configurações</string>
+    <string name="HowToTurnOffQuickSave">Para desativar o modo Gravação rápida, abra o Repost clicando no ícone do app.</string>
+    <string name="HowToTurnOffQuickPost">Para desativar o modo Republicação rápida, abra o Repost clicando no ícone do app.</string>
+    <string name="quickKeepDescr">Toda vez que você clicar no botão de 3 pontos de uma publicação, a opção \"Publicar mais tarde\" será selecionada automaticamente, evitando a janela pop-up de seleção e armazenando fotos e vídeos para você publicar mais tarde.</string>
+    <string name="quickRepostDescr">Toda vez que você clicar no botão de 3 pontos de uma publicação, o Instagram será selecionado automaticamente como o destino do Repost (republicação), evitando a janela pop-up de seleção.</string>
+    <string name="quickSaveDescr">Toda vez que você clicar no botão de 3 pontos de uma publicação, as fotos e vídeos serão gravados automaticamente em seu telefone, evitando a janela pop-up de seleção.</string>
+    <string name="defaultModeDescr">Toda vez que você clicar no botão de 3 pontos de uma publicação, uma janela pop-up de seleção aparecerá, com as opções de republicar no Facebook, armazenar para republicar mais tarde, gravar em seu telefone  ou compartilhar em outros apps.</string>
+    <string name="title_activity_post_photo">Publicar foto</string>
+    <string name="action_settings">Repost Configurações</string>
+    <string name="text_manage_signature">Personalizar assinatura da publicação</string>
+    <string name="showPostLaterBtn">Mostrar fotos marcadas como \"Publicar mais tarde\"</string>
+    <string name="AddWatermark">Adicionar marca d\'água para identificação do autor</string>
+    <string name="txtChkboxForForeground">Marque esta opção se o Repost não surgir na tela todas as vezes que você solicitar. O Android forçará uma notificação constante para o Regrann.</string>
+    <string name="Operation_Mode">Modo de operação</string>
+    <string name="normal_mode">Modo de Pop-up de seleção</string>
+    <string name="Quick_Repost_Mode">Modo Republicação rápida</string>
+    <string name="Quick_Save_Mode">Modo Gravação rápida</string>
+    <string name="Quick_PostLater_Mode">Modo Publicar rapidamente mais tarde</string>
+    <string name="PostLater_Methods">Opções para publicar mais tarde</string>
+    <string name="Post_using_Instagram">Publicar utilizando o Instagram (padrão)</string>
+    <string name="Kept_photos_desc">As fotos armazenadas são publicadas utilizando o Instagram. A legenda da publicação deve ser inserida manualmente.</string>
+    <string name="DirectPost">Publicação direta - teste (login necessário)</string>
+    <string name="Kept_desc2">As fotos armazenadas são publicadas utilizando o Processo de upload do Regrann. Legendas das publicações são adicionadas automaticamente. NÃO SE APLICA A VÍDEOS. Os recursos de compartilhamento em mídias sociais, emojis ou marcações ainda não estão disponíveis. Para habilitar estes recursos, conecte-se abaixo a qualquer conta do Instagram</string>
+    <string name="rateText">Avalie o app com 5 estrelas e ajude outros usuários de Android a descobri-lo. Obrigado pela colaboração!</string>
+    <string name="rateHowIsExperience">Como está sendo sua experiência com o Regrann até agora?</string>
+    <string name="bad">Ruim</string>
+    <string name="good">Boa</string>
+    <string name="mayBeFromPrivateAcct">Esta foto pode ser de uma conta privativa, por isso não é possível republicá-la utilizando o Regrann agora.</string>
+    <string name="noInternet">Não há conexão de internet. Verifique se você está conectado e tente novamente.</string>
+
+    <string name="downloadingVideo">Baixando vídeo!</string>
+    <string name="Run_Tutorial">Executar tutorial</string>
+    <string name="emailSupport">Suporte por e-mail</string>
+    <string name="noEmailClients">Não há um cliente de e-mail instalado.</string>
+    <string name="startupStr1">Republicar com o Regrann é simples e rápido</string>
+    <string name="startupStr2">Deixe-me mostrar como</string>
+    <string name="visit_support_site">Suporte na Web</string>
+    <string name="title_activity_settings2">Configurações do Regrann</string>
+
+    <!-- Strings related to Settings -->
+
+    <!-- Example General settings -->
+    <string name="pref_header_general">Geral</string>
+
+    <string name="pref_title_watermark">Marca d\'água de identificação do autor</string>
+    <string name="pref_description_watermark">Uma marca d\'água com a foto de perfil e nome de usuário do autor será exibida na parte inferior da foto.</string>
+    <string name="pref_title_foreground">Sempre deixar ativado</string>
+
+    <!-- Example settings for Data & Sync -->
+
+
+    <string-array name="pref_signature_list_titles">
+    <item>Desativado</item>
+    <item>Adicionar legenda</item>
+    <item>Substituir legenda</item>
+  </string-array>
+    <!--<string-array name="pref_signature_list_values">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+
+    </string-array>-->
+
+
+    <!-- Example settings for Notifications -->
+    <string name="pref_header_signature">Assinatura</string>
+
+    <string name="pref_title_signature_type">Digitar</string>
+    <string name="pref_title_signature_text">Texto</string>
+    <string name="login_success">Você está conectado como</string>
+    <string name="the_caption_was_copied_to_the_clipboared">A legenda foi copiada para a área de transferência</string>
+    <string name="long_press_to_paste_in_instagram">Mantenha pressionado para colar no Instagram</string>
+    <string name="share_app_buttontext">Conte aos seus amigos sobre o Regrann</string>
+
+    <string name="uploaded_success">Foto publicada!</string>
+    <string name="uploaded_failure">Ocorreu um problema ao enviar!</string>
+
+    <string name="edit_photo_buttontext">Editar foto</string>
+    <string name="ad_button">Apps sugeridos</string>
+    <string name="start_tutorial_buttontext">Vamos para o Instagram</string>
+    <string name="tutorial_tagline">O app número 1 de republicação em todo o mundo!</string>
+    <string name="end_tutorial_buttontext">Clique para experimentar</string>
+    <string name="instagram_bug">O Instagram pode solicitar novas permissões para ser autorizado.  Se o Instagram travar ao utilizar o Regrann, abra o Instagram, clique no botão \"enviar\", envie uma foto e aceite a solicitação de permissão. Após esta ação, você poderá voltar a utilizar o Regrann.</string>
+    <string name="instagram_bug_title">Você atualizou para o Android versão 6.0 Marshmallow</string>
+
+
+</resources>

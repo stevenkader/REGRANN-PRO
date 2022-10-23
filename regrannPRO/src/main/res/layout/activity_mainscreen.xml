@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:fitsSystemWindows="true"
+    tools:context=".activity.RegrannMainActivity">
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#FFFFFF"
+        android:orientation="vertical">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:id="@+id/header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:onClick="onClickHeaderView"
+                app:srcCompat="@drawable/header"
+                tools:visibility="visible" />
+
+            <Button
+                android:id="@+id/btnsettings"
+                android:layout_width="45dp"
+                android:layout_height="50dp"
+
+                android:layout_alignParentRight="true"
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="6dp"
+                android:background="#03FFFFFF"
+                android:onClick="onClickSettingsBtn"
+                android:text="" />
+
+            <Button
+                android:id="@+id/btnhelp"
+                android:layout_width="45dp"
+                android:layout_height="50dp"
+
+                android:layout_alignParentRight="true"
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="61dp"
+                android:background="#03FFFFFF"
+                android:onClick="onClickBtnHelp"
+                android:text="" />
+
+            <Button
+                android:id="@+id/btnsupport"
+                android:layout_width="155dp"
+                android:layout_height="40dp"
+
+                android:layout_alignParentRight="true"
+                android:layout_marginTop="75dp"
+                android:layout_marginRight="11dp"
+                android:background="#03FFFFFF"
+                android:onClick="onClickBtnSupport"
+                android:text="" />
+
+
+
+
+            <ImageView
+                android:id="@+id/imgPatch"
+                android:layout_width="100dp"
+                android:layout_height="55dp"
+                android:layout_alignParentLeft="true"
+                android:layout_marginStart="0dp"
+                android:layout_marginLeft="0dp"
+                android:layout_marginTop="11dp"
+                android:layout_marginEnd="11dp"
+                android:layout_marginBottom="11dp"
+                app:srcCompat="@drawable/patch"
+                tools:visibility="visible" />
+
+        </RelativeLayout>
+
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="0">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="15dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:id="@+id/imageView7"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:srcCompat="@drawable/swipeimagetext" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_marginTop="2dp">
+
+                        <HorizontalScrollView
+                            android:layout_width="match_parent"
+                            android:layout_height="250dp"
+                            android:id="@+id/horizontalScrollView">
+
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="match_parent"
+                                android:orientation="horizontal">
+
+                                <ImageView
+
+                                    android:layout_width="200dp"
+                                    android:layout_height="match_parent"
+                                    app:srcCompat="@drawable/scrn1" />
+
+                                <ImageView
+
+                                    android:layout_width="200dp"
+                                    android:layout_height="match_parent"
+                                    android:layout_marginLeft="10dp"
+
+                                    app:srcCompat="@drawable/scrn2" />
+
+                                <ImageView
+                                    android:layout_marginLeft="10dp"
+                                    android:layout_width="200dp"
+                                    android:layout_height="match_parent"
+                                    app:srcCompat="@drawable/scrn3" />
+
+                                <ImageView
+
+                                    android:layout_width="200dp"
+                                    android:layout_height="match_parent"
+                                    android:layout_marginLeft="10dp"
+
+                                    app:srcCompat="@drawable/scrn4" />
+
+                                <ImageView
+
+                                    android:layout_width="200dp"
+                                    android:layout_height="match_parent"
+                                    android:layout_marginLeft="10dp"
+
+                                    android:layout_marginRight="20dp"
+                                    app:srcCompat="@drawable/scrn5" />
+
+
+                            </LinearLayout>
+
+                        </HorizontalScrollView>
+                    </LinearLayout>
+
+
+                    <ImageView
+                        android:id="@+id/imageView6"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="15dp"
+                        android:onClick="onClickBtnChangeLogin"
+                        app:srcCompat="@drawable/changelogin" />
+
+                </LinearLayout>
+
+                <ImageView
+                    android:id="@+id/howToMulti"
+                    android:layout_width="match_parent"
+                    android:layout_height="100dp"
+
+                    android:layout_marginTop="5dp"
+                    android:onClick="onClickHowToMulti"
+                    app:srcCompat="@drawable/howtorepost" />
+
+
+
+
+
+            </LinearLayout>
+        </ScrollView>
+
+    </LinearLayout>
+
+
+    <ProgressBar
+        android:id="@+id/loading_bar"
+        style="@android:style/Widget.ProgressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical|center_horizontal"
+        android:visibility="gone" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
