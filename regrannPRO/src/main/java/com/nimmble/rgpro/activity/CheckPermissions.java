@@ -168,9 +168,10 @@ public class CheckPermissions extends AppCompatActivity {
                     startActivity(i);
 
                 } else {
+                    finish();
                     // Do something in response to button click
-                    Intent myIntent = new Intent(_this, LoginRequestActivity.class);
-                    _this.startActivity(myIntent);
+                    //  Intent myIntent = new Intent(_this, LoginRequestActivity.class);
+                    //_this.startActivity(myIntent);
                 }
 
 

@@ -56,6 +56,7 @@ public final class PRO {
             }
 
         };
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(_ctx);
 
 
         RegrannApp.sendEvent("PRO_check_if_active");
@@ -73,59 +74,59 @@ public final class PRO {
                                 public void onQueryPurchasesResponse(BillingResult billingResult, List purchases) {
                                     // check billingResult
                                     // process returned purchase list, e.g. display the plans user owns
-                                    SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(RegrannApp._this.getApplicationContext());
 
-                                    if (purchases != null)
-                                        if (purchases.size() > 0) {
-
-                                            for (int i = 0; i < purchases.size(); i++) {
-                                                Purchase p = (Purchase) purchases.get(i);
-
-                                                if (p.isAcknowledged() == false) {
-                                                    AcknowledgePurchaseParams acknowledgePurchaseParams =
-                                                            AcknowledgePurchaseParams.newBuilder()
-                                                                    .setPurchaseToken(p.getPurchaseToken())
-                                                                    .build();
-                                                    billingClient.acknowledgePurchase(acknowledgePurchaseParams, acknowledgePurchaseResponseListener);
-
-                                                }
-                                                boolean isPremiumActive = p.getPurchaseState() == Purchase.PurchaseState.PURCHASED;
-
-                                                if (isPremiumActive) {
-                                                    Log.d("app5", "subscription active");
-                                                    RegrannApp.sendEvent("PRO_sub_active");
-                                                    SharedPreferences.Editor editor = preferences.edit();
-                                                    editor.putBoolean("subscribed", true);
+                                    if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK && purchases != null) {
 
 
-                                                    editor.putBoolean("really_subscribed", true);
+                                        for (int i = 0; i < purchases.size(); i++) {
+                                            Purchase p = (Purchase) purchases.get(i);
 
-                                                    editor.apply();
-                                                    return;
-
-                                                }
+                                            if (p.isAcknowledged() == false) {
+                                                AcknowledgePurchaseParams acknowledgePurchaseParams =
+                                                        AcknowledgePurchaseParams.newBuilder()
+                                                                .setPurchaseToken(p.getPurchaseToken())
+                                                                .build();
+                                                billingClient.acknowledgePurchase(acknowledgePurchaseParams, acknowledgePurchaseResponseListener);
 
                                             }
-                                            Log.d("app5", "subscription NOT active");
-                                            RegrannApp.sendEvent("PRO_sub_not_active");
-                                            SharedPreferences.Editor editor = preferences.edit();
-                                            editor.putBoolean("subscribed", false);
+                                            boolean isPremiumActive = p.getPurchaseState() == Purchase.PurchaseState.PURCHASED;
+
+                                            if (isPremiumActive) {
+                                                Log.d("app5", "subscription active");
+                                                RegrannApp.sendEvent("PRO_sub_active");
+                                                SharedPreferences.Editor editor = preferences.edit();
+                                                editor.putBoolean("subscribed", true);
 
 
-                                            editor.putBoolean("really_subscribed", false);
+                                                editor.putBoolean("really_subscribed", true);
 
-                                            editor.apply();
-                                        } else {
-                                            Log.d("app5", "subscription NONE");
-                                            RegrannApp.sendEvent("PRO_sub_no_purchases");
-                                            SharedPreferences.Editor editor = preferences.edit();
-                                            editor.putBoolean("subscribed", false);
+                                                editor.apply();
+                                                return;
 
+                                            }
 
-                                            editor.putBoolean("really_subscribed", false);
-
-                                            editor.apply();
                                         }
+                                        Log.d("app5", "subscription NOT active");
+                                        RegrannApp.sendEvent("PRO_sub_not_active");
+                                        SharedPreferences.Editor editor = preferences.edit();
+                                        editor.putBoolean("subscribed", false);
+
+
+                                        editor.putBoolean("really_subscribed", false);
+
+                                        editor.apply();
+                                    } else {
+                                        Log.d("app5", "subscription NONE");
+                                        RegrannApp.sendEvent("PRO_sub_no_purchases");
+                                        SharedPreferences.Editor editor = preferences.edit();
+                                        editor.putBoolean("subscribed", false);
+
+
+                                        editor.putBoolean("really_subscribed", false);
+
+                                        editor.apply();
+                                    }
+
 
                                 }
                             }
