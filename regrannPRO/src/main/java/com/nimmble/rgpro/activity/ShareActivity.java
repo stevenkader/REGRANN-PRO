@@ -2252,14 +2252,9 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
                     Log.d("app5", "scrape_error_code_" + code);
                 } catch (Exception e) {
                 }
-                if (code != 502)
-                    listener.onDataLoaded("ERROR", initialURL);
-                else {
-                    numRetries = 3;
 
-                    listener.onDataLoaded("502", initialURL);
-                }
-                //  textView.setText("That didn't work!");
+                listener.onDataLoaded("ERROR", initialURL);
+
 
             }
         });
@@ -2278,13 +2273,20 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
     }
 
     private void shouldRetryVolley() {
-        Log.d("app5", "retrying Volley # :" + numRetries);
-        if (numRetries == 3) {
-            sendEvent("prox_failed");
-            GET(initialURL);
-        } else {
-            getJSONQueryFromInstagramURL(initialURL, volleyListener);
-        }
+
+        final Handler handler1 = new Handler();
+        handler1.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                Log.d("app5", "retrying Volley # :" + numRetries);
+                if (numRetries == 5) {
+                    sendEvent("prox_failed_" + numRetries);
+                    GET(initialURL);
+                } else {
+                    getJSONQueryFromInstagramURL(initialURL, volleyListener);
+                }
+            }
+        }, 1000);
 
 
     }
@@ -3829,7 +3831,7 @@ v.seekTo(1);
                         webview = findViewById(R.id.browser2);
                     else {
                         webview = findViewById(R.id.browser);
-                        TextView multiwarning = (TextView) findViewById(R.id.multiwarning);
+                        TextView multiwarning = findViewById(R.id.multiwarning);
                         multiwarning.setVisibility(View.VISIBLE);
                     }
 
