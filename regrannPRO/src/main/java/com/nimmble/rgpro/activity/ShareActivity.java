@@ -386,7 +386,7 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
 
         //   sendEvent("in_query_days_" + days, "", "");
         int count2 = sharedPref.getInt("countOfRuns2", 0);
-        if (days > 4) {
+        if (days > 7) {
             sendEvent("more_than_seven_daysV1_3", "", "");
             moreThan7Days = true;
             return true;
@@ -439,7 +439,7 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
 
         Log.d("app5", "count runs = " + count);
 
-        if (days > 4) {
+        if ((days > 14) || (days > 7 && count > 10)) {
 
             sendEvent("more_than_seven_daysV2_3", "", "");
             moreThan7Days = true;

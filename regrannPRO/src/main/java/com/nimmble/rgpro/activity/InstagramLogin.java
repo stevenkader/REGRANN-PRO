@@ -47,7 +47,7 @@ public class InstagramLogin extends AppCompatActivity {
 
 
         webSettings.setJavaScriptEnabled(true);
-        webSettings.setAppCacheEnabled(true);
+     //   webSettings.setAppCacheEnabled(true);
         webSettings.setJavaScriptCanOpenWindowsAutomatically(true);
         webSettings.setSupportMultipleWindows(true);
         webSettings.setJavaScriptEnabled(true);
@@ -59,7 +59,7 @@ public class InstagramLogin extends AppCompatActivity {
         this.webview.getSettings().setDomStorageEnabled(true);
         webview.getSettings().setDatabaseEnabled(true);
         webview.getSettings().setAllowFileAccess(true);
-        webview.getSettings().setAppCacheEnabled(true);
+        // webview.getSettings().setAppCacheEnabled(true);
         webview.setWebViewClient(new WebViewClient());
 
         webview.setLayerType(View.LAYER_TYPE_HARDWARE, null);

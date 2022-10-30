@@ -7,7 +7,7 @@ apply plugin: 'kotlin-android'
 apply plugin: 'ly.img.android.sdk'
 
 android {
-    compileSdkVersion 31
+    compileSdkVersion 33
 
     dexOptions {
         javaMaxHeapSize "4g"
@@ -16,9 +16,9 @@ android {
     defaultConfig {
         applicationId "com.nimmble.rgpro"
         minSdkVersion 24
-        targetSdkVersion 30
-        versionCode 354
-        versionName "3.84"
+        targetSdkVersion 31
+        versionCode 366
+        versionName "3.94"
 
         multiDexEnabled true
         resValue 'string', 'pesdk_version', "v$pesdk_version"
@@ -86,6 +86,11 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
 
 
+        }
+        benchmark {
+            signingConfig signingConfigs.debug
+            matchingFallbacks = ['release']
+            debuggable false
         }
     }
     buildToolsVersion '30.0.3'
