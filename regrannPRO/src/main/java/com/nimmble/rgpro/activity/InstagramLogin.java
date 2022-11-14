@@ -52,8 +52,9 @@ public class InstagramLogin extends AppCompatActivity {
         webSettings.setSupportMultipleWindows(true);
         webSettings.setJavaScriptEnabled(true);
         //  webSettings.setUserAgentString("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.5005.63 Safari/537.36");
+        String userAgent = System.getProperty("http.agent");
 
-
+        Log.d("app5", userAgent + "  \n\n" + webview.getSettings().getUserAgentString());
         webview.getSettings().setJavaScriptCanOpenWindowsAutomatically(true);
 
         this.webview.getSettings().setDomStorageEnabled(true);

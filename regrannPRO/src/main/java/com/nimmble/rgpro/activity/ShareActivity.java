@@ -1121,6 +1121,7 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
         mDemoSlider.setDuration(4000);
         mDemoSlider.addOnPageChangeListener(this);
 
+        showBottomButtons();
 
         Display display = getWindowManager().getDefaultDisplay();
         Point size = new Point();
@@ -2225,8 +2226,9 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
         // Instantiate the RequestQueue.
         RequestQueue queue = Volley.newRequestQueue(this);
 
-
-        String final_url = url.substring(0, url.indexOf("?"));
+        String final_url = "";
+        if (url.indexOf("?") > 0)
+            final_url = url.substring(0, url.indexOf("?"));
         final_url = final_url + "?__a=1";
         final_url = final_url.replace(" ", "");
 
@@ -2560,7 +2562,7 @@ v.seekTo(1);
 
         String displayMsg;
 
-        displayMsg = "Perhaps you haven't completed the Instagram login within this app yet?";
+        displayMsg = "May be from a private or age restricted account. For these you need to complete the Instagram login within this app. The app doesn't see any of your login info.";
 
         final SpannableString m = new SpannableString(displayMsg);
         Linkify.addLinks(m, Linkify.WEB_URLS);

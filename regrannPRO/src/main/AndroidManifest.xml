@@ -42,9 +42,6 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true"
         tools:replace="android:name, android:label">
-        <profileable
-            android:shell="true"
-            tools:targetApi="29" />
 
         <provider
             android:name="androidx.core.content.FileProvider"
