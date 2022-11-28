@@ -99,6 +99,71 @@
             android:textAlignment="center"
             android:visibility="invisible" />
 
+        <LinearLayout
+            android:id="@+id/wmarkposition"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginBottom="10dp"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <ImageView
+                android:id="@+id/nowatermark"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:layout_weight="1"
+                android:adjustViewBounds="false"
+                android:onClick="onClickWmarkPosition"
+                android:scaleType="fitCenter"
+                android:src="@drawable/none" />
+
+            <ImageView
+                android:id="@+id/b_left"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:layout_weight="1"
+                android:adjustViewBounds="false"
+                android:onClick="onClickWmarkPosition"
+                android:scaleType="fitCenter"
+                android:src="@drawable/b_left" />
+
+            <ImageView
+                android:id="@+id/b_right"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:layout_weight="1"
+                android:adjustViewBounds="false"
+                android:onClick="onClickWmarkPosition"
+                android:scaleType="fitCenter"
+                android:src="@drawable/b_right" />
+
+            <ImageView
+                android:id="@+id/t_left"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:layout_weight="1"
+                android:adjustViewBounds="false"
+                android:onClick="onClickWmarkPosition"
+                android:scaleType="fitCenter"
+                android:src="@drawable/t_left" />
+
+            <ImageView
+                android:id="@+id/t_right"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:layout_weight="1"
+                android:adjustViewBounds="false"
+                android:onClick="onClickWmarkPosition"
+                android:scaleType="fitCenter"
+                android:src="@drawable/t_right" />
+
+        </LinearLayout>
+
         <Button
             android:id="@+id/btnEditor"
             android:layout_width="match_parent"

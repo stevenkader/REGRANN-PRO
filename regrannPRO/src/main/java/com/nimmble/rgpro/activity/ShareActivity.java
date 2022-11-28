@@ -588,7 +588,7 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
 
         if (noAds) {
 
-            sendEvent("sc_paiduser");
+         //   sendEvent("sc_paiduser");
         }
 
 
@@ -1969,7 +1969,7 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
 
     }
 
-    private Bitmap mark(Bitmap src, String watermark, Point location, int color, int alpha,
+    private Bitmap mark(Bitmap src, String watermark, int location, int color, int alpha,
                         int size, boolean underline) {
         Bitmap result = null;
 
@@ -2016,9 +2016,19 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
                 paint.getTextBounds(watermark, 0, watermark.length(), bounds);
 
                 int bw = bounds.width();
+                int xstart = 0;
 
+                int ystart = src.getHeight();
 
-                Rect r = new Rect(0, src.getHeight(), stripHeight + bw + 45, src.getHeight() - stripHeight);
+                if (location == 3 || location == 4)
+                    ystart = stripHeight;
+
+                if (location == 2 || location == 4)
+                    xstart = w - (stripHeight + bw + 45);
+
+                Log.d("app5", "xstasrt :  " + w + " - " + xstart);
+
+                Rect r = new Rect(xstart, ystart, xstart + stripHeight + bw + 45, ystart - stripHeight);
 
 
                 paint.setStyle(Paint.Style.FILL);
@@ -2031,8 +2041,9 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
 
                 canvas.drawRect(r, paint);
 
+
                 if (profile_pic_url != null) {
-                    canvas.drawBitmap(profilePicBMP, 0, result.getHeight() - stripHeight, null);
+                    canvas.drawBitmap(profilePicBMP, xstart, ystart - stripHeight, null);
                 }
                 paint.setColor(Color.WHITE);
 
@@ -2043,9 +2054,9 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
                 paint.setAntiAlias(true);
                 paint.setUnderlineText(underline);
                 if (profile_pic_url != null)
-                    canvas.drawText(watermark, stripHeight + 20, result.getHeight() - stripHeight / 2 + textSize / 3, paint);
+                    canvas.drawText(watermark, xstart + stripHeight + 20, ystart - stripHeight / 2 + textSize / 3, paint);
                 else
-                    canvas.drawText("@" + watermark, 30, result.getHeight() - stripHeight / 2 + textSize / 3, paint);
+                    canvas.drawText("@" + watermark, xstart + 30, ystart - stripHeight / 2 + textSize / 3, paint);
 
 
             } else {
@@ -2060,6 +2071,16 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
 
                 float xTranslation = 15.0f;
                 float yTranslation = src.getHeight() - (stripHeight / 2.0f) - src.getHeight() * 0.08f;
+
+
+                if (location == 3 || location == 4)
+                    yTranslation = (stripHeight / 2.0f) - src.getHeight() * 0.08f;
+
+                if (location == 2 || location == 4)
+                    xTranslation = w - (wm5.getWidth() * scale + 25);
+
+                Log.d("app5", "xtrans : " + w + "   " + wm5.getWidth());
+
 
                 Matrix transformation = new Matrix();
                 transformation.postTranslate(xTranslation, yTranslation);
@@ -2447,6 +2468,7 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
 
                                     if (!isVideo && !isMulti) {
                                         findViewById(R.id.btnEditor).setVisibility(View.VISIBLE);
+                                        findViewById(R.id.wmarkposition).setVisibility(View.VISIBLE);
                                     }
 
 
@@ -3046,6 +3068,62 @@ v.seekTo(1);
         Toast.makeText(_this, "Caption copied to clipboard. Paste where needed", Toast.LENGTH_SHORT).show();
     }
 
+    Bitmap origBitmap;
+
+    private void changeWatermarkPosition(int position) {
+
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        Handler handler = new Handler(Looper.getMainLooper());
+
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+
+                //Background work here
+
+                // previewImage.setImageBitmap(Util.decodeFile(new File(path)));
+
+                try {
+                    Bitmap bitmap = origBitmap;
+
+
+                    if (position != 0) {
+
+                        int textSize = 20;
+                        if (bitmap.getHeight() > 640)
+                            textSize = 50;
+                        bitmap = mark(bitmap, author, position, Color.YELLOW, 180, textSize, false);
+                    }
+
+
+                    ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 99, bytes);
+
+                    lastDownloadedFile = tempFile;
+
+
+                    FileOutputStream fo = new FileOutputStream(tempFile);
+                    fo.write(bytes.toByteArray());
+
+                    // remember close de FileOutput
+                    fo.close();
+
+                    Log.d("app5", "after compress");
+                    sendEvent("sc_photo");
+
+                    previewImage.setImageBitmap(Util.decodeFile(tempFile));
+
+                } catch (Exception e) {
+
+                    return;
+                }
+
+
+            }
+        });
+
+
+    }
 
     private void downloadSinglePhotoFromURL(String url) {
 
@@ -3065,6 +3143,7 @@ v.seekTo(1);
                         URL imageurl = new URL(url);
                         originalBitmapBeforeNoCrop = BitmapFactory.decodeStream(imageurl.openConnection().getInputStream());
                         bitmap = originalBitmapBeforeNoCrop;
+                        origBitmap = bitmap;
                     } catch (Exception e) {
 
                         showErrorToast("Out of memory", "Sorry not enough memory to continue", true);
@@ -3077,11 +3156,11 @@ v.seekTo(1);
                         try {
                             if (preferences.getBoolean("watermark_checkbox", false) ||
                                     preferences.getBoolean("custom_watermark", false)) {
-                                Point p = new Point(10, (bitmap != null ? bitmap.getHeight() : 0) - 10);
+
                                 int textSize = 20;
                                 if (bitmap.getHeight() > 640)
                                     textSize = 50;
-                                bitmap = mark(bitmap, author, p, Color.YELLOW, 180, textSize, false);
+                                bitmap = mark(bitmap, author, 1, Color.YELLOW, 180, textSize, false);
                             }
                         } catch (Exception e99) {
 
@@ -4087,6 +4166,41 @@ v.seekTo(1);
 
     }
 
+    public void onClickWmarkPosition(View v) {
+
+        RegrannApp.sendEvent("onclick_watermark");
+        if (v.getId() == R.id.b_right) {
+
+            changeWatermarkPosition(2);
+        }
+
+        if (v.getId() == R.id.b_right) {
+
+            changeWatermarkPosition(2);
+        }
+
+        if (v.getId() == R.id.b_left) {
+
+            changeWatermarkPosition(1);
+        }
+
+        if (v.getId() == R.id.t_left) {
+
+            changeWatermarkPosition(3);
+        }
+
+        if (v.getId() == R.id.t_right) {
+
+            changeWatermarkPosition(4);
+        }
+
+        if (v.getId() == R.id.nowatermark) {
+
+            changeWatermarkPosition(0);
+        }
+
+    }
+
     public void onClickBackToInstagram(View v) {
         sendEvent("qs_back_to_instagram", "", "");
         finish();
@@ -4672,11 +4786,11 @@ v.seekTo(1);
                 try {
                     if (preferences.getBoolean("watermark_checkbox", false) ||
                             preferences.getBoolean("custom_watermark", false)) {
-                        Point p = new Point(10, (bitmap != null ? bitmap.getHeight() : 0) - 10);
+
                         int textSize = 20;
                         if (bitmap.getHeight() > 640)
                             textSize = 50;
-                        bitmap = mark(bitmap, author, p, Color.YELLOW, 180, textSize, false);
+                        bitmap = mark(bitmap, author, 1, Color.YELLOW, 180, textSize, false);
                     }
                 } catch (Exception e99) {
 
@@ -5010,11 +5124,11 @@ v.seekTo(1);
 
 
             if (preferences.getBoolean("watermark_checkbox", false)) {
-                Point p = new Point(10, bitmap.getHeight() - 10);
+
                 int textSize = 20;
                 if (bitmap.getHeight() > 640)
                     textSize = 50;
-                bitmap = mark(bitmap, author, p, Color.YELLOW, 180, textSize, false);
+                bitmap = mark(bitmap, author, 1, Color.YELLOW, 180, textSize, false);
             }
 
 
