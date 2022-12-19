@@ -2035,7 +2035,7 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
 
                 paint.setColor(Color.BLACK);
 
-                if (preferences.getString("alpha_choice", "Transparent").equals("Transparent")) {
+                if (preferences.getString("alpha_choice", "").equals("Transparent")) {
                     paint.setAlpha(30);
                 }
 
@@ -2343,6 +2343,7 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
 
             } catch (Exception e) {
                 Log.d("app5", "Volley Error : " + e.getMessage());
+                numRetries = 5;
                 shouldRetryVolley();
             }
         }

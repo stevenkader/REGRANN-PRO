@@ -47,7 +47,7 @@
 -->
 
         <ListPreference
-            android:defaultValue="1"
+            android:defaultValue="Black"
             android:entries="@array/alpha_choice"
             android:entryValues="@array/alpha_choice"
             android:key="alpha_choice"
