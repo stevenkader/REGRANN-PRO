@@ -15,10 +15,10 @@ android {
 
     defaultConfig {
         applicationId "com.nimmble.rgpro"
-        minSdkVersion 24
+        minSdkVersion 26
         targetSdkVersion 31
-        versionCode 378
-        versionName "4.10"
+        versionCode 380
+        versionName "4.12"
 
         multiDexEnabled true
         resValue 'string', 'pesdk_version', "v$pesdk_version"
@@ -175,6 +175,7 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
 
     implementation 'androidx.annotation:annotation:1.4.0'
+    implementation 'com.yandex.android:mobmetricalib:5.2.0'
 
 }
 

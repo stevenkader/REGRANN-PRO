@@ -13,6 +13,7 @@ import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.ClipData;
 import android.content.ClipboardManager;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -44,6 +45,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.preference.PreferenceManager;
+import android.provider.MediaStore;
 import android.text.SpannableString;
 import android.text.util.Linkify;
 import android.util.Log;
@@ -139,7 +141,9 @@ import java.net.URL;
 import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -778,14 +782,24 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
             File dir = new File(Environment.getExternalStorageDirectory(), Environment.DIRECTORY_PICTURES +
                     Util.RootDirectoryMultiPhoto);
             if (dir.isDirectory()) {
-                String[] children = dir.list();
+                File[] children = dir.listFiles();
                 for (int i = 0; i < children.length; i++) {
                     try {
-                        File toDelete = new File(dir, children[i]);
-                        //  RegrannApp._this.getApplicationContext().getContentResolver().delete(Uri.fromFile(toDelete), null, null);
-                        toDelete.delete();
 
-                        _this.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(toDelete)));
+                        File toDelete = children[i];
+
+                        //  RegrannApp._this.getApplicationContext().getContentResolver().delete(Uri.fromFile(toDelete), null, null);
+                        if (!toDelete.delete()) {
+                            Log.e(TAG, "Failed to delete ");
+                        } else {
+
+                            MediaScannerConnection.scanFile(_this, new String[]{children[i].getAbsolutePath()}, null, new MediaScannerConnection.OnScanCompletedListener() {
+                                public void onScanCompleted(String path, Uri uri) {
+                                    Log.i("app5", "Scanned " + path + ":");
+                                    Log.i("app5", "-> uri=" + uri);
+                                }
+                            });
+                        }
 
                     } catch (Exception e) {
                         int i4 = 1;
@@ -1007,6 +1021,29 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
             }
         }
 
+    }
+
+
+    public long getFilePathToMediaID(String songPath, Context context) {
+        long id = 0;
+        ContentResolver cr = context.getContentResolver();
+
+        Uri uri = MediaStore.Files.getContentUri("external");
+        String selection = MediaStore.Audio.Media.DATA;
+        String[] selectionArgs = {songPath};
+        String[] projection = {MediaStore.Audio.Media._ID};
+        String sortOrder = MediaStore.Audio.Media.TITLE + " ASC";
+
+        Cursor cursor = cr.query(uri, projection, selection + "=?", selectionArgs, null);
+
+        if (cursor != null) {
+            while (cursor.moveToNext()) {
+                int idIndex = cursor.getColumnIndex(MediaStore.Audio.Media._ID);
+                id = Long.parseLong(cursor.getString(idIndex));
+            }
+        }
+
+        return id;
     }
 
     private void initMainScreen() {
@@ -1346,14 +1383,14 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
 
                     File dir = new File(regrannMultiPostFolder);
                     if (dir.isDirectory()) {
-                        String[] children = dir.list();
+                        File[] children = dir.listFiles();
                         //     final File[] sortedFileName = dir.listFiles();
-                        //    Arrays.sort(sortedFileName, new Comparator<File>() {
-                        //       @Override
-                        //      public int compare(File object1, File object2) {
-                        //         return object1.getName().compareTo(object2.getName());
-                        //    }
-                        //  });
+                        Arrays.sort(children, new Comparator<File>() {
+                            @Override
+                            public int compare(File object1, File object2) {
+                                return object1.getName().compareTo(object2.getName());
+                            }
+                        });
 
                         File toDir = new File(Environment.getExternalStorageDirectory(), Environment.DIRECTORY_PICTURES +
                                 Util.RootDirectoryMultiPhoto);
@@ -1366,21 +1403,22 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
                         for (int i = 0; i < children.length; i++) {
                             try {
 
-                                if (!children[i].contains("nomedia")) {
-                                    Log.d("app5", children[i]);
+                                if (!children[i].getName().contains("nomedia")) {
 
-                                    File toScan = new File(dir, children[i]);
+
+                                    Log.d("app5", "in Scan - " + children[i].getName() + "  " + children[i].lastModified());
+
 
                                     File destination = new File(Environment.getExternalStorageDirectory(), Environment.DIRECTORY_PICTURES +
-                                            Util.RootDirectoryMultiPhoto + children[i]);
-                                    try {
-                                        copy(toScan, destination);
-                                    } catch (IOException e) {
-                                        e.printStackTrace();
-                                    }
+                                            Util.RootDirectoryMultiPhoto + children[i].getName());
+                                    //     try {
+                                    //        copy(children[i], destination);
+                                    //  } catch (IOException e) {
+                                    //     e.printStackTrace();
+                                    // }
 
 
-                                    MediaScannerConnection.scanFile(getApplicationContext(), new String[]{destination.toString()}, null, null);
+                                    MediaScannerConnection.scanFile(getApplicationContext(), new String[]{destination.getAbsolutePath()}, null, null);
                                 }
 
 
@@ -1485,7 +1523,7 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
         } else {
 
 
-            finish();
+            sendToInstagam();
 
             return;
         }
@@ -2709,7 +2747,6 @@ v.seekTo(1);
 
             }
 
-
             final Long currTime = System.currentTimeMillis();
 
 
@@ -2882,6 +2919,7 @@ v.seekTo(1);
                         fname = author + "-" + currTime + i + ".jpg";
 
                     }
+                    Log.d("app5", "Multi filename " + fname);
 
 
                     Log.d("app5", " fnames " + i + "   " + fname + "   " + currTime);
@@ -2890,11 +2928,11 @@ v.seekTo(1);
                     if (isVideoArr[i] == false) {
 
 
-                        downloadImage(picURLs[i], fname);
+                        downloadImage(picURLs[totalMultiToDownload - i - 1], fname);
                     } else {
 
                         downloadingStarted = true;
-                        LoadMultiVideo2(videoURLs[i], fname);
+                        LoadMultiVideo2(videoURLs[totalMultiToDownload - i - 1], fname);
 
 
                     }
@@ -3258,15 +3296,25 @@ v.seekTo(1);
     }
 
 
+    int countImages = 0;
     private void downloadImage(String url, final String fname) {
 
         try {
 
+            final Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    Log.d("app5", "STARTING DOWNLOAD MULTI");
+                    Util.startDownloadMulti(url, "", _this, fname, isAutoSave);
+                }
+            }, countImages * 200);
+            countImages++;
 
-            Util.startDownloadMulti(url, "", _this, fname, isAutoSave);
+            //  Thread.sleep(2000) ;
 
 
-        } catch (OutOfMemoryError e) {
+        } catch (Exception e) {
             int y = 1;
 
         }
@@ -4460,12 +4508,17 @@ v.seekTo(1);
         });
 
 
-        String str3 = "";
-        try {
-            long DownloadId = Util.startDownloadMulti(videoURL, str3, _this, fname, isAutoSave);
-        } catch (Exception e) {
-            Log.d("app5", e.getMessage());
-        }
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                String str3 = "";
+                Log.d("app5", "STARTING DOWNLOAD MULTI Video");
+                Util.startDownloadMulti(videoURL, str3, _this, fname, isAutoSave);
+            }
+        }, countImages * 200);
+        countImages++;
+
 
         isVideo = false;
     }
@@ -5223,22 +5276,38 @@ v.seekTo(1);
 
             File dir = new File(regrannMultiPostFolder);
             if (dir.isDirectory()) {
-                String[] children = dir.list();
+
+
+                // String[] children = dir.list();
+                File[] children = dir.listFiles();
+
+
+                if (children != null && children.length > 1) {
+                    Arrays.sort(children, new Comparator<File>() {
+                        @Override
+                        public int compare(File object1, File object2) {
+                            return object1.getName().compareTo(object2.getName());
+                        }
+                    });
+                }
+
+
                 for (int i = 0; i < children.length; i++) {
+
                     try {
 
-                        if (!children[i].contains("nomedia")) {
-                            File source = new File(dir, children[i]);
+                        if (!children[i].getName().contains("nomedia")) {
+                            File source = children[i];
 
 
-                            File destination = new File(regrannPictureFolder + File.separator + children[i]);
+                            File destination = new File(regrannPictureFolder + File.separator + children[i].getName());
                             try {
                                 copy(source, destination);
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
                         }
-
+                        //   Thread.sleep(1000) ;
                     } catch (Exception e) {
                         int i4 = 1;
                     }
@@ -6144,7 +6213,7 @@ v.seekTo(1);
 
             Log.d("regrann", "Numwarnings : " + numWarnings);
 
-            if (numWarnings < 3 && inputMediaType == 0) {
+            if (1 == 1 || (numWarnings < 3 && inputMediaType == 0)) {
 
                 Log.d("regrann", "Numwarnings  2 : " + numWarnings);
 
