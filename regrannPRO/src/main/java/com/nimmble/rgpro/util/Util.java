@@ -83,6 +83,10 @@ public class Util {
 
 
     public static long startDownloadMulti(String str, String str2, Context context2, String str3, boolean isAutsave) {
+        if (str == null)
+            return 0;
+
+
         DownloadManager.Request request = new DownloadManager.Request(Uri.parse(str));
         request.setAllowedNetworkTypes(3);
         request.setAllowedOverRoaming(true);
