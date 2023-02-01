@@ -592,7 +592,7 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
 
         if (noAds) {
 
-         //   sendEvent("sc_paiduser");
+            //   sendEvent("sc_paiduser");
         }
 
 
@@ -2904,7 +2904,7 @@ v.seekTo(1);
 
                 Objects.requireNonNull(clipboard).setPrimaryClip(clip);
 
-                for (int i = 0; i < totalMultiToDownload; i++) {
+                for (int i = totalMultiToDownload - 1; i >= 0; i--) {
 
 
                     Log.d("app5", "in loop " + i);
@@ -2928,11 +2928,12 @@ v.seekTo(1);
                     if (isVideoArr[i] == false) {
 
 
-                        downloadImage(picURLs[totalMultiToDownload - i - 1], fname);
+                        downloadImage(picURLs[i], fname);
                     } else {
 
                         downloadingStarted = true;
-                        LoadMultiVideo2(videoURLs[totalMultiToDownload - i - 1], fname);
+
+                        LoadMultiVideo2(videoURLs[(i)], fname);
 
 
                     }
@@ -3297,6 +3298,7 @@ v.seekTo(1);
 
 
     int countImages = 0;
+
     private void downloadImage(String url, final String fname) {
 
         try {
@@ -3358,10 +3360,10 @@ v.seekTo(1);
 
 
             // is this a multi-photo post
-            if (html.indexOf("aria-label=\"Next\"") > 0) {
-                showErrorToast("There was a problem", "Looks like this may be a multi-photo post from a private or age restricted account.  Those are not supported yet.", true);
-                return;
-            }
+            //         if (html.indexOf("aria-label=\"Next\"") > 0) {
+            //           showErrorToast("There was a problem", "Looks like this may be a multi-photo post from a private or age restricted account.  Those are not fully supported, so only the first photo will show.", false);
+            //     return;
+            //     }
 
             String type = null;
             String photoURL = null;
@@ -3395,111 +3397,111 @@ v.seekTo(1);
                     return;
                 }
 
+            }
+
+
+            if (html.indexOf("<video") > 0) {
+                Element videoElement = doc.select("video").first();
+
+                videoURL = videoElement.attr("src");
+                if (videoURL.length() > 0) {
+                    isVideo = true;
+
+                    Document doc1 = Jsoup.parse(html.substring(html.indexOf("<video")));
+                    Element imgE = doc1.select("img").first();
+
+                    if (imgE != null) {
+
+
+                        url = imgE.attr("src");
+
+                        downloadSinglePhotoFromURL(url);
+                        RegrannApp.sendEvent("sc_video_element_found");
+                        return;
+                    }
+
+
+                }
+            }
+
+            isVideo = false;
+            Elements e4 = doc.getElementsByClass("_aagt");
+            if (e4.size() > 0) {
+                Log.d("app5", String.valueOf(e4.get(0)));
+
+                url = e4.attr("src");
+                prepareForSinglePhoto(url);
+
+
+                return;
+
             } else {
+                Elements e31 = doc.getElementsByClass("_aagv");
+                if (e31.size() > 0) {
+                    Log.d("app5", String.valueOf(e31.get(0)));
+
+                    url = e31.get(0).children().get(0).attr("src");
+                    Log.d("app5", "URL1 : " + url);
+                    if (url.isEmpty()) {
+
+                        String htmlPhoto = String.valueOf(e31.get(0));
+
+                        int t = htmlPhoto.indexOf("srcset=");
+                        int end = htmlPhoto.indexOf("1080w");
+
+                        if (t > 0 && end > t) {
 
 
-                isVideo = false;
-                Elements e4 = doc.getElementsByClass("_aagt");
-                if (e4.size() > 0) {
-                    Log.d("app5", String.valueOf(e4.get(0)));
+                            url = htmlPhoto.substring(t + 8, end - 1);
 
-                    url = e4.attr("src");
-                    prepareForSinglePhoto(url);
-
-
-                    return;
-
-                } else {
-                    Elements e31 = doc.getElementsByClass("_aagv");
-                    if (e31.size() > 0) {
-                        Log.d("app5", String.valueOf(e31.get(0)));
-
-                        url = e31.get(0).children().get(0).attr("src");
-                        Log.d("app5", "URL1 : " + url);
-                        if (url.isEmpty()) {
-
-                            String htmlPhoto = String.valueOf(e31.get(0));
-
-                            int t = htmlPhoto.indexOf("srcset=");
-                            int end = htmlPhoto.indexOf("1080w");
-
-                            if (t > 0 && end > t) {
-
-
-                                url = htmlPhoto.substring(t + 8, end - 1);
-
-                                url = url.replaceAll("&amp;", "&");
-                                Log.d("app5", "URL new : " + url);
-                                if (url.length() > 0) {
-                                    downloadSinglePhotoFromURL(url);
-                                    return;
-                                }
-                            }
-                        } else {
-                            downloadSinglePhotoFromURL(url);
-                            return;
-                        }
-
-
-                    }
-
-                    //   processPotentialPrivate();
-
-                    if (author == null) {
-                        processPotentialPrivate();
-                        return;
-                    }
-                    // if there are no JPG then check for login
-
-                    if (html.indexOf("jpg") == -1) {
-                        processPotentialPrivate();
-                        return;
-                    }
-
-
-                    // check for <video
-
-                    if (html.indexOf("<video") > 0) {
-                        Element videoElement = doc.select("video").first();
-
-                        videoURL = videoElement.attr("src");
-                        if (videoURL.length() > 0) {
-                            isVideo = true;
-
-                            Document doc1 = Jsoup.parse(html.substring(html.indexOf("<video")));
-                            Element imgE = doc1.select("img").first();
-
-                            if (imgE != null) {
-
-
-                                url = imgE.attr("src");
-
+                            url = url.replaceAll("&amp;", "&");
+                            Log.d("app5", "URL new : " + url);
+                            if (url.length() > 0) {
                                 downloadSinglePhotoFromURL(url);
-                                RegrannApp.sendEvent("sc_video_element_found");
                                 return;
                             }
-
-
                         }
-                    }
-
-
-                    if (photoURL != null || videoURL != null)
+                    } else {
+                        downloadSinglePhotoFromURL(url);
                         return;
-
-
-                    if (videoURL == null && shouldBeVideo == true) {
-
-                        processPotentialPrivate();
-
-
                     }
-                    return;
 
 
                 }
 
+                //   processPotentialPrivate();
+
+                if (author == null) {
+                    processPotentialPrivate();
+                    return;
+                }
+                // if there are no JPG then check for login
+
+                if (html.indexOf("jpg") == -1) {
+                    processPotentialPrivate();
+                    return;
+                }
+
+
+                // check for <video
+
+
+                if (photoURL != null || videoURL != null)
+                    return;
+
+
+                if (videoURL == null && shouldBeVideo == true) {
+
+                    processPotentialPrivate();
+
+
+                }
+                return;
+
+
             }
+
+
         } catch (Exception e) {
             processPotentialPrivate();
         }
