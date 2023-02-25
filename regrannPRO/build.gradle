@@ -17,8 +17,8 @@ android {
         applicationId "com.nimmble.rgpro"
         minSdkVersion 26
         targetSdkVersion 31
-        versionCode 388
-        versionName "4.20"
+        versionCode 394
+        versionName "4.26"
 
         multiDexEnabled true
         resValue 'string', 'pesdk_version', "v$pesdk_version"
@@ -141,7 +141,7 @@ dependencies {
     implementation 'com.github.HamidrezaAmz:AndroidImageSlider:v1.0.8'
 
     implementation 'com.squareup.picasso:picasso:2.5.2'
-
+    implementation 'com.google.android.material:material:1.8.0'
 
     // Import the BoM for the Firebase platform
     implementation platform('com.google.firebase:firebase-bom:30.4.0')
@@ -175,7 +175,14 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
 
     implementation 'androidx.annotation:annotation:1.4.0'
-    implementation 'com.yandex.android:mobmetricalib:5.2.0'
+
+
+    implementation 'com.adjust.sdk:adjust-android:4.33.0'
+    implementation 'com.android.installreferrer:installreferrer:2.2'
+    // Add the following if you are using the Adjust SDK inside web views on your app
+    implementation 'com.adjust.sdk:adjust-android-webbridge:4.33.0'
+    implementation 'com.android.installreferrer:installreferrer:2.2'
+    implementation 'com.google.android.gms:play-services-ads-identifier:18.0.1'
 
 }
 

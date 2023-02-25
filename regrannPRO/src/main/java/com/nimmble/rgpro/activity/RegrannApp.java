@@ -1,14 +1,20 @@
 package com.nimmble.rgpro.activity;
 
+import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.multidex.MultiDex;
 
+import com.adjust.sdk.Adjust;
+import com.adjust.sdk.AdjustConfig;
+import com.adjust.sdk.LogLevel;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.analytics.FirebaseAnalytics;
@@ -84,6 +90,44 @@ public class RegrannApp extends Application {
         MultiDex.install(this);
     }
 
+    private static final class AdjustLifecycleCallbacks implements ActivityLifecycleCallbacks {
+        @Override
+        public void onActivityCreated(@NonNull Activity activity, @Nullable Bundle bundle) {
+
+        }
+
+        @Override
+        public void onActivityStarted(@NonNull Activity activity) {
+
+        }
+
+        @Override
+        public void onActivityResumed(Activity activity) {
+            Adjust.onResume();
+        }
+
+        @Override
+        public void onActivityPaused(Activity activity) {
+            Adjust.onPause();
+        }
+
+        @Override
+        public void onActivityStopped(@NonNull Activity activity) {
+
+        }
+
+        @Override
+        public void onActivitySaveInstanceState(@NonNull Activity activity, @NonNull Bundle bundle) {
+
+        }
+
+        @Override
+        public void onActivityDestroyed(@NonNull Activity activity) {
+
+        }
+
+        //...
+    }
 
     @Override
     public void onCreate() {
@@ -92,6 +136,16 @@ public class RegrannApp extends Application {
 
         Log.d("app5", "In Regrann App - onCreate");
 
+        String appToken = "j37xxzan9edc";
+        // String environment = AdjustConfig.ENVIRONMENT_SANDBOX;
+        String environment = AdjustConfig.ENVIRONMENT_PRODUCTION;
+        AdjustConfig config = new AdjustConfig(this, appToken, environment);
+
+        config.setLogLevel(LogLevel.WARN);
+
+        Adjust.onCreate(config);
+
+        registerActivityLifecycleCallbacks(new AdjustLifecycleCallbacks());
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         boolean firstRun = preferences.getBoolean("startShowTutorial", true);

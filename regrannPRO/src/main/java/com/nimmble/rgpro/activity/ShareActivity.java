@@ -95,6 +95,7 @@ import com.bumptech.glide.request.FutureTarget;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.play.core.appupdate.AppUpdateInfo;
 import com.google.android.play.core.appupdate.AppUpdateManager;
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory;
@@ -464,6 +465,10 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
 
         url = null;
         author = null;
+        sharedPref = this.getPreferences(Context.MODE_PRIVATE);
+        inputMediaType = getIntent().getIntExtra("mediaType", 0);
+
+        preferences = PreferenceManager.getDefaultSharedPreferences(_this.getApplication().getApplicationContext());
 
 
         numMultVideos = 0;
@@ -516,11 +521,17 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
             File file2 = new File(filesDir, ".android_system.dll");
             // ever two weeks
             int days = (int) ((System.currentTimeMillis() - file2.lastModified()) / 1000 / 60 / 60 / 24);
+            int checkedToday = preferences.getInt("checkedsubday", 0);
 
             Log.d("app5", "check pro ? days = " + days + "  " + (days % 14));
-            if ((days % 14) == 0) {
+
+            if (days != checkedToday && ((days % 14) == 0)) {
                 Log.d("app5", "checking is sub is active");
                 p.checkIsActiveSub();
+                SharedPreferences.Editor editor = preferences.edit();
+                editor.putInt("checkedsubday", days);
+                editor.commit();
+
             }
 
         } catch (Exception e) {
@@ -535,10 +546,6 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
         numMultVideos = 0;
 
 
-        sharedPref = this.getPreferences(Context.MODE_PRIVATE);
-        inputMediaType = getIntent().getIntExtra("mediaType", 0);
-
-        preferences = PreferenceManager.getDefaultSharedPreferences(_this.getApplication().getApplicationContext());
         isVine = getIntent().getBooleanExtra("vine", false);
 
         tiktokLink = getIntent().getBooleanExtra("tiktok", false);
@@ -2572,6 +2579,23 @@ v.seekTo(1);
 
 
                                     photoReady = true;
+
+                                    TextInputEditText captionEditText = findViewById(R.id.captionPrefix);
+
+
+                                    captionEditText.setOnTouchListener(new View.OnTouchListener() {
+                                        @Override
+                                        public boolean onTouch(View view, MotionEvent motionEvent) {
+
+                                            if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
+                                                String caption_prefix = preferences.getString("caption_prefix", "Reposted");
+                                                captionEditText.setText(caption_prefix);
+                                                return false;
+                                            }
+
+                                            return false;
+                                        }
+                                    });
 
 
                                 }
