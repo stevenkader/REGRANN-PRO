@@ -206,7 +206,7 @@ public class Util {
                         caption = caption_prefix + " from TikTok/@" + author + " " + newCaption;
                         else
 
-                        caption = caption_prefix + " from @" + author + " " + newCaption;
+                        caption = caption_prefix + " @" + author + " " + newCaption;
 
 
 
@@ -215,7 +215,7 @@ public class Util {
                     if (count > 30 && signatureactive)
 
                     {
-                        caption = caption_prefix + " from @" + author + "  " + title;
+                        caption = caption_prefix + " @" + author + "  " + title;
                     }
 
 

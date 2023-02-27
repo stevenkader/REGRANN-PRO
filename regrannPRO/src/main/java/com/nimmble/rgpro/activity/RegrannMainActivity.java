@@ -239,7 +239,7 @@ editor.commit();
 
                                 SharedPreferences.Editor editor = preferences.edit();
                                 editor.putString("multipost_videoid", mFirebaseRemoteConfig.getString("multipost_videoid"));
-                                editor.putString("caption_prefix", mFirebaseRemoteConfig.getString("caption_prefix"));
+                             //   editor.putString("caption_prefix", mFirebaseRemoteConfig.getString("caption_prefix"));
                                 editor.putString("upgrade_to_premium", mFirebaseRemoteConfig.getString("upgrade_to_premium"));
                                 editor.putString("upgrade_header_text", mFirebaseRemoteConfig.getString("upgrade_header_text"));
                                 editor.putString("upgrade_features", mFirebaseRemoteConfig.getString("upgrade_features"));

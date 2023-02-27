@@ -637,7 +637,8 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
 
 
                                 SharedPreferences.Editor editor = preferences.edit();
-                                editor.putString("caption_prefix", mFirebaseRemoteConfig.getString("caption_prefix"));
+                                String caption_prefix = preferences.getString("caption_prefix", "Credit to");
+                                editor.putString("caption_prefix", caption_prefix);
                                 editor.putString("upgrade_to_premium", mFirebaseRemoteConfig.getString("upgrade_to_premium"));
                                 editor.putString("upgrade_header_text", mFirebaseRemoteConfig.getString("upgrade_header_text"));
                                 editor.putString("upgrade_features", mFirebaseRemoteConfig.getString("upgrade_features"));
@@ -2524,7 +2525,7 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
 
 
                                     mainUI.setVisibility(View.VISIBLE);
-
+                                    findViewById(R.id.prefixBox).setVisibility(View.VISIBLE);
 
                                     if (spinner != null) {
                                         Log.d("app5", "remove spinner 2697");
@@ -2581,15 +2582,14 @@ v.seekTo(1);
                                     photoReady = true;
 
                                     TextInputEditText captionEditText = findViewById(R.id.captionPrefix);
-
-
                                     captionEditText.setOnTouchListener(new View.OnTouchListener() {
                                         @Override
                                         public boolean onTouch(View view, MotionEvent motionEvent) {
 
                                             if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
-                                                String caption_prefix = preferences.getString("caption_prefix", "Reposted");
+                                                String caption_prefix = preferences.getString("caption_prefix", "Credit to");
                                                 captionEditText.setText(caption_prefix);
+                                                sendEvent("prefix_change");
                                                 return false;
                                             }
 
@@ -4233,6 +4233,20 @@ v.seekTo(1);
 
     }
 
+
+    public void OnClickSaveNextTime(View v) {
+        sendEvent("prefix_remember");
+        SharedPreferences.Editor editor = preferences.edit();
+        TextInputEditText captionEditText = findViewById(R.id.captionPrefix);
+        String caption_prefix = captionEditText.getText().toString();
+        editor.putString("caption_prefix", caption_prefix);
+        editor.commit();
+        Toast t = Toast.makeText(_this, "Caption Prefix Saved for Next Time", Toast.LENGTH_SHORT);
+        t.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+        t.show();
+
+
+    }
 
     public void OnClickEditPhoto(View v) {
         sendEvent("sc_edit_photo", "", "");

@@ -191,25 +191,28 @@
         </FrameLayout>
 
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:visibility="gone"
+            android:layout_gravity="center_horizontal"
+            android:id="@+id/prefixBox"
 
             android:layout_marginTop="10dp"
-
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
             android:layout_marginBottom="5dp"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:visibility="gone">
 
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-
+                android:textSize="14sp"
                 android:hint="Change Caption Prefix">
 
                 <com.google.android.material.textfield.TextInputEditText
-
-                    android:layout_width="200dp"
+                    android:textSize="14sp"
                     android:id="@+id/captionPrefix"
+                    android:layout_width="220dp"
                     android:layout_height="wrap_content" />
 
 
@@ -222,10 +225,11 @@
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
 
-
-                android:paddingLeft="20dp"
-                android:paddingRight="20dp"
-                android:text="Button" />
+                android:textSize="13sp"
+                android:onClick="OnClickSaveNextTime"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:text="Remember" />
         </LinearLayout>
 
 
