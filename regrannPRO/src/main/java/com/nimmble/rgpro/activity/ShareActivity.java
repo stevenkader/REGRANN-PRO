@@ -2521,6 +2521,7 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
 
                                     if (isMulti) {
                                         btndownloadsingle.setVisibility(View.VISIBLE);
+
                                     }
 
 
@@ -2578,6 +2579,11 @@ v.seekTo(1);
                                     previewImage.setVisibility(View.VISIBLE);
                                     //   }
 
+
+                                    if (alreadyFinished) {
+                                        TextView multiwarning = findViewById(R.id.multiwarning);
+                                        multiwarning.setVisibility(View.VISIBLE);
+                                    }
 
                                     photoReady = true;
 
@@ -3424,30 +3430,6 @@ v.seekTo(1);
             }
 
 
-            if (html.indexOf("<video") > 0) {
-                Element videoElement = doc.select("video").first();
-
-                videoURL = videoElement.attr("src");
-                if (videoURL.length() > 0) {
-                    isVideo = true;
-
-                    Document doc1 = Jsoup.parse(html.substring(html.indexOf("<video")));
-                    Element imgE = doc1.select("img").first();
-
-                    if (imgE != null) {
-
-
-                        url = imgE.attr("src");
-
-                        downloadSinglePhotoFromURL(url);
-                        RegrannApp.sendEvent("sc_video_element_found");
-                        return;
-                    }
-
-
-                }
-            }
-
             isVideo = false;
             Elements e4 = doc.getElementsByClass("_aagt");
             if (e4.size() > 0) {
@@ -3491,6 +3473,40 @@ v.seekTo(1);
                     }
 
 
+                }
+
+                isVideo = false;
+
+                if (html.indexOf("<video") > 0) {
+                    Element videoElement = doc.select("video").first();
+
+                    videoURL = videoElement.attr("src");
+                    if (videoURL.length() > 0) {
+                        isVideo = true;
+
+                        if (videoURL.indexOf("blob") != -1) {
+                            // we got a blob....no good
+                            showErrorToast("Network problem", "There is a problem getting this video, try again later on a stronger Wifi signal", true);
+
+                            return;
+
+                        }
+
+                        Document doc1 = Jsoup.parse(html.substring(html.indexOf("<video")));
+                        Element imgE = doc1.select("img").first();
+
+                        if (imgE != null) {
+
+
+                            url = imgE.attr("src");
+
+                            downloadSinglePhotoFromURL(url);
+                            RegrannApp.sendEvent("sc_video_element_found");
+                            return;
+                        }
+
+
+                    }
                 }
 
                 //   processPotentialPrivate();
@@ -3949,6 +3965,7 @@ v.seekTo(1);
             @JavascriptInterface
             public void showHTML(String html) {
                 alreadyFinished = true;
+
                 //  Log.d("app5", html);
 
                 if (toLogin)
@@ -3987,8 +4004,7 @@ v.seekTo(1);
                         webview = findViewById(R.id.browser2);
                     else {
                         webview = findViewById(R.id.browser);
-                        TextView multiwarning = findViewById(R.id.multiwarning);
-                        multiwarning.setVisibility(View.VISIBLE);
+
                     }
 
 
