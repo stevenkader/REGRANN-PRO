@@ -2300,7 +2300,7 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
         final_url = final_url.replace(" ", "");
 
 
-        final_url = "https://api.webscraping.ai/html?api_key=8c960a48-b155-4a29-bec4-97aab8d87101&js=false&country=us&device=mobile&proxy=residential&url=" + final_url;
+        final_url = "https://api.webscraping.ai/html?timeout=10000&api_key=8c960a48-b155-4a29-bec4-97aab8d87101&js=false&country=us&device=mobile&proxy=residential&url=" + final_url;
 
 
         // Request a string response from the provided URL.
