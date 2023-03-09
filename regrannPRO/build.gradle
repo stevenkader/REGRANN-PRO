@@ -17,8 +17,8 @@ android {
         applicationId "com.nimmble.rgpro"
         minSdkVersion 26
         targetSdkVersion 31
-        versionCode 404
-        versionName "4.34"
+        versionCode 406
+        versionName "4.36"
 
         multiDexEnabled true
         resValue 'string', 'pesdk_version', "v$pesdk_version"
@@ -176,13 +176,6 @@ dependencies {
 
     implementation 'androidx.annotation:annotation:1.4.0'
 
-
-    implementation 'com.adjust.sdk:adjust-android:4.33.0'
-    implementation 'com.android.installreferrer:installreferrer:2.2'
-    // Add the following if you are using the Adjust SDK inside web views on your app
-    implementation 'com.adjust.sdk:adjust-android-webbridge:4.33.0'
-    implementation 'com.android.installreferrer:installreferrer:2.2'
-    implementation 'com.google.android.gms:play-services-ads-identifier:18.0.1'
 
 }
 

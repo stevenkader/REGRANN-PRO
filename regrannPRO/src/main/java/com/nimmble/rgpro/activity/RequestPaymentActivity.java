@@ -14,9 +14,6 @@ import android.widget.ProgressBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.adjust.sdk.Adjust;
-import com.adjust.sdk.AdjustEvent;
-import com.adjust.sdk.AdjustPlayStoreSubscription;
 import com.android.billingclient.api.AcknowledgePurchaseParams;
 import com.android.billingclient.api.AcknowledgePurchaseResponseListener;
 import com.android.billingclient.api.BillingClient;
@@ -133,8 +130,6 @@ public class RequestPaymentActivity extends AppCompatActivity {
         base64EncodedPublicKey = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAgeFcBMfH2kzCVbjOKO89hyKApmeT+OtG0JQjkeObpW88U6DPVFCskuV0j4Akwtsx3WjzC5nU7GrySBM9h4piPdQ8DpL1bL0KpIvPvq8BKZNq3SzRqQs/j7pLuDpbst3dzFouS4D1YVpxe3O2y77jEMiMILiL6oV1+yVQAYCl3unSeoxsXV5veMbXdVn0X4kMUUTnGCk8GheRCTIiBoryepJLd6ET0S04VYIfl2J14SVP0qX7Mh9OYI2CQTEU1njVu8tspDXlxVgcdrWbQjalbHoqy3BC39GY4vTDyjPdItMuJX5MzPu8SV84GvXkUHqRKobVQ4IcWCJYWFePk90AMQIDAQAB";
 
 
-        AdjustEvent adjustEvent = new AdjustEvent("reach_paywall");
-        Adjust.trackEvent(adjustEvent);
 
         acknowledgePurchaseResponseListener = new AcknowledgePurchaseResponseListener() {
             @Override
@@ -202,24 +197,6 @@ public class RequestPaymentActivity extends AppCompatActivity {
                                 runOnUiThread(new Runnable() {
                                     public void run() {
 
-                                        try {
-
-                                            AdjustEvent adjustEvent = new AdjustEvent("subscribed");
-                                            Adjust.trackEvent(adjustEvent);
-
-
-                                            AdjustPlayStoreSubscription subscription = new AdjustPlayStoreSubscription(
-                                                    4,
-                                                    "USD",
-                                                    purchase.getProducts().get(0),
-                                                    purchase.getOrderId(),
-                                                    purchase.getSignature(),
-                                                    purchase.getPurchaseToken());
-                                            subscription.setPurchaseTime(purchase.getPurchaseTime());
-
-                                            Adjust.trackPlayStoreSubscription(subscription);
-                                        } catch (Exception e) {
-                                        }
 
 
                                         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(RequestPaymentActivity._this);
