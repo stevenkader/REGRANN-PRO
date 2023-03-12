@@ -3431,6 +3431,57 @@ v.seekTo(1);
 
 
             isVideo = false;
+
+            // Is this the not logged in style page
+            // if so trim just the main section at _aa6e
+            if (doc.getElementsByClass("_aa6e").size() > 0) {
+                doc = Jsoup.parse(doc.getElementsByClass("_aa6e").toString());
+
+                doc = Jsoup.parse(doc.getElementsByClass("_aatk").toString());
+
+                //   Log.d ("app5", "new doc :  " + doc);
+
+            }
+
+            // is this really a video?
+            if (doc.toString().indexOf("<video") > 0 && doc.toString().indexOf("<video") < doc.toString().indexOf(".jpg")) {
+
+
+                Element videoElement = doc.select("video").first();
+
+                videoURL = videoElement.attr("src");
+                if (videoURL.length() > 0) {
+                    isVideo = true;
+
+                    if (videoURL.indexOf("blob") != -1) {
+                        // we got a blob....no good
+                        showErrorToast("Network problem", "There is a problem getting this video, try again later on a stronger Wifi signal", true);
+
+                        return;
+
+                    }
+
+                    Document doc1 = Jsoup.parse(doc.toString().substring(doc.toString().indexOf("<video")));
+                    Element imgE = doc1.select("img").first();
+
+                    if (imgE != null) {
+
+
+                        url = imgE.attr("src");
+
+                        downloadSinglePhotoFromURL(url);
+                        RegrannApp.sendEvent("sc_video_element_found");
+                        return;
+                    }
+
+
+                }
+
+
+            }
+
+
+            isVideo = false;
             Elements e4 = doc.getElementsByClass("_aagt");
             if (e4.size() > 0) {
                 Log.d("app5", String.valueOf(e4.get(0)));
