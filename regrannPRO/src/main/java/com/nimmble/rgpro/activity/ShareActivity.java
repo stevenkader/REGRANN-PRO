@@ -4167,6 +4167,7 @@ v.seekTo(1);
                                         webview.loadUrl("javascript: document.getElementsByClassName('sqdOP')[0].click();");
                                         webview.loadUrl("javascript: document.getElementsByClassName('_42FBe')[0].click();");
                                         webview.loadUrl("javascript: document.getElementsByClassName('_acav')[0].click();");
+                                        webview.loadUrl("javascript: document.querySelectorAll('[role=\"button\"]')[0].click();");
 
 
                                         final Handler handler1 = new Handler();
