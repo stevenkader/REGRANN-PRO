@@ -11,6 +11,8 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -25,6 +27,10 @@ import com.android.billingclient.api.ProductDetailsResponseListener;
 import com.android.billingclient.api.Purchase;
 import com.android.billingclient.api.PurchasesUpdatedListener;
 import com.android.billingclient.api.QueryProductDetailsParams;
+import com.appodeal.ads.Appodeal;
+import com.appodeal.ads.inapp.InAppPurchase;
+import com.appodeal.ads.inapp.InAppPurchaseValidateCallback;
+import com.appodeal.ads.service.ServiceError;
 import com.google.common.collect.ImmutableList;
 import com.nimmble.rgpro.R;
 
@@ -130,7 +136,6 @@ public class RequestPaymentActivity extends AppCompatActivity {
         base64EncodedPublicKey = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAgeFcBMfH2kzCVbjOKO89hyKApmeT+OtG0JQjkeObpW88U6DPVFCskuV0j4Akwtsx3WjzC5nU7GrySBM9h4piPdQ8DpL1bL0KpIvPvq8BKZNq3SzRqQs/j7pLuDpbst3dzFouS4D1YVpxe3O2y77jEMiMILiL6oV1+yVQAYCl3unSeoxsXV5veMbXdVn0X4kMUUTnGCk8GheRCTIiBoryepJLd6ET0S04VYIfl2J14SVP0qX7Mh9OYI2CQTEU1njVu8tspDXlxVgcdrWbQjalbHoqy3BC39GY4vTDyjPdItMuJX5MzPu8SV84GvXkUHqRKobVQ4IcWCJYWFePk90AMQIDAQAB";
 
 
-
         acknowledgePurchaseResponseListener = new AcknowledgePurchaseResponseListener() {
             @Override
             public void onAcknowledgePurchaseResponse(BillingResult billingResult) {
@@ -189,6 +194,8 @@ public class RequestPaymentActivity extends AppCompatActivity {
                                 editor.putBoolean("subscribed", true);
                                 editor.putBoolean("really_subscribed", true);
 
+                                validatePurchase(purchase);
+
                                 editor.commit();
 
 
@@ -196,7 +203,6 @@ public class RequestPaymentActivity extends AppCompatActivity {
 
                                 runOnUiThread(new Runnable() {
                                     public void run() {
-
 
 
                                         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(RequestPaymentActivity._this);
@@ -345,6 +351,49 @@ public class RequestPaymentActivity extends AppCompatActivity {
         });
 
 
+    }
+
+
+    // Purchase object is returned by Google API in onPurchasesUpdated() callback
+    public void validatePurchase(Purchase purchase) {
+
+        // Create new InAppPurchase
+        InAppPurchase inAppPurchase = InAppPurchase.newBuilder(InAppPurchase.Type.Subs)
+                .withPublicKey("MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAgeFcBMfH2kzCVbjOKO89hyKApmeT+OtG0JQjkeObpW88U6DPVFCskuV0j4Akwtsx3WjzC5nU7GrySBM9h4piPdQ8DpL1bL0KpIvPvq8BKZNq3SzRqQs/j7pLuDpbst3dzFouS4D1YVpxe3O2y77jEMiMILiL6oV1+yVQAYCl3unSeoxsXV5veMbXdVn0X4kMUUTnGCk8GheRCTIiBoryepJLd6ET0S04VYIfl2J14SVP0qX7Mh9OYI2CQTEU1njVu8tspDXlxVgcdrWbQjalbHoqy3BC39GY4vTDyjPdItMuJX5MzPu8SV84GvXkUHqRKobVQ4IcWCJYWFePk90AMQIDAQAB")
+                .withSignature(purchase.getSignature())
+                .withPurchaseData(purchase.getOriginalJson())
+                .withPurchaseToken(purchase.getPurchaseToken())
+                .withPurchaseTimestamp(purchase.getPurchaseTime())
+                .withDeveloperPayload(purchase.getDeveloperPayload())
+                .withOrderId(purchase.getOrderId())
+                //Stock keeping unit id from Google API
+                .withSku("rgrann_sub11")
+                //Price from Stock keeping unit
+                .withPrice("3.99")
+                //Currency from Stock keeping unit
+                .withCurrency("USD")
+                //Appodeal In-app event if needed
+
+                .build();
+        Log.d("app5", "appodeal attempt to validate purchase");
+
+        // Validate InApp purchase
+        Appodeal.validateInAppPurchase(this, inAppPurchase, new InAppPurchaseValidateCallback() {
+            @Override
+            public void onInAppPurchaseValidateFail(InAppPurchase inAppPurchase, List<ServiceError> list) {
+                Log.d("app5", "Appodeal validate fail");
+            }
+
+            @Override
+            public void onInAppPurchaseValidateSuccess(@NonNull InAppPurchase purchase,
+                                                       @Nullable List<ServiceError> errors) {
+                // In-App purchase validation was validated successfully by at least one
+                // connected service
+                Log.d("app5", "Appodeal validate success");
+            }
+
+
+        });
     }
 
 

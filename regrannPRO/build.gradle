@@ -9,9 +9,6 @@ apply plugin: 'ly.img.android.sdk'
 android {
     compileSdkVersion 32
 
-    dexOptions {
-        javaMaxHeapSize "4g"
-    }
 
     defaultConfig {
         applicationId "com.nimmble.rgpro"
@@ -175,7 +172,10 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
 
     implementation 'androidx.annotation:annotation:1.4.0'
-
+    implementation 'com.appodeal.ads.sdk:core:3.0.2'
+    implementation 'com.appodeal.ads.sdk.services:adjust:3.0.2.0'
+    implementation 'com.appodeal.ads.sdk.services:sentry_analytics:3.0.2.0'
+    implementation 'com.appodeal.ads.sdk.services:stack_analytics:3.0.2.0'
 
 }
 

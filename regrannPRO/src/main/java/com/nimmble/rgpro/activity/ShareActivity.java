@@ -72,6 +72,7 @@ import android.widget.Toast;
 import android.widget.VideoView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -88,6 +89,9 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.appodeal.ads.Appodeal;
+import com.appodeal.ads.initializing.ApdInitializationCallback;
+import com.appodeal.ads.initializing.ApdInitializationError;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.CenterCrop;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
@@ -456,6 +460,7 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
 
     AppUpdateManager appUpdateManager;
 
+    static boolean calledInitAppodeal = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -472,6 +477,18 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
 
 
         numMultVideos = 0;
+
+        if (calledInitAppodeal == false) {
+            Appodeal.initialize(_this, "2e28be102913dd26a77ffeb78016e2ab8c841702b43065aa", Appodeal.INTERSTITIAL, new ApdInitializationCallback() {
+                @Override
+                public void onInitializationFinished(@Nullable List<ApdInitializationError> list) {
+                    //Appodeal initialization finished
+
+                    Log.d("app5", "AppoDeal init done");
+                }
+            });
+            calledInitAppodeal = true;
+        }
 
 
         // Creates instance of the manager.
