@@ -11,6 +11,7 @@ import androidx.multidex.MultiDex;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.messaging.FirebaseMessaging;
 
@@ -89,7 +90,7 @@ public class RegrannApp extends Application {
     public void onCreate() {
         super.onCreate();
 
-
+        FirebaseApp.initializeApp(this);
         Log.d("app5", "In Regrann App - onCreate");
 
 

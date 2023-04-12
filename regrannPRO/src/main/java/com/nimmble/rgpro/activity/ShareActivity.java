@@ -461,6 +461,7 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
     AppUpdateManager appUpdateManager;
 
     static boolean calledInitAppodeal = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -474,11 +475,14 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
         inputMediaType = getIntent().getIntExtra("mediaType", 0);
 
         preferences = PreferenceManager.getDefaultSharedPreferences(_this.getApplication().getApplicationContext());
+        //    Appodeal.setLogLevel(com.appodeal.ads.utils.Log.LogLevel.verbose);
 
 
         numMultVideos = 0;
 
-        if (calledInitAppodeal == false) {
+        if (1 == 2 && calledInitAppodeal == false) {
+
+
             Appodeal.initialize(_this, "2e28be102913dd26a77ffeb78016e2ab8c841702b43065aa", Appodeal.INTERSTITIAL, new ApdInitializationCallback() {
                 @Override
                 public void onInitializationFinished(@Nullable List<ApdInitializationError> list) {
@@ -873,6 +877,31 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
             }
         }
 
+        if (getIntent().getStringExtra("mediaUrl").contains("twitter.com")) {
+            try {
+
+                AsyncTask.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            downloadParts(getIntent().getStringExtra("mediaUrl"));
+
+
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+
+                        //TODO your background code
+                    }
+                });
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+            initMainScreen();
+            // this is a twitter url
+            return;
+        }
+
 
         if (getIntent().getBooleanExtra("fromExtension", false)) {
 
@@ -1201,12 +1230,59 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
     private final BroadcastReceiver downloadCompleteReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
+
+
+            long id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
+
+
+            if (id == twitterDownloadId) {
+                Log.d("app5", "twitter download onComplete");
+                AsyncTask.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            Log.d("app5", "twitter download onComplete - deleting ");
+                            deleteVideoFromServer();
+
+
+                            try {
+
+                                File toScan = new File(Util.getTempVideoFilePath(isMulti));
+
+                                MediaScannerConnection.scanFile(getApplicationContext(), new String[]{toScan.toString()}, null, null);
+
+
+                            } catch (Exception e) {
+                                int i4 = 1;
+                            }
+                            runOnUiThread(new Runnable() {
+                                public void run() {
+
+                                    if (spinner != null)
+                                        spinner.setVisibility(View.GONE);
+                                    photoReady = true;
+                                    showBottomButtons();
+                                    //      previewImage.setImageBitmap(Util.decodeFile(new File(tempVideoFile.getPath())));
+                                    //    previewImage.setVisibility(View.VISIBLE);
+                                }
+                            });
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
+
+                        //TODO your background code
+                    }
+                });
+                return;
+            }
+
+
             if (intent != null && intent.getAction() != null) {
                 String action = intent.getAction();
                 if (DownloadManager.ACTION_DOWNLOAD_COMPLETE.equals(action)) {
                     DownloadManager mgr = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
                     if (mgr != null) {
-                        long id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
+
                         long savedJobId = Helper.getDownloadRequestId(context);
 
 
@@ -1735,7 +1811,7 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
     }
 
 
-    private void showPasteDialog(final Intent intent) {
+    private void showPasteDialog(final Intent shareIntent) {
 
         final Dialog dialog = new Dialog(_this, R.style.FullHeightDialog);
         dialog.setContentView(R.layout.paste_dialog);
@@ -1751,10 +1827,36 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
             public void onClick(View v) {
 
                 try {
-                    startActivity(intent);
+                    startActivity(shareIntent);
                 } catch (Exception e) {
 
+                    int i = 1;
+                    try {
+                        shareIntent.setClassName(
+                                "com.instagram.android",
+                                "com.instagram.share.handleractivity.ShareHandlerActivity");
 
+                        startActivity(shareIntent);
+                        final Handler handler = new Handler();
+                        handler.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+
+                                try {
+
+                                    finish();
+                                } catch (Exception e) {
+                                    Log.d("app5", "on finish");
+                                }
+                            }
+                        }, 2000);
+                    } catch (Exception e9) {
+
+                        Intent intent = new Intent(Intent.ACTION_VIEW);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        intent.setData(Uri.parse("market://details?id=" + "com.instagram.android"));
+                        startActivity(intent);
+                    }
                 }
                 final Handler handler = new Handler();
                 handler.postDelayed(new Runnable() {
@@ -1778,27 +1880,31 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
 
         try {
 
-            // flurryAgent.logEvent("Instagram button pressed");
-            // FlurryAgent.logEvent("Click Instagram");
-
-
             Handler h = new Handler(_this.getMainLooper());
             h.post(new Runnable() {
                 @Override
                 public void run() {
-
+                    Intent shareIntent = new Intent();
                     try {
 
-                        final Intent shareIntent = new Intent();
+
                         shareIntent.setAction(Intent.ACTION_SEND);
 
                         shareIntent.setPackage("com.instagram.android");
                         //    shareIntent.setClassName("com.instagram.android",instagram_activity);
 
 
-                        shareIntent.setClassName(
-                                "com.instagram.android",
-                                "com.instagram.share.handleractivity.ShareHandlerActivity");
+                        if (isVideo) {
+
+                            shareIntent.setClassName(
+                                    "com.instagram.android",
+                                    "com.instagram.share.handleractivity.ReelShareHandlerActivityMultiMediaAlias");
+                        } else {
+
+                            shareIntent.setClassName(
+                                    "com.instagram.android",
+                                    "com.instagram.share.handleractivity.ShareHandlerActivity");
+                        }
 
 
                         shareIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_NO_ANIMATION);
@@ -1870,6 +1976,33 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
 
 
                     } catch (Exception e) {
+                        try {
+                            shareIntent.setClassName(
+                                    "com.instagram.android",
+                                    "com.instagram.share.handleractivity.ShareHandlerActivity");
+
+                            startActivity(shareIntent);
+                            final Handler handler = new Handler();
+                            handler.postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+
+                                    try {
+
+                                        finish();
+                                    } catch (Exception e) {
+                                        Log.d("app5", "on finish");
+                                    }
+                                }
+                            }, 2000);
+                        } catch (Exception e9) {
+
+                            Intent intent = new Intent(Intent.ACTION_VIEW);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            intent.setData(Uri.parse("market://details?id=" + "com.instagram.android"));
+                            startActivity(intent);
+                        }
+
                     }
                 }
             });
@@ -6253,15 +6386,24 @@ v.seekTo(1);
     }
 
 
-    private void sendToInstagam() {
+    public boolean isClass(String className) {
+        try {
+            Class.forName(className);
+            return true;
+        } catch (ClassNotFoundException e) {
+            return true;
+        }
+    }
 
+    private void sendToInstagam() {
+        Intent shareIntent = new Intent();
 
         try {
 
             String caption = Util.prepareCaption(title, author, _this.getApplication().getApplicationContext(), caption_suffix, tiktokLink);
 
 
-            Intent shareIntent = new Intent();
+
             shareIntent.setAction(Intent.ACTION_SEND);
             shareIntent.setPackage("com.instagram.android");
             //  shareIntent.setClassName("com.instagram.android",instagram_activity);
@@ -6283,9 +6425,19 @@ v.seekTo(1);
                         "com.instagram.android",
                         "com.instagram.share.handleractivity.StoryShareHandlerActivity");
             } else {
-                shareIntent.setClassName(
-                        "com.instagram.android",
-                        "com.instagram.share.handleractivity.ShareHandlerActivity");
+                if (isVideo) {
+
+                    shareIntent.setClassName(
+                            "com.instagram.android",
+                            "com.instagram.share.handleractivity.ReelShareHandlerActivityMultiMediaAlias");
+
+
+                } else {
+
+                    shareIntent.setClassName(
+                            "com.instagram.android",
+                            "com.instagram.share.handleractivity.ShareHandlerActivity");
+                }
             }
 
 
@@ -6338,7 +6490,7 @@ v.seekTo(1);
 
             Log.d("regrann", "Numwarnings : " + numWarnings);
 
-            if (1 == 1 || (numWarnings < 3 && inputMediaType == 0)) {
+            if ((numWarnings < 3 && inputMediaType == 0)) {
 
                 Log.d("regrann", "Numwarnings  2 : " + numWarnings);
 
@@ -6370,13 +6522,166 @@ v.seekTo(1);
 
         } catch (Exception e8) {
             // bring user to the market to download the app.
+            try {
+                shareIntent.setClassName(
+                        "com.instagram.android",
+                        "com.instagram.share.handleractivity.ShareHandlerActivity");
 
-            Intent intent = new Intent(Intent.ACTION_VIEW);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            intent.setData(Uri.parse("market://details?id=" + "com.instagram.android"));
-            startActivity(intent);
+                startActivity(shareIntent);
+                final Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+
+                        try {
+
+                            finish();
+                        } catch (Exception e) {
+                            Log.d("app5", "on finish");
+                        }
+                    }
+                }, 2000);
+            } catch (Exception e9) {
+
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                intent.setData(Uri.parse("market://details?id=" + "com.instagram.android"));
+                startActivity(intent);
+            }
         }
 
+
+    }
+
+
+    // TWITTER STUFF
+    public void downloadParts(String url) throws IOException {
+        RequestQueue queue = Volley.newRequestQueue(this);
+
+
+        String final_url = "https://jaredco.pythonanywhere.com/?url=" + url;
+
+        // Request a string response from the provided URL.
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, final_url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+
+                        twitterDataLoaded(response, final_url);
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                int code = 0;
+                try {
+                    code = error.networkResponse.statusCode;
+
+                    Log.d("app5", "twitter_Error - not found at all");
+                } catch (Exception e) {
+                }
+
+
+            }
+        });
+
+
+        stringRequest.setRetryPolicy(new DefaultRetryPolicy(12000,
+                1,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+// Add the request to the RequestQueue.
+        queue.add(stringRequest);
+
+
+    }
+
+    String currentTwitterVideo;
+    long twitterDownloadId = 0;
+
+    public void deleteVideoFromServer() throws IOException {
+        RequestQueue queue = Volley.newRequestQueue(this);
+
+
+        String final_url = "https://jaredco.pythonanywhere.com/delete/" + currentTwitterVideo + ".mp4";
+
+        // Request a string response from the provided URL.
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, final_url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+
+
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                int code = 0;
+                try {
+                    code = error.networkResponse.statusCode;
+
+                    Log.d("app5", "scrape_error_code_" + code);
+                } catch (Exception e) {
+                }
+
+
+            }
+        });
+
+
+        stringRequest.setRetryPolicy(new DefaultRetryPolicy(12000,
+                1,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+// Add the request to the RequestQueue.
+        //  queue.add(stringRequest);
+
+
+    }
+
+
+    public void twitterDataLoaded(String volleyReturn, String t) {
+
+        Log.d("app5", volleyReturn);
+
+        if (volleyReturn.equals("twitter_error")) {
+            // twitter error message
+            twitterDownloadId = 0;
+            Log.d("app5", "Twitter error message");
+
+        }
+
+        if (volleyReturn.equals("error") == false) {
+
+            currentTwitterVideo = volleyReturn;
+
+            if (volleyReturn.equals("twitter_error"))
+                return;
+
+            String url = "https://jaredco.pythonanywhere.com/public/" + currentTwitterVideo + ".mp4";
+            try {
+                Util.setTempVideoFileName(tempVideoName);
+                // tempVideoFile = new File(Util.getTempVideoFilePath(false));
+                title = "";
+                author = "";
+                isVideo = true;
+                isMulti = false;
+                //  tempVideoFullPathName = tempVideoFile.getPath();
+                twitterDownloadId = Util.startDownload(url, "", this, tempVideoName);
+
+                runOnUiThread(new Runnable() {
+                    public void run() {
+
+
+                        if (mainUI != null)
+                            mainUI.setVisibility(View.VISIBLE);
+
+
+                    }
+                });
+
+
+            } catch (Exception e) {
+            }
+
+        }
 
     }
 

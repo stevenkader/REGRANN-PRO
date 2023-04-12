@@ -43,7 +43,9 @@ public class NewShareText extends Activity {
                         public void run() {
 
                             try {
-                                if (text.contains("instagram.com")) {
+                                if (text.contains("instagram.com")   ) {
+
+                              //      if (text.contains("instagram.com") || text.contains("twitter.com")  ) {
                                     text = text.substring(text.indexOf("https://"));
 
                                     Intent i;

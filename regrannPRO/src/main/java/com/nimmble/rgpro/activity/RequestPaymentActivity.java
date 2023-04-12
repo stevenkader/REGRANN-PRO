@@ -194,7 +194,7 @@ public class RequestPaymentActivity extends AppCompatActivity {
                                 editor.putBoolean("subscribed", true);
                                 editor.putBoolean("really_subscribed", true);
 
-                                validatePurchase(purchase);
+                        //        validatePurchase(purchase);
 
                                 editor.commit();
 
