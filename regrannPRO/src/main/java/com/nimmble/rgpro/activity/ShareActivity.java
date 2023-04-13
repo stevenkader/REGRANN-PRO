@@ -6,6 +6,7 @@ import static java.lang.Thread.sleep;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DownloadManager;
@@ -65,6 +66,7 @@ import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.MediaController;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -171,6 +173,7 @@ import ly.img.android.pesdk.ui.model.state.UiConfigText;
 public class ShareActivity extends AppCompatActivity implements VolleyRequestListener, BaseSliderView.OnSliderClickListener, ViewPagerEx.OnPageChangeListener, OnClickListener, OnCompletionListener, OnPreparedListener {
 
     private ImageView postlater;
+    VideoView videoPlayer;
     private ImageView btnCurrentToFeed;
     private ImageView btnCurrentToStory;
     private ImageView btnInstagramstories;
@@ -213,7 +216,7 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
 
     boolean shouldLoadAds = true;
 
-    VideoView videoPlayer;
+
 
     private LinearLayout screen_ui;
     SkuDetails skuDetailsRemoveAds = null;
@@ -1212,7 +1215,7 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
         mDemoSlider.setDuration(4000);
         mDemoSlider.addOnPageChangeListener(this);
 
-        showBottomButtons();
+        // showBottomButtons();
 
         Display display = getWindowManager().getDefaultDisplay();
         Point size = new Point();
@@ -1243,7 +1246,7 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
                         try {
                             Log.d("app5", "twitter download onComplete - deleting ");
                             deleteVideoFromServer();
-
+                            sendEvent("twitter_video");
 
                             try {
 
@@ -2721,7 +2724,7 @@ v.seekTo(1);
  **/
                                     if (isVideo) {
                                         LoadVideo();
-                                        videoIcon.setVisibility(View.VISIBLE);
+                                        // videoIcon.setVisibility(View.VISIBLE);
 
                                     }
                                     previewImage.setImageBitmap(Util.decodeFile(new File(path)));
@@ -5164,7 +5167,7 @@ v.seekTo(1);
 
     }
 
-
+    MediaController mediaController = null;
     int totalDownloadedAlready = 0;
 
     BroadcastReceiver onComplete = new BroadcastReceiver() {
@@ -5283,6 +5286,7 @@ v.seekTo(1);
 
                 scanRegrannFolder();
 
+
                 if (isAutoSave) {
                     copyTempToSave();
                     //   finish();
@@ -5293,6 +5297,44 @@ v.seekTo(1);
 
                     }
                 } else {
+
+
+                    Log.d("app5", "preparing video player");
+                    videoPlayer = findViewById(R.id.videoplayer);
+                    videoPlayer.setOnPreparedListener(PreparedListener);
+                    videoPlayer.setKeepScreenOn(true);
+                    // creating object of
+                    // media controller class
+
+
+                    mediaController = new MediaController(_this) {
+
+                        @Override
+                        public boolean dispatchKeyEvent(KeyEvent event) {
+                            if (event.getKeyCode() == KeyEvent.KEYCODE_BACK) {
+                                super.hide();
+                                ((Activity) getContext()).finish();
+                                return true;
+                            }
+                            return super.dispatchKeyEvent(event);
+                        }
+                    };
+
+                    // sets the anchor view
+                    // anchor view for the videoView
+                    mediaController.setAnchorView(videoPlayer);
+
+                    // sets the media player to the videoView
+                    mediaController.setMediaPlayer(videoPlayer);
+
+
+                    videoPlayer.setMediaController(mediaController);
+                    mediaController.setVisibility(View.VISIBLE);
+                    mediaController.setEnabled(true);
+
+                    videoPlayer.setVideoPath(Util.getTempVideoFilePath());
+                    videoPlayer.setVisibility(View.VISIBLE);
+
 
                     photoReady = true;
                     showBottomButtons();
@@ -5305,6 +5347,24 @@ v.seekTo(1);
         }
     };
 
+    MediaPlayer.OnPreparedListener PreparedListener = new MediaPlayer.OnPreparedListener() {
+
+        @Override
+        public void onPrepared(MediaPlayer m) {
+            try {
+                if (m.isPlaying()) {
+                    m.stop();
+                    m.release();
+                    m = new MediaPlayer();
+                }
+                m.setVolume(0f, 0f);
+                m.setLooping(false);
+                m.start();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    };
 
     private void CheckDwnloadStatus(long id) {
 
@@ -6637,6 +6697,15 @@ v.seekTo(1);
     }
 
 
+    public void twitterVideoNotFound() {
+        runOnUiThread(new Runnable() {
+            public void run() {
+                showErrorToast("Video not found", "There is no video in this Twitter post.", true);
+            }
+        });
+    }
+
+
     public void twitterDataLoaded(String volleyReturn, String t) {
 
         Log.d("app5", volleyReturn);
@@ -6644,6 +6713,7 @@ v.seekTo(1);
         if (volleyReturn.equals("twitter_error")) {
             // twitter error message
             twitterDownloadId = 0;
+            twitterVideoNotFound();
             Log.d("app5", "Twitter error message");
 
         }
