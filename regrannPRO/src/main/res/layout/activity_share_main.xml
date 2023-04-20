@@ -8,7 +8,8 @@
     android:background="#ffffffff"
     android:orientation="vertical">
 
-    <FrameLayout
+
+    <LinearLayout
         android:id="@+id/frameLayout"
         android:layout_width="fill_parent"
         android:layout_height="0dp"
@@ -20,20 +21,44 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/my_toolbar">
 
+        <LinearLayout
+            android:id="@+id/newfeatures"
+            app:layout_constraintTop_toBottomOf="@+id/newfeatures"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/textView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:text="New Feature\nShare videos from Twitter and Facebook"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <View
+                android:id="@+id/divider2"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="?android:attr/listDivider" />
+        </LinearLayout>
+
+
         <ImageView
 
             android:id="@+id/previewImage"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
 
-
+            android:layout_marginTop="20dp"
             android:layout_marginBottom="20dp"
             android:adjustViewBounds="true"
             android:contentDescription="@string/preview_image"
             android:minWidth="20dp"
             android:minHeight="20dp"
             android:scaleType="fitCenter"
-            android:visibility="gone" />
+            android:visibility="visible" />
 
 
         <VideoView
@@ -81,9 +106,10 @@
             custom:auto_cycle="false"
             custom:pager_animation_span="1">
 
+
         </com.potyvideo.slider.library.SliderLayout>
 
-    </FrameLayout>
+    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/bottomSection"
@@ -199,13 +225,13 @@
         </FrameLayout>
 
         <LinearLayout
+            android:id="@+id/prefixBox"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:id="@+id/prefixBox"
 
-            android:layout_marginTop="10dp"
             android:layout_marginLeft="10dp"
+            android:layout_marginTop="10dp"
             android:layout_marginRight="10dp"
             android:layout_marginBottom="5dp"
             android:orientation="horizontal"
@@ -214,14 +240,14 @@
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="14sp"
-                android:hint="Change Caption Prefix">
+                android:hint="Change Caption Prefix"
+                android:textSize="14sp">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:textSize="14sp"
                     android:id="@+id/captionPrefix"
                     android:layout_width="220dp"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    android:textSize="14sp" />
 
 
             </com.google.android.material.textfield.TextInputLayout>
@@ -233,11 +259,11 @@
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
 
-                android:textSize="13sp"
                 android:onClick="OnClickSaveNextTime"
                 android:paddingLeft="10dp"
                 android:paddingRight="10dp"
-                android:text="Remember" />
+                android:text="Remember"
+                android:textSize="13sp" />
         </LinearLayout>
 
 
@@ -259,11 +285,11 @@
                 android:visibility="gone"></FrameLayout>
 
             <LinearLayout
-                android:orientation="vertical"
                 android:id="@+id/buttons"
-                android:visibility="gone"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
 
 
                 <LinearLayout
@@ -288,9 +314,9 @@
                         android:layout_height="wrap_content"
                         android:layout_margin="5dp"
                         android:layout_weight="1"
-                        android:visibility="gone"
+                        android:src="@drawable/downloadbtn_single"
 
-                        android:src="@drawable/downloadbtn_single" />
+                        android:visibility="gone" />
 
                     <ImageView
                         android:id="@+id/sharebtn"

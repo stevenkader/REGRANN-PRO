@@ -407,6 +407,22 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
         return false;
     }
 
+    String socialApp = "";
+
+    boolean isValidSocial(String url) {
+
+        if (url.contains("facebook.com") || url.contains("twitter.com")) {
+
+            if (url.contains("twitter.com")) socialApp = "Twitter";
+            if (url.contains("facebook.com")) socialApp = "Facebook";
+
+            return true;
+        }
+        return false;
+
+
+    }
+
 
     boolean isDaysMoreThanSeven() {
 
@@ -478,7 +494,7 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
         inputMediaType = getIntent().getIntExtra("mediaType", 0);
 
         preferences = PreferenceManager.getDefaultSharedPreferences(_this.getApplication().getApplicationContext());
-        //    Appodeal.setLogLevel(com.appodeal.ads.utils.Log.LogLevel.verbose);
+        Appodeal.setLogLevel(com.appodeal.ads.utils.Log.LogLevel.verbose);
 
 
         numMultVideos = 0;
@@ -486,7 +502,7 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
         if (1 == 2 && calledInitAppodeal == false) {
 
 
-            Appodeal.initialize(_this, "2e28be102913dd26a77ffeb78016e2ab8c841702b43065aa", Appodeal.INTERSTITIAL, new ApdInitializationCallback() {
+            Appodeal.initialize(_this, "2e28be102913dd26a77ffeb78016e2ab8c841702b43065aa", Appodeal.NONE, new ApdInitializationCallback() {
                 @Override
                 public void onInitializationFinished(@Nullable List<ApdInitializationError> list) {
                     //Appodeal initialization finished
@@ -880,7 +896,7 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
             }
         }
 
-        if (getIntent().getStringExtra("mediaUrl").contains("twitter.com")) {
+        if (isValidSocial(getIntent().getStringExtra("mediaUrl"))) {
             try {
 
                 AsyncTask.execute(new Runnable() {
@@ -1246,7 +1262,7 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
                         try {
                             Log.d("app5", "twitter download onComplete - deleting ");
                             deleteVideoFromServer();
-                            sendEvent("twitter_video");
+                            sendEvent(socialApp + "_video");
 
                             try {
 
@@ -1835,9 +1851,19 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
 
                     int i = 1;
                     try {
-                        shareIntent.setClassName(
-                                "com.instagram.android",
-                                "com.instagram.share.handleractivity.ShareHandlerActivity");
+
+                        if (isVideo) {
+
+                            shareIntent.setClassName(
+                                    "com.instagram.android",
+                                    "com.instagram.share.handleractivity.ReelShareHandlerActivityMultiMediaAlias");
+                        } else {
+
+                            shareIntent.setClassName(
+                                    "com.instagram.android",
+                                    "com.instagram.share.handleractivity.ShareHandlerActivity");
+                        }
+
 
                         startActivity(shareIntent);
                         final Handler handler = new Handler();
@@ -1855,10 +1881,33 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
                         }, 2000);
                     } catch (Exception e9) {
 
-                        Intent intent = new Intent(Intent.ACTION_VIEW);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        intent.setData(Uri.parse("market://details?id=" + "com.instagram.android"));
-                        startActivity(intent);
+                        try {
+                            shareIntent.setClassName(
+                                    "com.instagram.android",
+                                    "com.instagram.share.handleractivity.ShareHandlerActivity");
+
+                            startActivity(shareIntent);
+                            final Handler handler = new Handler();
+                            handler.postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+
+                                    try {
+
+                                        finish();
+                                    } catch (Exception e) {
+                                        Log.d("app5", "on finish");
+                                    }
+                                }
+                            }, 2000);
+                        } catch (Exception e88) {
+
+                            Intent intent = new Intent(Intent.ACTION_VIEW);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            intent.setData(Uri.parse("market://details?id=" + "com.instagram.android"));
+                            startActivity(intent);
+                        }
+
                     }
                 }
                 final Handler handler = new Handler();
@@ -2501,7 +2550,7 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
             @Override
             public void run() {
                 Log.d("app5", "retrying Volley # :" + numRetries);
-                if (numRetries == 4) {
+                if (numRetries > 3) {
                     sendEvent("prox_failed_" + numRetries);
                     GET(initialURL);
                 } else {
@@ -2726,10 +2775,11 @@ v.seekTo(1);
                                         LoadVideo();
                                         // videoIcon.setVisibility(View.VISIBLE);
 
-                                    }
-                                    previewImage.setImageBitmap(Util.decodeFile(new File(path)));
+                                    } else {
+                                        previewImage.setImageBitmap(Util.decodeFile(new File(path)));
 
-                                    previewImage.setVisibility(View.VISIBLE);
+                                        previewImage.setVisibility(View.VISIBLE);
+                                    }
                                     //   }
 
 
@@ -6619,7 +6669,7 @@ v.seekTo(1);
         RequestQueue queue = Volley.newRequestQueue(this);
 
 
-        String final_url = "https://jaredco.pythonanywhere.com/?url=" + url;
+        String final_url = "https://pyapp.jaredco.com/?url=" + url;
 
         // Request a string response from the provided URL.
         StringRequest stringRequest = new StringRequest(Request.Method.GET, final_url,
@@ -6661,7 +6711,8 @@ v.seekTo(1);
         RequestQueue queue = Volley.newRequestQueue(this);
 
 
-        String final_url = "https://jaredco.pythonanywhere.com/delete/" + currentTwitterVideo + ".mp4";
+        String final_url = "https://pyapp.jaredco.com/delete/" + currentTwitterVideo + ".mp4";
+        Log.d("app5", final_url);
 
         // Request a string response from the provided URL.
         StringRequest stringRequest = new StringRequest(Request.Method.GET, final_url,
@@ -6691,7 +6742,7 @@ v.seekTo(1);
                 1,
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
 // Add the request to the RequestQueue.
-        //  queue.add(stringRequest);
+        queue.add(stringRequest);
 
 
     }
@@ -6700,7 +6751,7 @@ v.seekTo(1);
     public void twitterVideoNotFound() {
         runOnUiThread(new Runnable() {
             public void run() {
-                showErrorToast("Video not found", "There is no video in this Twitter post.", true);
+                showErrorToast("Video not found", "There is no video in this " + socialApp + " post.", true);
             }
         });
     }
@@ -6725,7 +6776,7 @@ v.seekTo(1);
             if (volleyReturn.equals("twitter_error"))
                 return;
 
-            String url = "https://jaredco.pythonanywhere.com/public/" + currentTwitterVideo + ".mp4";
+            String url = "https://pyapp.jaredco.com/public/" + currentTwitterVideo + ".mp4";
             try {
                 Util.setTempVideoFileName(tempVideoName);
                 // tempVideoFile = new File(Util.getTempVideoFilePath(false));

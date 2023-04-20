@@ -386,7 +386,19 @@ editor.commit();
         }
 
 
-        checkForInstagramURLinClipboard();
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                //Do something after 100ms
+                checkForInstagramURLinClipboard();
+            }
+        }, 1000);
+        // did we come from the post later screen
+        if (this.getIntent().hasExtra("show_home"))
+            showMainScreen();
+        else
+            checkForPostLaterPhotos();
 
 
     }
@@ -435,11 +447,7 @@ editor.commit();
             startActivity(i);
 
 
-
-
-
-        } else
-            checkForInstagramURLinClipboard();
+        }
 
     }
 
@@ -463,6 +471,24 @@ editor.commit();
 
 
         invalidateOptionsMenu();
+
+        try {
+            final Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    //Do something after 100ms
+                    checkForInstagramURLinClipboard();
+                }
+            }, 1000);
+            // did we come from the post later screen
+            if (this.getIntent().hasExtra("show_home"))
+                showMainScreen();
+            else
+                checkForPostLaterPhotos();
+
+        } catch (Exception e) {
+        }
 
 
     }
@@ -813,6 +839,7 @@ editor.commit();
 
         private void checkForInstagramURLinClipboard() {
 
+
             ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
 
             ClipData clipData = clipboard != null ? clipboard.getPrimaryClip() : null;
@@ -825,19 +852,16 @@ editor.commit();
                 ClipData clip = ClipData.newPlainText("message", "");
                 clipboard.setPrimaryClip(clip);
 
+                    Log.d("app5", "Clip text " + text);
                 if (text.length() > 18) {
 
                     //    if (text.indexOf("ig.me") > 1 ||text.indexOf("instagram.com/tv/") > 1 || text.indexOf("instagram.com/p/") > 1) {
-                    if (text.contains("instagram.com")) {
+                    if (text.contains("instagram.com") || text.contains("fb.watch") || text.contains("facebook.com") || text.contains("twitter.com")) {
 
                         Intent i;
                         i = new Intent(_this, ShareActivity.class);
 
-                        if (text.contains("vm.tiktok")) {
-                            //   i.putExtra("tiktok", true);
-                        } else
-                            text = text.substring(text.indexOf("https://www.instagram"));
-
+                        text = text.substring(text.indexOf("https://"));
 
 
                         i.putExtra("mediaUrl", text);
@@ -849,7 +873,7 @@ editor.commit();
                         i.putExtra("isJPEG", "no");
                         System.out.println("***media url " + text);
 
-
+                        overridePendingTransition(R.anim.slide_up_anim, R.anim.slide_down_anim);
                         startActivity(i);
                         finish();
                         return;
@@ -864,11 +888,6 @@ editor.commit();
             }
 
 
-            // did we come from the post later screen
-            if (this.getIntent().hasExtra("show_home"))
-                showMainScreen();
-            else
-                checkForPostLaterPhotos();
 
 
         }
