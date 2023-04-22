@@ -74,7 +74,6 @@ import android.widget.Toast;
 import android.widget.VideoView;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -91,9 +90,6 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.appodeal.ads.Appodeal;
-import com.appodeal.ads.initializing.ApdInitializationCallback;
-import com.appodeal.ads.initializing.ApdInitializationError;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.CenterCrop;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
@@ -411,9 +407,10 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
 
     boolean isValidSocial(String url) {
 
-        if (url.contains("facebook.com") || url.contains("twitter.com")) {
+        if (url.contains("https://youtube.com/shorts/") || url.contains("facebook.com") || url.contains("twitter.com")) {
 
             if (url.contains("twitter.com")) socialApp = "Twitter";
+            if (url.contains("youtube.com")) socialApp = "Youtube";
             if (url.contains("facebook.com")) socialApp = "Facebook";
 
             return true;
@@ -494,25 +491,24 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
         inputMediaType = getIntent().getIntExtra("mediaType", 0);
 
         preferences = PreferenceManager.getDefaultSharedPreferences(_this.getApplication().getApplicationContext());
-        Appodeal.setLogLevel(com.appodeal.ads.utils.Log.LogLevel.verbose);
+        //      Appodeal.setLogLevel(com.appodeal.ads.utils.Log.LogLevel.verbose);
 
 
         numMultVideos = 0;
-
+/**
         if (1 == 2 && calledInitAppodeal == false) {
 
 
-            Appodeal.initialize(_this, "2e28be102913dd26a77ffeb78016e2ab8c841702b43065aa", Appodeal.NONE, new ApdInitializationCallback() {
-                @Override
-                public void onInitializationFinished(@Nullable List<ApdInitializationError> list) {
-                    //Appodeal initialization finished
+ Appodeal.initialize(_this, "2e28be102913dd26a77ffeb78016e2ab8c841702b43065aa", Appodeal.NONE, new ApdInitializationCallback() {
+@Override public void onInitializationFinished(@Nullable List<ApdInitializationError> list) {
+//Appodeal initialization finished
 
-                    Log.d("app5", "AppoDeal init done");
-                }
-            });
-            calledInitAppodeal = true;
-        }
-
+Log.d("app5", "AppoDeal init done");
+}
+});
+ calledInitAppodeal = true;
+ }
+ **/
 
         // Creates instance of the manager.
         appUpdateManager = AppUpdateManagerFactory.create(this);

@@ -89,6 +89,15 @@ public class RegrannApp extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+/**
+
+ final QonversionConfig qonversionConfig = new QonversionConfig.Builder(
+ this,
+ "s-SeJe4X",
+ QLaunchMode.Analytics
+ ).setEnvironment(QEnvironment.Sandbox).build();
+ Qonversion.initialize(qonversionConfig);
+ **/
 
         FirebaseApp.initializeApp(this);
         Log.d("app5", "In Regrann App - onCreate");
