@@ -9,7 +9,7 @@
         <Preference
             android:key="mode_string"
 
-            android:title="@string/mode">
+            android:title="Mode (Auto Save - Quick Repost)">
             <intent
                 android:action="android.intent.action.VIEW"
                 android:targetClass="com.nimmble.rgpro.activity.ModeSettingsActivity"

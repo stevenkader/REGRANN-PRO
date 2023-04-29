@@ -352,7 +352,7 @@ public class RequestPaymentActivity extends AppCompatActivity {
 
     // Purchase object is returned by Google API in onPurchasesUpdated() callback
 
-    /**
+/**
      public void validatePurchase(Purchase purchase) {
 
      // Create new InAppPurchase

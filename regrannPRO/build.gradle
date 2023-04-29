@@ -14,8 +14,8 @@ android {
         applicationId "com.nimmble.rgpro"
         minSdkVersion 26
         targetSdkVersion 31
-        versionCode 432
-        versionName "4.64"
+        versionCode 433
+        versionName "4.66"
 
         multiDexEnabled true
         resValue 'string', 'pesdk_version', "v$pesdk_version"

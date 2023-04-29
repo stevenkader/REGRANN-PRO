@@ -235,10 +235,7 @@ public class NoCropActivity extends Activity implements OnClickListener, OnSeekB
 
             shareIntent.putExtra("fileName", selectedImagePath);
 
-            if (Util.isKeepCaption(_this) == false) {
 
-                shareIntent.putExtra(Intent.EXTRA_TEXT, ".... via @Regrann app");
-            }
 
             startActivity(shareIntent);
             finish();

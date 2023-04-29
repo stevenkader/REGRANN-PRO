@@ -74,7 +74,8 @@
             android:name="com.nimmble.rgpro.activity.NewShareText"
             android:exported="true"
             android:theme="@android:style/Theme.Translucent.NoTitleBar">
-            <intent-filter>
+
+        <intent-filter>
                 <action android:name="android.intent.action.SEND" />
 
                 <category android:name="android.intent.category.DEFAULT" />

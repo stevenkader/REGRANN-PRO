@@ -213,7 +213,6 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
     boolean shouldLoadAds = true;
 
 
-
     private LinearLayout screen_ui;
     SkuDetails skuDetailsRemoveAds = null;
     ProgressDialog pdmulti;
@@ -496,7 +495,7 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
 
         numMultVideos = 0;
 /**
-        if (1 == 2 && calledInitAppodeal == false) {
+ if (1 == 2 && calledInitAppodeal == false) {
 
 
  Appodeal.initialize(_this, "2e28be102913dd26a77ffeb78016e2ab8c841702b43065aa", Appodeal.NONE, new ApdInitializationCallback() {
@@ -892,30 +891,31 @@ Log.d("app5", "AppoDeal init done");
             }
         }
 
-        if (isValidSocial(getIntent().getStringExtra("mediaUrl"))) {
-            try {
+        if (getIntent().getStringExtra("mediaUrl") != null)
+            if (isValidSocial(getIntent().getStringExtra("mediaUrl"))) {
+                try {
 
-                AsyncTask.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            downloadParts(getIntent().getStringExtra("mediaUrl"));
+                    AsyncTask.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                downloadParts(getIntent().getStringExtra("mediaUrl"));
 
 
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
+                            } catch (IOException e) {
+                                throw new RuntimeException(e);
+                            }
+
+                            //TODO your background code
                         }
-
-                        //TODO your background code
-                    }
-                });
-            } catch (Exception e) {
-                throw new RuntimeException(e);
+                    });
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+                initMainScreen();
+                // this is a twitter url
+                return;
             }
-            initMainScreen();
-            // this is a twitter url
-            return;
-        }
 
 
         if (getIntent().getBooleanExtra("fromExtension", false)) {
@@ -1001,11 +1001,13 @@ Log.d("app5", "AppoDeal init done");
                 title = "";
                 if (inputMediaType != 0) {
 
-                    if (Util.isKeepCaption(_this) == false)
-                        title = "@Regrann no-crop...";
+
                     tempFileName = inputFileName;
-                    if (inputMediaType == 1)
+                    if (inputMediaType == 1) {
+
                         tempFileFullPathName = tempFileName;
+
+                    }
 
                     //   tempVideoFullPathName = tempFileName ;
 
@@ -1848,7 +1850,7 @@ Log.d("app5", "AppoDeal init done");
                     int i = 1;
                     try {
 
-                        if (isVideo) {
+                        if (1 == 2) {
 
                             shareIntent.setClassName(
                                     "com.instagram.android",
@@ -1942,7 +1944,7 @@ Log.d("app5", "AppoDeal init done");
                         //    shareIntent.setClassName("com.instagram.android",instagram_activity);
 
 
-                        if (isVideo) {
+                        if (1 == 2) {
 
                             shareIntent.setClassName(
                                     "com.instagram.android",
@@ -6509,7 +6511,6 @@ v.seekTo(1);
             String caption = Util.prepareCaption(title, author, _this.getApplication().getApplicationContext(), caption_suffix, tiktokLink);
 
 
-
             shareIntent.setAction(Intent.ACTION_SEND);
             shareIntent.setPackage("com.instagram.android");
             //  shareIntent.setClassName("com.instagram.android",instagram_activity);
@@ -6531,7 +6532,7 @@ v.seekTo(1);
                         "com.instagram.android",
                         "com.instagram.share.handleractivity.StoryShareHandlerActivity");
             } else {
-                if (isVideo) {
+                if (1 == 2) {
 
                     shareIntent.setClassName(
                             "com.instagram.android",
