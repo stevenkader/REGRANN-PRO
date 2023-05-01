@@ -91,10 +91,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.resource.bitmap.CenterCrop;
-import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.bumptech.glide.request.FutureTarget;
-import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
@@ -1250,9 +1247,25 @@ Log.d("app5", "AppoDeal init done");
 
 
             long id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
-
-
             if (id == twitterDownloadId) {
+                Cursor cursor = downloadManager.query(new DownloadManager.Query().setFilterById(id));
+                if (cursor != null && cursor.moveToNext()) {
+                    @SuppressLint("Range") int status = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS));
+                    cursor.close();
+                    if (status == DownloadManager.STATUS_FAILED) {
+                        // do something when failed
+                        sendEvent("twitter_download_failed");
+                        showErrorToast("Can't find video", "There was a problem downloading the video.  Please try again.", true);
+                    } else if (status == DownloadManager.STATUS_PENDING || status == DownloadManager.STATUS_PAUSED) {
+                        // do something pending or paused
+                    } else if (status == DownloadManager.STATUS_SUCCESSFUL) {
+                        // do something when successful
+                    } else if (status == DownloadManager.STATUS_RUNNING) {
+                        // do something when running
+                    }
+                }
+
+
                 Log.d("app5", "twitter download onComplete");
                 AsyncTask.execute(new Runnable() {
                     @Override
@@ -1294,87 +1307,6 @@ Log.d("app5", "AppoDeal init done");
             }
 
 
-            if (intent != null && intent.getAction() != null) {
-                String action = intent.getAction();
-                if (DownloadManager.ACTION_DOWNLOAD_COMPLETE.equals(action)) {
-                    DownloadManager mgr = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
-                    if (mgr != null) {
-
-                        long savedJobId = Helper.getDownloadRequestId(context);
-
-
-                        if (id == savedJobId) {
-                            removeProgressDialog();
-
-
-                            if (isAutoSave | isQuickPost | isQuickKeep) {
-                                removeProgressDialog();
-
-                                if (isAutoSave)
-                                    copyTempToSave();
-
-
-                                finish();
-
-
-                                return;
-
-                            }
-
-                            DownloadManager.Query query = new DownloadManager.Query();
-                            query.setFilterById(savedJobId);
-                            Cursor c = mgr.query(query);
-                            if (c.moveToFirst()) {
-                                int columnIndex = c.getColumnIndex(DownloadManager.COLUMN_STATUS);
-                                if (DownloadManager.STATUS_SUCCESSFUL == c.getInt(columnIndex)) {
-
-                                }
-                            }
-                        }
-
-
-                    }
-                }
-            }
-        }
-    };
-
-
-    private final BroadcastReceiver myDownloadLinkReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-
-
-            TiktokPost tiktokPost = intent.getParcelableExtra("data");
-            if (tiktokPost != null && tiktokPost.getDownloadUrl() != null) {
-                if (spinner != null)
-                    spinner.setVisibility(View.GONE);
-                startProgressDialog();
-                isVideo = true;
-
-                tempVideoFile = new File(Environment.getExternalStorageDirectory() + tempVideoName);
-
-                tempVideoFullPathName = tempVideoFile.getPath();
-
-
-                Helper.downloadTiktokPost(_this, tiktokPost, tempVideoName);
-
-                author = tiktokPost.getUserName();
-                title = tiktokPost.getCaption();
-
-
-                if (isVideo && !isAutoSave && !isQuickKeep && !isQuickPost) {
-                    Glide.with(_this).load(tiktokPost.getThumbnail()).apply(new RequestOptions().transform(new CenterCrop(), new RoundedCorners(16))).into(previewImage);
-
-                    videoIcon.setVisibility(View.VISIBLE);
-                }
-
-                photoReady = true;
-
-
-                //  setupPostView();
-                int i = 1;
-            }
         }
     };
 
@@ -5328,9 +5260,27 @@ v.seekTo(1);
 
 
             if (isVideo) {
-
-
                 removeProgressDialog();
+                long id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
+
+                Cursor cursor = downloadManager.query(new DownloadManager.Query().setFilterById(id));
+                if (cursor != null && cursor.moveToNext()) {
+                    @SuppressLint("Range") int status = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS));
+                    cursor.close();
+                    if (status == DownloadManager.STATUS_FAILED) {
+                        // do something when failed
+                        sendEvent("download_failed");
+                        GET(initialURL);
+                        return;
+                    } else if (status == DownloadManager.STATUS_PENDING || status == DownloadManager.STATUS_PAUSED) {
+                        // do something pending or paused
+                    } else if (status == DownloadManager.STATUS_SUCCESSFUL) {
+                        // do something when successful
+                    } else if (status == DownloadManager.STATUS_RUNNING) {
+                        // do something when running
+                    }
+                }
+
 
                 scanRegrannFolder();
 
