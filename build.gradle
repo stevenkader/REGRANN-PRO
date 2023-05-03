@@ -3,7 +3,7 @@
 buildscript {
 
     ext.kotlin_version = '1.6.21'
-    ext.pesdk_version = '10.2.1'
+    ext.pesdk_version = '10.7.0'
     // Insert the latest SDK version here. You will find it here https://github.com/imgly/pesdk-android-demo/releases
 
     repositories {
@@ -23,7 +23,7 @@ buildscript {
 
         classpath 'com.android.tools.build:gradle:7.4.0-rc03'
         classpath 'com.google.gms:google-services:4.3.13' // google-services plugin
-        classpath 'ly.img.android.pesdk:plugin:10.2.1'
+        classpath 'ly.img.android.pesdk:plugin:10.7.0'
 
 
     }

@@ -213,6 +213,22 @@
             android:textStyle="bold"
             android:visibility="gone" />
 
+        <Button
+            android:id="@+id/btnVideoEditor"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp"
+            android:background="#FFA500"
+            android:onClick="OnClickEditVideo"
+            android:text="Edit Video\n(remove audio, trim, resize)"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:visibility="gone" />
+
         <FrameLayout
             android:id="@+id/fl_adplaceholder"
             android:layout_width="match_parent"

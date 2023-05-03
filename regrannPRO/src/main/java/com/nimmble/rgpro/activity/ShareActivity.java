@@ -153,11 +153,13 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import ly.img.android.pesdk.PhotoEditorSettingsList;
+import ly.img.android.pesdk.VideoEditorSettingsList;
 import ly.img.android.pesdk.assets.filter.basic.FilterPackBasic;
 import ly.img.android.pesdk.assets.font.basic.FontPackBasic;
 import ly.img.android.pesdk.backend.model.EditorSDKResult;
 import ly.img.android.pesdk.backend.model.state.LoadSettings;
 import ly.img.android.pesdk.backend.model.state.PhotoEditorSaveSettings;
+import ly.img.android.pesdk.backend.model.state.VideoEditorSaveSettings;
 import ly.img.android.pesdk.ui.activity.EditorBuilder;
 import ly.img.android.pesdk.ui.model.state.UiConfigFilter;
 import ly.img.android.pesdk.ui.model.state.UiConfigText;
@@ -2645,10 +2647,14 @@ Log.d("app5", "AppoDeal init done");
 
                                     //  final Drawable drawable = Drawable.createFromPath(path);
 
+
                                     if (!isVideo && !isMulti) {
                                         findViewById(R.id.btnEditor).setVisibility(View.VISIBLE);
                                         findViewById(R.id.wmarkposition).setVisibility(View.VISIBLE);
                                     }
+
+                                    if (isVideo)
+                                        findViewById(R.id.btnVideoEditor).setVisibility(View.VISIBLE);
 
 
                                     if (isMulti) {
@@ -4456,6 +4462,13 @@ v.seekTo(1);
 
     }
 
+    public void OnClickEditVideo(View v) {
+        sendEvent("sc_edit_video", "", "");
+        openVideoEditor(Uri.fromFile(new File(Util.getTempVideoFilePath())));
+
+
+    }
+
     public void onClickWmarkPosition(View v) {
 
         RegrannApp.sendEvent("onclick_watermark");
@@ -5861,6 +5874,21 @@ v.seekTo(1);
     }
 
 
+    private VideoEditorSettingsList createVideoPesdkSettingsList() {
+
+        // Create a empty new SettingsList and apply the changes on this referance.
+        VideoEditorSettingsList settingsList = new VideoEditorSettingsList(true);
+        settingsList.getSettingsModel(UiConfigFilter.class).setFilterList(
+                FilterPackBasic.getFilterPack()
+        );
+
+        settingsList.getSettingsModel(UiConfigText.class).setFontList(
+                FontPackBasic.getFontPack()
+        );
+        return settingsList;
+    }
+
+
     private void openEditor(Uri inputImage) {
 
         try {
@@ -5870,6 +5898,28 @@ v.seekTo(1);
             settingsList.getSettingsModel(LoadSettings.class).setSource(inputImage);
 
             settingsList.getSettingsModel(PhotoEditorSaveSettings.class).setOutputToUri(inputImage);
+
+
+            new EditorBuilder(this)
+                    .setSettingsList(settingsList)
+                    .startActivityForResult(this, PESDK_RESULT);
+
+            settingsList.release();
+        } catch (Exception e) {
+            Log.d("app5", e.getMessage());
+        }
+    }
+
+
+    private void openVideoEditor(Uri inputVideo) {
+
+        try {
+            VideoEditorSettingsList settingsList = createVideoPesdkSettingsList();
+
+            // Set input image
+            settingsList.getSettingsModel(LoadSettings.class).setSource(inputVideo);
+
+            settingsList.getSettingsModel(VideoEditorSaveSettings.class).setOutputToUri(inputVideo);
 
 
             new EditorBuilder(this)
