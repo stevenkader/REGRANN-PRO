@@ -45,7 +45,7 @@ public class NewShareText extends Activity {
                             try {
                           //      if (text.contains("instagram.com")   ) {
 
-                                if (text.contains("instagram.com") || text.contains("youtube.com/shorts") || text.contains("fb.watch") || text.contains("facebook.com") || text.contains("twitter.com")) {
+                                if (text.contains("instagram.com") || text.contains("youtube.com/shorts") || text.contains("fb.watch") || text.contains("tiktok") || text.contains("facebook.com") || text.contains("twitter.com")) {
                                     text = text.substring(text.indexOf("https://"));
 
                                     Intent i;

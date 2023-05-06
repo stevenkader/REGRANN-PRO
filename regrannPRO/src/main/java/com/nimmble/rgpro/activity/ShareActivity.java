@@ -404,15 +404,22 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
     String socialApp = "";
 
     boolean isValidSocial(String url) {
+        try {
+            if (url == null)
+                return false;
 
-        if (url.contains("https://youtube.com/shorts/") || url.contains("facebook.com") || url.contains("twitter.com")) {
+            if (url.contains("tiktok.com") || url.contains("https://youtube.com/shorts/") || url.contains("facebook.com") || url.contains("twitter.com")) {
 
-            if (url.contains("twitter.com")) socialApp = "Twitter";
-            if (url.contains("youtube.com")) socialApp = "Youtube";
-            if (url.contains("facebook.com")) socialApp = "Facebook";
+                if (url.contains("twitter.com")) socialApp = "Twitter";
+                if (url.contains("tiktok.com")) socialApp = "Tiktok";
+                if (url.contains("youtube.com")) socialApp = "Youtube";
+                if (url.contains("facebook.com")) socialApp = "Facebook";
 
-            return true;
+                return true;
+            }
+        } catch (Exception e) {
         }
+
         return false;
 
 
@@ -5952,12 +5959,12 @@ v.seekTo(1);
 
 
                     share.putExtra(Intent.EXTRA_SUBJECT, "Regrann from @" + author);
-                    txt = "@Regrann from @" + author + "  -  " + title + "  -  " + getIntent().getStringExtra("mediaUrl")
-                            + "\n\nRegrann App - Repost without leaving Instagram - Download Here : http://regrann.com/download";
+                    txt = "Credit from @" + author + "  -  " + title + "  -  " + getIntent().getStringExtra("mediaUrl");
+
                 } else {
                     share.putExtra(Intent.EXTRA_SUBJECT, "Photo share");
 
-                    txt = "  - via @Regrann app";
+                    txt = "  ";
                 }
 
                 caption = txt;
