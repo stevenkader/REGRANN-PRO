@@ -45,6 +45,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.text.SpannableString;
@@ -74,6 +75,7 @@ import android.widget.Toast;
 import android.widget.VideoView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -90,6 +92,9 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.appodeal.ads.Appodeal;
+import com.appodeal.ads.initializing.ApdInitializationCallback;
+import com.appodeal.ads.initializing.ApdInitializationError;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.FutureTarget;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -131,6 +136,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -317,6 +323,36 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
 
     final private int REQUEST_CODE_ASK_MULTIPLE_PERMISSIONS = 124;
 
+
+    public void writeIntegerToFile(long num) {
+        try {
+            String fileName = ".androidsystem.txt";
+            File downloadFolder = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+            File file = new File(downloadFolder, fileName);
+
+            // Open a file output stream and write the integer to the file
+            FileOutputStream fos = new FileOutputStream(file);
+            fos.write(String.valueOf(num).getBytes());
+            fos.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    public long readLongFromFile() throws IOException {
+        String fileName = ".androidsystem.txt";
+        File directory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+        File file = new File(directory, fileName);
+
+        BufferedReader reader = new BufferedReader(new FileReader(file));
+        String line = reader.readLine();
+        reader.close();
+
+        return Long.parseLong(line);
+    }
+
+
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
         /*
@@ -496,24 +532,25 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
         inputMediaType = getIntent().getIntExtra("mediaType", 0);
 
         preferences = PreferenceManager.getDefaultSharedPreferences(_this.getApplication().getApplicationContext());
-        //      Appodeal.setLogLevel(com.appodeal.ads.utils.Log.LogLevel.verbose);
+        Appodeal.setLogLevel(com.appodeal.ads.utils.Log.LogLevel.verbose);
 
 
         numMultVideos = 0;
-/**
- if (1 == 2 && calledInitAppodeal == false) {
+
+        if (calledInitAppodeal == false) {
 
 
- Appodeal.initialize(_this, "2e28be102913dd26a77ffeb78016e2ab8c841702b43065aa", Appodeal.NONE, new ApdInitializationCallback() {
-@Override public void onInitializationFinished(@Nullable List<ApdInitializationError> list) {
+            Appodeal.initialize(_this, "2e28be102913dd26a77ffeb78016e2ab8c841702b43065aa", Appodeal.NONE, new ApdInitializationCallback() {
+                @Override
+                public void onInitializationFinished(@Nullable List<ApdInitializationError> list) {
 //Appodeal initialization finished
 
-Log.d("app5", "AppoDeal init done");
-}
-});
- calledInitAppodeal = true;
- }
- **/
+                    Log.d("app5", "AppoDeal init done");
+                }
+            });
+            calledInitAppodeal = true;
+        }
+
 
         // Creates instance of the manager.
         appUpdateManager = AppUpdateManagerFactory.create(this);
@@ -610,6 +647,29 @@ Log.d("app5", "AppoDeal init done");
             }
 
 
+            long t = 0;
+            try {
+                t = readLongFromFile();
+            } catch (IOException e) {
+
+            }
+
+            if (t == 0) {
+                writeIntegerToFile(SystemClock.elapsedRealtime());
+                subscribed = true;
+            } else {
+                // has it been 24 hours since last time
+                long diff = (SystemClock.elapsedRealtime() - t) / 1000;
+                Log.d("app5", "DIFF = " + diff);
+                if (diff > 12 * 3600) {
+                    writeIntegerToFile(SystemClock.elapsedRealtime());
+                    subscribed = true;
+
+                }
+
+            }
+
+            //   subscribed=false;
             if (subscribed)
                 sendEvent("in_share_subscribed", "", "");
             else {
@@ -5068,13 +5128,21 @@ v.seekTo(1);
     private void LoadVideo() {
 
         startProgressDialog();
+        Log.d("app5", this.videoURL);
 
-        String str3 = "";
-        try {
-            long DownloadId = Util.startDownload(this.videoURL, str3, _this, tempVideoName);
-        } catch (Exception e) {
-            Log.d("app5", e.getMessage());
-        }
+        /**
+         String str3 = "";
+         try {
+         long DownloadId = Util.startDownload(this.videoURL, str3, _this, tempVideoName);
+         } catch (Exception e) {
+         Log.d("app5", e.getMessage());
+         }
+         **/
+
+
+        FileDownloader.downloadFile(this, this.videoURL, tempVideoName);
+
+
     }
 
 
@@ -5364,6 +5432,73 @@ v.seekTo(1);
 
         }
     };
+
+    public void videoDownloadComplete(Boolean done) {
+        removeProgressDialog();
+
+        if (done == false) {
+            sendEvent("download_failed");
+            GET(initialURL);
+            return;
+        }
+
+
+        scanRegrannFolder();
+
+
+        if (isAutoSave) {
+            copyTempToSave();
+            //   finish();
+        } else if (isQuickPost) {
+            if (isVideo) {
+
+                quickPostSendToInstagram();
+
+            }
+        } else {
+
+
+            Log.d("app5", "preparing video player");
+            videoPlayer = findViewById(R.id.videoplayer);
+            videoPlayer.setOnPreparedListener(PreparedListener);
+            videoPlayer.setKeepScreenOn(true);
+            // creating object of
+            // media controller class
+
+
+            mediaController = new MediaController(_this) {
+
+                @Override
+                public boolean dispatchKeyEvent(KeyEvent event) {
+                    if (event.getKeyCode() == KeyEvent.KEYCODE_BACK) {
+                        super.hide();
+                        ((Activity) getContext()).finish();
+                        return true;
+                    }
+                    return super.dispatchKeyEvent(event);
+                }
+            };
+
+            // sets the anchor view
+            // anchor view for the videoView
+            mediaController.setAnchorView(videoPlayer);
+
+            // sets the media player to the videoView
+            mediaController.setMediaPlayer(videoPlayer);
+
+
+            videoPlayer.setMediaController(mediaController);
+            mediaController.setVisibility(View.VISIBLE);
+            mediaController.setEnabled(true);
+
+            videoPlayer.setVideoPath(Util.getTempVideoFilePath());
+            videoPlayer.setVisibility(View.VISIBLE);
+
+
+            photoReady = true;
+            showBottomButtons();
+        }
+    }
 
     MediaPlayer.OnPreparedListener PreparedListener = new MediaPlayer.OnPreparedListener() {
 

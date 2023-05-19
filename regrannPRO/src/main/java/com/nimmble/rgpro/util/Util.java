@@ -64,7 +64,7 @@ public class Util {
 
     public static long startDownload(String str, String str2, Context context2, String str3) {
         DownloadManager.Request request = new DownloadManager.Request(Uri.parse(str));
-        request.setAllowedNetworkTypes(3);
+        request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI | DownloadManager.Request.NETWORK_MOBILE);
         request.setAllowedOverRoaming(true);
         request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_HIDDEN);
 
@@ -277,5 +277,6 @@ public class Util {
         }
         return null;
     }
+
 
 }

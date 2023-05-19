@@ -117,7 +117,7 @@ public class KeepForLaterActivity extends Activity {
                     regrannPictureFolder = getAlbumStorageDir("Regrann").getAbsolutePath();
 
                     // Get the directory for the user's public pictures directory.
-                    File file = new File(Environment.getExternalStorageDirectory(), "regrann-keepforlater");
+                    File file = new File(RegrannApp._this.getExternalFilesDir(Environment.DIRECTORY_PICTURES), "regrann-keepforlater");
 
                     if (!file.mkdirs()) {
                         Log.e("error", "Directory not created");

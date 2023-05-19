@@ -182,7 +182,7 @@ dependencies {
     //  implementation "androidx.lifecycle:lifecycle-viewmodel:$lifecycle_version"
     //   implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
 
-    // implementation 'com.appodeal.ads:sdk:3.0.2.+'
+     implementation 'com.appodeal.ads:sdk:3.0.2.+'
     //  implementation 'io.qonversion.android.sdk:sdk:4.+'
 
 }

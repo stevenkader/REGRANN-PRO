@@ -46,7 +46,7 @@ public class Helper {
     }
 
     public static String getFileBase(Context context) {
-        return Environment.getExternalStorageDirectory() + "/" + Environment.DIRECTORY_DOWNLOADS + "/" + context.getString(R.string.app_name);
+        return RegrannApp._this.getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/" + Environment.DIRECTORY_DOWNLOADS + "/" + context.getString(R.string.app_name);
     }
 
     public static File getFile(Context context, TiktokPost tiktokPost) {

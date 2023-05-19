@@ -11,6 +11,8 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -25,6 +27,10 @@ import com.android.billingclient.api.ProductDetailsResponseListener;
 import com.android.billingclient.api.Purchase;
 import com.android.billingclient.api.PurchasesUpdatedListener;
 import com.android.billingclient.api.QueryProductDetailsParams;
+import com.appodeal.ads.Appodeal;
+import com.appodeal.ads.inapp.InAppPurchase;
+import com.appodeal.ads.inapp.InAppPurchaseValidateCallback;
+import com.appodeal.ads.service.ServiceError;
 import com.google.common.collect.ImmutableList;
 import com.nimmble.rgpro.R;
 
@@ -71,10 +77,12 @@ public class RequestPaymentActivity extends AppCompatActivity {
     ProgressBar spinner;
     Button subscribe;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         _this = this;
+
 
         preferences = PreferenceManager.getDefaultSharedPreferences(this.getApplication().getApplicationContext());
 
@@ -188,7 +196,7 @@ public class RequestPaymentActivity extends AppCompatActivity {
                                 editor.putBoolean("subscribed", true);
                                 editor.putBoolean("really_subscribed", true);
 
-                                //   validatePurchase(purchase);
+                                validatePurchase(purchase);
 
                                 editor.commit();
 
@@ -352,7 +360,6 @@ public class RequestPaymentActivity extends AppCompatActivity {
 
     // Purchase object is returned by Google API in onPurchasesUpdated() callback
 
-/**
      public void validatePurchase(Purchase purchase) {
 
      // Create new InAppPurchase
@@ -379,7 +386,7 @@ public class RequestPaymentActivity extends AppCompatActivity {
      // Validate InApp purchase
      Appodeal.validateInAppPurchase(this, inAppPurchase, new InAppPurchaseValidateCallback() {
     @Override public void onInAppPurchaseValidateFail(InAppPurchase inAppPurchase, List<ServiceError> list) {
-    Log.d("app5", "Appodeal validate fail");
+        Log.d("app5", "Appodeal validate fail : " + list.get(0).getMessage());
     }
 
     @Override public void onInAppPurchaseValidateSuccess(@NonNull InAppPurchase purchase,
@@ -392,7 +399,7 @@ public class RequestPaymentActivity extends AppCompatActivity {
 
     });
      }
-     **/
+
 
     private void showErrorToast(final String error, final String displayMsg, final boolean doFinish) {
 
