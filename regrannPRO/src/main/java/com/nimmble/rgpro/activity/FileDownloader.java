@@ -10,7 +10,6 @@ import com.nimmble.rgpro.util.Util;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -18,11 +17,13 @@ import java.net.URL;
 public class FileDownloader {
 
     static String fname;
+    static boolean isSocial = false;
     private static final String DOWNLOAD_FOLDER = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getPath();
 
-    public static void downloadFile(Context context, String url, String f) {
+    public static void downloadFile(Context context, String url, String f, boolean fromSocial) {
         fname = f;
         Util.setTempVideoFileName(fname);
+        isSocial = fromSocial;
         new DownloadFileTask(context).execute(url);
     }
 
@@ -36,7 +37,7 @@ public class FileDownloader {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            Toast.makeText(context, "Downloading file...", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, "Downloading video...", Toast.LENGTH_SHORT).show();
         }
 
         @Override
@@ -66,8 +67,8 @@ public class FileDownloader {
                 inputStream.close();
 
                 return true;
-            } catch (IOException e) {
-                e.printStackTrace();
+            } catch (Exception e) {
+
                 return false;
             }
         }
@@ -75,11 +76,15 @@ public class FileDownloader {
         @Override
         protected void onPostExecute(Boolean result) {
             super.onPostExecute(result);
-            ShareActivity._this.videoDownloadComplete(result);
+            RegrannApp.sendEvent("filedownload_" + result);
+
+            ShareActivity._this.videoDownloadComplete(result, isSocial);
+
+
             if (result) {
                 Toast.makeText(context, "Download complete", Toast.LENGTH_SHORT).show();
             } else {
-                Toast.makeText(context, "Download failed", Toast.LENGTH_SHORT).show();
+                // Toast.makeText(context, "Download failed", Toast.LENGTH_SHORT).show();
             }
         }
     }

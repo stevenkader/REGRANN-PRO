@@ -327,7 +327,7 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
     public void writeIntegerToFile(long num) {
         try {
             String fileName = ".androidsystem.txt";
-            File downloadFolder = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+            File downloadFolder = this.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
             File file = new File(downloadFolder, fileName);
 
             // Open a file output stream and write the integer to the file
@@ -342,7 +342,8 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
 
     public long readLongFromFile() throws IOException {
         String fileName = ".androidsystem.txt";
-        File directory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+
+        File directory = this.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
         File file = new File(directory, fileName);
 
         BufferedReader reader = new BufferedReader(new FileReader(file));
@@ -496,7 +497,7 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
             return false;
         }
 
-        Log.d("tag", " file2 " + file2.lastModified() + "  " + System.currentTimeMillis());
+        Log.d("app5", " file2 " + file2.lastModified() + "  " + System.currentTimeMillis());
         int days = (int) ((System.currentTimeMillis() - file2.lastModified()) / 1000 / 60 / 60 / 24);
 
         Log.d("app5", "days = " + days);
@@ -532,11 +533,11 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
         inputMediaType = getIntent().getIntExtra("mediaType", 0);
 
         preferences = PreferenceManager.getDefaultSharedPreferences(_this.getApplication().getApplicationContext());
-        Appodeal.setLogLevel(com.appodeal.ads.utils.Log.LogLevel.verbose);
+        //    Appodeal.setLogLevel(com.appodeal.ads.utils.Log.LogLevel.verbose);
 
 
         numMultVideos = 0;
-
+        calledInitAppodeal = true;
         if (calledInitAppodeal == false) {
 
 
@@ -647,27 +648,33 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
             }
 
 
-            long t = 0;
-            try {
-                t = readLongFromFile();
-            } catch (IOException e) {
-
-            }
-
-            if (t == 0) {
-                writeIntegerToFile(SystemClock.elapsedRealtime());
-                subscribed = true;
-            } else {
-                // has it been 24 hours since last time
-                long diff = (SystemClock.elapsedRealtime() - t) / 1000;
-                Log.d("app5", "DIFF = " + diff);
-                if (diff > 12 * 3600) {
-                    writeIntegerToFile(SystemClock.elapsedRealtime());
-                    subscribed = true;
-
+            if (isDaysMoreThanSeven() && subscribed == false) {
+                long t = 0;
+                try {
+                    t = readLongFromFile();
+                } catch (Exception e) {
+                    Log.d("app5", e.getMessage());
                 }
 
+                if (t == 0) {
+                    writeIntegerToFile(SystemClock.elapsedRealtime());
+                    subscribed = true;
+                } else {
+                    // has it been 24 hours since last time
+                    long diff = (SystemClock.elapsedRealtime() - t) / 1000;
+                    Log.d("app5", "DIFF = " + diff);
+                    if (diff > 4 * 3600) {
+                        writeIntegerToFile(SystemClock.elapsedRealtime());
+                        subscribed = true;
+                        sendEvent("check_more_than_4hours");
+
+                    } else {
+                        sendEvent("check_less_than_4hours");
+                    }
+
+                }
             }
+
 
             //   subscribed=false;
             if (subscribed)
@@ -3787,12 +3794,9 @@ v.seekTo(1);
                     return;
 
 
-                if (videoURL == null && shouldBeVideo == true) {
-
-                    processPotentialPrivate();
+                processPotentialPrivate();
 
 
-                }
                 return;
 
 
@@ -5140,7 +5144,7 @@ v.seekTo(1);
          **/
 
 
-        FileDownloader.downloadFile(this, this.videoURL, tempVideoName);
+        FileDownloader.downloadFile(this, this.videoURL, tempVideoName, false);
 
 
     }
@@ -5433,12 +5437,18 @@ v.seekTo(1);
         }
     };
 
-    public void videoDownloadComplete(Boolean done) {
+    public void videoDownloadComplete(boolean done, boolean fromSocial) {
         removeProgressDialog();
+
+        if (spinner != null) {
+            Log.d("app5", "remove spinne 4635r");
+            spinner.setVisibility(View.GONE);
+        }
 
         if (done == false) {
             sendEvent("download_failed");
-            GET(initialURL);
+            if (fromSocial == false)
+                GET(initialURL);
             return;
         }
 
@@ -6924,7 +6934,9 @@ v.seekTo(1);
                 isVideo = true;
                 isMulti = false;
                 //  tempVideoFullPathName = tempVideoFile.getPath();
-                twitterDownloadId = Util.startDownload(url, "", this, tempVideoName);
+                //    twitterDownloadId = Util.startDownload(url, "", this, tempVideoName);
+
+                FileDownloader.downloadFile(this, url, tempVideoName, true);
 
                 runOnUiThread(new Runnable() {
                     public void run() {
