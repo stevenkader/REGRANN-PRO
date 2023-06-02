@@ -36,7 +36,8 @@ allprojects {
 
         maven { url 'https://artifactory.img.ly/artifactory/imgly' }
         maven { url 'https://jitpack.io' }
-        maven { url 'https://artifactory.appodeal.com/appodeal' }
+        maven { url 'https://maven.calldorado.com/nexus/content/repositories/releases' }
+
 
     }
 }

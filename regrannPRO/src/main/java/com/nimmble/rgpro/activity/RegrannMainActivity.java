@@ -826,6 +826,15 @@ editor.commit();
 
     }
 
+    public void onClickTestPurchase(View view) {
+
+
+        Intent i = new Intent(_this, RequestPaymentActivity.class);
+
+
+        startActivity(i);
+    }
+
 
     public void onClickOpenSettings(View view) {
         RegrannApp.sendEvent("rmain_settings_btn");

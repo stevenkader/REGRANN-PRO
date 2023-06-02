@@ -14,8 +14,8 @@ android {
         applicationId "com.nimmble.rgpro"
         minSdkVersion 26
         targetSdkVersion 31
-        versionCode 462
-        versionName "4.80"
+        versionCode 466
+        versionName "4.84"
 
         multiDexEnabled true
         resValue 'string', 'pesdk_version', "v$pesdk_version"
@@ -182,8 +182,12 @@ dependencies {
     //  implementation "androidx.lifecycle:lifecycle-viewmodel:$lifecycle_version"
     //   implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
 
-     implementation 'com.appodeal.ads:sdk:3.0.2.+'
+    //  implementation 'com.appodeal.ads:sdk:3.0.2.+'
     //  implementation 'io.qonversion.android.sdk:sdk:4.+'
+
+    implementation("com.calldorado:doralytics:1.0.2.113@jar") {
+        transitive true
+    }
 
 }
 

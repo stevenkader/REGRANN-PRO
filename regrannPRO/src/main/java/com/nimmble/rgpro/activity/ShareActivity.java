@@ -75,7 +75,6 @@ import android.widget.Toast;
 import android.widget.VideoView;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -92,9 +91,6 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.appodeal.ads.Appodeal;
-import com.appodeal.ads.initializing.ApdInitializationCallback;
-import com.appodeal.ads.initializing.ApdInitializationError;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.FutureTarget;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -537,21 +533,21 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
 
 
         numMultVideos = 0;
-        calledInitAppodeal = true;
-        if (calledInitAppodeal == false) {
+        /**
+         calledInitAppodeal = true;
+         if (calledInitAppodeal == false) {
 
 
-            Appodeal.initialize(_this, "2e28be102913dd26a77ffeb78016e2ab8c841702b43065aa", Appodeal.NONE, new ApdInitializationCallback() {
-                @Override
-                public void onInitializationFinished(@Nullable List<ApdInitializationError> list) {
-//Appodeal initialization finished
+         Appodeal.initialize(_this, "2e28be102913dd26a77ffeb78016e2ab8c841702b43065aa", Appodeal.NONE, new ApdInitializationCallback() {
+        @Override public void onInitializationFinished(@Nullable List<ApdInitializationError> list) {
+        //Appodeal initialization finished
 
-                    Log.d("app5", "AppoDeal init done");
-                }
-            });
-            calledInitAppodeal = true;
+        Log.d("app5", "AppoDeal init done");
         }
-
+        });
+         calledInitAppodeal = true;
+         }
+         **/
 
         // Creates instance of the manager.
         appUpdateManager = AppUpdateManagerFactory.create(this);
@@ -658,6 +654,8 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
 
                 if (t == 0) {
                     writeIntegerToFile(SystemClock.elapsedRealtime());
+                    RegrannApp.sendEvent("check_initial");
+
                     subscribed = true;
                 } else {
                     // has it been 24 hours since last time
@@ -5446,9 +5444,11 @@ v.seekTo(1);
         }
 
         if (done == false) {
-            sendEvent("download_failed");
-            if (fromSocial == false)
+            sendEvent("download_failed_vid_complete_" + fromSocial);
+            if (fromSocial == false) {
+
                 GET(initialURL);
+            }
             return;
         }
 

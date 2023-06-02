@@ -11,8 +11,6 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -27,14 +25,13 @@ import com.android.billingclient.api.ProductDetailsResponseListener;
 import com.android.billingclient.api.Purchase;
 import com.android.billingclient.api.PurchasesUpdatedListener;
 import com.android.billingclient.api.QueryProductDetailsParams;
-import com.appodeal.ads.Appodeal;
-import com.appodeal.ads.inapp.InAppPurchase;
-import com.appodeal.ads.inapp.InAppPurchaseValidateCallback;
-import com.appodeal.ads.service.ServiceError;
+import com.calldorado.doralytics.sdk.DoraSDK;
+import com.calldorado.doralytics.sdk.base.DoraEventValue;
 import com.google.common.collect.ImmutableList;
 import com.nimmble.rgpro.R;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 
@@ -71,7 +68,7 @@ public class RequestPaymentActivity extends AppCompatActivity {
         }
     }
 
-    ProductDetails skuDetailsRemoveAds = null;
+    static ProductDetails skuDetailsRemoveAds = null;
     boolean billingReady = false;
     AcknowledgePurchaseResponseListener acknowledgePurchaseResponseListener;
     ProgressBar spinner;
@@ -189,16 +186,39 @@ public class RequestPaymentActivity extends AppCompatActivity {
                         } else {
                             if (purchase.getPurchaseState() == Purchase.PurchaseState.PURCHASED) {
 
-                                if (preferences.getBoolean("really_subscribed", false) == false)
-                                    RegrannApp.sendEvent("ug_purchase_complete");
+                                if (preferences.getBoolean("really_subscribed", false) == false) {
+                                    RegrannApp.sendEvent("ug_purchase_complete_v2");
 
-                                SharedPreferences.Editor editor = preferences.edit();
-                                editor.putBoolean("subscribed", true);
-                                editor.putBoolean("really_subscribed", true);
+                                    SharedPreferences.Editor editor = preferences.edit();
+                                    editor.putBoolean("subscribed", true);
+                                    editor.putBoolean("really_subscribed", true);
+                                    Long price;
+                                    String currencyCode;
+                                    try {
+                                        price = skuDetailsRemoveAds.getSubscriptionOfferDetails().get(1).getPricingPhases().getPricingPhaseList().get(0).getPriceAmountMicros();
 
-                            //    validatePurchase(purchase);
+                                        currencyCode = skuDetailsRemoveAds.getSubscriptionOfferDetails().get(1).getPricingPhases().getPricingPhaseList().get(0).getPriceCurrencyCode();
+                                    } catch (Exception e) {
+                                        price = Long.valueOf(3990000);
+                                        currencyCode = "USD";
 
-                                editor.commit();
+                                    }
+
+                                    Log.d("app5", price + "    " + currencyCode);
+                                    HashMap<String, String> HashMap = new HashMap<String, String>();
+
+
+                                    HashMap.put("sku_name", SKU);
+
+                                    HashMap.put("purchase_token", purchase.getPurchaseToken());
+
+
+                                    DoraSDK.sendEvent("app_iap", "CUSTOM_EVENT", new DoraEventValue(price, currencyCode),
+                                            HashMap);
+                                    Log.d("sdkEvent:", "sub_monthly");
+
+                                    editor.commit();
+                                }
 
                                 //    Qonversion.getSharedInstance().syncPurchases();
 
@@ -294,9 +314,10 @@ public class RequestPaymentActivity extends AppCompatActivity {
                                                                      List<ProductDetails> productDetailsList) {
                                     // check billingResult
                                     // process returned productDetailsList
-                                    if (productDetailsList.size() > 0)
+                                    if (productDetailsList.size() > 0) {
                                         skuDetailsRemoveAds = productDetailsList.get(0);
-                                    else {
+
+                                    } else {
                                         RegrannApp.sendEvent("rq_no_products");
                                         showErrorToast("Problem", "There was a problem.  Please try again.", true);
                                         return;
@@ -360,6 +381,7 @@ public class RequestPaymentActivity extends AppCompatActivity {
 
     // Purchase object is returned by Google API in onPurchasesUpdated() callback
 
+    /**
      public void validatePurchase(Purchase purchase) {
 
      // Create new InAppPurchase
@@ -384,6 +406,7 @@ public class RequestPaymentActivity extends AppCompatActivity {
      Log.d("app5", "appodeal attempt to validate purchase");
 
      // Validate InApp purchase
+
      Appodeal.validateInAppPurchase(this, inAppPurchase, new InAppPurchaseValidateCallback() {
     @Override public void onInAppPurchaseValidateFail(InAppPurchase inAppPurchase, List<ServiceError> list) {
         Log.d("app5", "Appodeal validate fail : " + list.get(0).getMessage());
@@ -399,8 +422,7 @@ public class RequestPaymentActivity extends AppCompatActivity {
 
     });
      }
-
-
+     **/
     private void showErrorToast(final String error, final String displayMsg, final boolean doFinish) {
 
         runOnUiThread(new Runnable() {

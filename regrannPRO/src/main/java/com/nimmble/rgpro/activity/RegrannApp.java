@@ -9,6 +9,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.multidex.MultiDex;
 
+import com.calldorado.doralytics.sdk.DoraSDK;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseApp;
@@ -98,6 +99,12 @@ public class RegrannApp extends Application {
  ).setEnvironment(QEnvironment.Sandbox).build();
  Qonversion.initialize(qonversionConfig);
  **/
+
+        DoraSDK.init(
+                this, "e4a7590c-c062-4c08-9bb5-589c16fb7141",
+                "f6d51302-99b4-4666-aeb2-96b19ea45c23"
+        );
+
 
         FirebaseApp.initializeApp(this);
         Log.d("app5", "In Regrann App - onCreate");

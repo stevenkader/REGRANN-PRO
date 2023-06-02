@@ -183,8 +183,12 @@
                     android:onClick="onClickHowToMulti"
                     app:srcCompat="@drawable/howtorepost" />
 
-
-
+                <Button
+                    android:id="@+id/button"
+                    android:onClick="onClickTestPurchase"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Test Purchase" />
 
 
             </LinearLayout>
