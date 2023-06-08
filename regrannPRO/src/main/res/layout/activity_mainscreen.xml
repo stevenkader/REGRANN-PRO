@@ -184,6 +184,7 @@
                     app:srcCompat="@drawable/howtorepost" />
 
                 <Button
+                    android:visibility="gone"
                     android:id="@+id/button"
                     android:onClick="onClickTestPurchase"
                     android:layout_width="match_parent"

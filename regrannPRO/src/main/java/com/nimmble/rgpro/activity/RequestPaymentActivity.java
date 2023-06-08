@@ -29,6 +29,7 @@ import com.calldorado.doralytics.sdk.DoraSDK;
 import com.calldorado.doralytics.sdk.base.DoraEventValue;
 import com.google.common.collect.ImmutableList;
 import com.nimmble.rgpro.R;
+import com.nimmble.rgpro.util.Const;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -212,11 +213,11 @@ public class RequestPaymentActivity extends AppCompatActivity {
 
                                     HashMap.put("purchase_token", purchase.getPurchaseToken());
 
-
-                                    DoraSDK.sendEvent("app_iap", "CUSTOM_EVENT", new DoraEventValue(price, currencyCode),
-                                            HashMap);
-                                    Log.d("sdkEvent:", "sub_monthly");
-
+                                    if (Const.DoraAcive) {
+                                        DoraSDK.sendEvent("app_iap", "CUSTOM_EVENT", new DoraEventValue(price, currencyCode),
+                                                HashMap);
+                                        Log.d("sdkEvent:", "sub_monthly");
+                                    }
                                     editor.commit();
                                 }
 

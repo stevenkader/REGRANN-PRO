@@ -15,6 +15,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.messaging.FirebaseMessaging;
+import com.nimmble.rgpro.util.Const;
 
 //import com.google.ads.mediation.inmobi.InMobiConsent;
 
@@ -99,11 +100,19 @@ public class RegrannApp extends Application {
  ).setEnvironment(QEnvironment.Sandbox).build();
  Qonversion.initialize(qonversionConfig);
  **/
+        if (Const.DoraAcive) {
+            DoraSDK.DoraConfigCallback doraCallback = new DoraSDK.DoraConfigCallback() {
+                @Override
+                public void onConfigReady() {
+                    Log.d("app5", "DORA CONFIG READY");
+                }
+            };
+        }
 
-        DoraSDK.init(
-                this, "e4a7590c-c062-4c08-9bb5-589c16fb7141",
-                "f6d51302-99b4-4666-aeb2-96b19ea45c23"
-        );
+        //   DoraSDK.init(
+        //          this, "c844b792-694d-4369-a59f-853f31ee6b47",
+        //         "515af176-e9f0-4f11-a5a2-6b0748255a03",doraCallback
+        // );
 
 
         FirebaseApp.initializeApp(this);

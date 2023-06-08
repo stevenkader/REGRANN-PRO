@@ -34,7 +34,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="center_horizontal"
                 android:layout_marginBottom="15dp"
-                android:text="New Feature - Share videos from\nTwitter - Facebook\nTikTok (No Watermark) - YouTube Shorts"
+                android:text="New Feature - Post videos from\nTwitter - Facebook\nTikTok (No Watermark) - YouTube Shorts"
                 android:textSize="16sp"
                 android:textStyle="bold" />
 

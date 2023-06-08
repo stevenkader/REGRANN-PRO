@@ -45,7 +45,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.text.SpannableString;
@@ -643,7 +642,7 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
                 subscribed = true;
             }
 
-
+/**
             if (isDaysMoreThanSeven() && subscribed == false) {
                 long t = 0;
                 try {
@@ -662,17 +661,17 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
                     long diff = (SystemClock.elapsedRealtime() - t) / 1000;
                     Log.d("app5", "DIFF = " + diff);
                     if (diff > 4 * 3600) {
-                        writeIntegerToFile(SystemClock.elapsedRealtime());
-                        subscribed = true;
-                        sendEvent("check_more_than_4hours");
+ writeIntegerToFile(SystemClock.elapsedRealtime());
+ subscribed = true;
+ sendEvent("check_more_than_4hours");
 
-                    } else {
-                        sendEvent("check_less_than_4hours");
-                    }
+ } else {
+ sendEvent("check_less_than_4hours");
+ }
 
-                }
-            }
-
+ }
+ }
+ **/
 
             //   subscribed=false;
             if (subscribed)
@@ -2495,20 +2494,23 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
     private void getJSONQueryFromInstagramURL(final String url, VolleyRequestListener listener) {
         numRetries++;
         sendEvent("prox_attemp_" + numRetries);
-        initialURL = url;
-        // Instantiate the RequestQueue.
-        RequestQueue queue = Volley.newRequestQueue(this);
-
         String final_url = "";
-        if (url.indexOf("?") > 0)
-            final_url = url.substring(0, url.indexOf("?"));
-        final_url = final_url + "?__a=1";
-        final_url = final_url.replace(" ", "");
 
 
-        final_url = "https://api.webscraping.ai/html?timeout=20000&api_key=8c960a48-b155-4a29-bec4-97aab8d87101&js=false&country=us&device=mobile&proxy=residential&url=" + final_url;
+        RequestQueue queue = Volley.newRequestQueue(this);
+        if (numRetries == 1) {
+            initialURL = url;
+            String post = getStringBetweenLastTwoSlashes(initialURL);
+            //    final_url = "https://www.instagram.com/graphql/query/?query_hash=b3055c01b4b222b8a47dc12b090e4e64&variables=%7B%22shortcode%22%3A%22" + post + "%22%2C%22child_comment_count%22%3A3%2C%22fetch_comment_count%22%3A40%2C%22parent_comment_count%22%3A24%2C%22has_threaded_comments%22%3Atrue%7D";
+            final_url = "https://www.instagram.com/graphql/query?query_hash=2b0673e0dc4580674a88d426fe00ea90&variables=%7B%22shortcode%22%3A%22" + post + "%22%7D";
+
+        } else {
+            final_url = url;
+
+        }
 
 
+        Log.d("app5", numRetries + "   " + final_url);
         // Request a string response from the provided URL.
         StringRequest stringRequest = new StringRequest(Request.Method.GET, final_url,
                 new Response.Listener<String>() {
@@ -2547,6 +2549,26 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
 
     }
 
+    public String getStringBetweenLastTwoSlashes(String input) {
+        if (input == null || input.isEmpty()) {
+            return null; // or you could choose to return an empty string ""
+        }
+
+        int lastSlashIndex = input.lastIndexOf("/");
+        if (lastSlashIndex == -1) {
+            return null; // or you could choose to return an empty string ""
+        }
+
+        String inputBeforeLastSlash = input.substring(0, lastSlashIndex);
+        int secondLastSlashIndex = inputBeforeLastSlash.lastIndexOf("/");
+        if (secondLastSlashIndex == -1) {
+            return null; // or you could choose to return an empty string ""
+        }
+
+        return input.substring(secondLastSlashIndex + 1, lastSlashIndex);
+    }
+
+
     private void shouldRetryVolley() {
 
         final Handler handler1 = new Handler();
@@ -2554,11 +2576,22 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
             @Override
             public void run() {
                 Log.d("app5", "retrying Volley # :" + numRetries);
-                if (numRetries > 3) {
+                if (numRetries > 0) {
                     sendEvent("prox_failed_" + numRetries);
                     GET(initialURL);
                 } else {
-                    getJSONQueryFromInstagramURL(initialURL, volleyListener);
+                    String final_url = "";
+                    if (numRetries == 1) {
+                        if (initialURL.indexOf("?") > 0)
+                            final_url = initialURL.substring(0, initialURL.indexOf("?"));
+                        final_url = final_url + "?__a=1";
+                        final_url = final_url.replace(" ", "");
+
+
+                        final_url = "https://api.webscraping.ai/html?timeout=20000&api_key=8c960a48-b155-4a29-bec4-97aab8d87101&js=false&country=us&device=mobile&proxy=residential&url=" + final_url;
+
+                    }
+                    getJSONQueryFromInstagramURL(final_url, volleyListener);
                 }
             }
         }, 1000);
@@ -2585,7 +2618,11 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
 
                 Log.d("app5", "Volley ok!");
                 JSONObject json = new JSONObject(volleyReturn);
-                JSONObject graphQlObject = json.getJSONObject("graphql");
+                JSONObject graphQlObject;
+                if (numRetries == 2)
+                    graphQlObject = json.getJSONObject("graphql");
+                else
+                    graphQlObject = json.getJSONObject("data");
 
                 JSONObject shortCode_media_object = graphQlObject.getJSONObject("shortcode_media");
 
@@ -2595,7 +2632,7 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
 
             } catch (Exception e) {
                 Log.d("app5", "Volley Error : " + e.getMessage());
-                numRetries = 5;
+
                 shouldRetryVolley();
             }
         }
@@ -2860,11 +2897,11 @@ v.seekTo(1);
         if (currentURL.indexOf("stories") > 0)
             builder.setTitle("Couldn't Retrieve this Story");
         else
-            builder.setTitle("Couldn't Retrieve the Post - May be Private");
+            builder.setTitle("Couldn't Retrieve the Post");
 
         String displayMsg;
 
-        displayMsg = "May be from a private or age restricted account. For these you need to complete the Instagram login within this app. The app doesn't see any of your login info.";
+        displayMsg = "The app needs you to complete the Instagram login. The app doesn't see any of your login info.";
 
         final SpannableString m = new SpannableString(displayMsg);
         Linkify.addLinks(m, Linkify.WEB_URLS);
@@ -4211,8 +4248,13 @@ v.seekTo(1);
     String trackURL;
     boolean toLogin = false;
 
-    public void GET(final String urlIn) {
+    String urlIn;
+
+    public void GET(final String urlOrig) {
         spinner.setVisibility(View.VISIBLE);
+        urlIn = urlOrig;
+
+
         alreadyTriedGET = true;
         alreadyStartedErrorDialog = false;
 
@@ -4229,6 +4271,13 @@ v.seekTo(1);
 
                 if (toLogin)
                     return;
+
+                //   if (html.indexOf("items")> 0)
+                //  {
+                //      Log.d("app5", ""+html.indexOf("{"));
+//                    html = html.substring(html.indexOf("{"), html.indexOf("</pre")-1);
+                //              }
+
 
                 if (trackURL.contains("stories")) {
                     processHTMLforStories(html);
@@ -4296,6 +4345,7 @@ v.seekTo(1);
                             Log.d("app5", "in page should override " + url);
 
                             if (url.contains("https://itunes.apple.com/app/instagram") || url.contains("instagram.com/accounts/login/")) {
+
                                 toLogin = true;
 
                                 Log.d("app5", "Found login page");
@@ -4360,7 +4410,7 @@ v.seekTo(1);
 
 
                                 Log.d("app5", "Orig - " + original);
-                                Log.d("app5", "last - " + url);
+                                Log.d("app5", "last - " + urlIn);
 
                                 int delay = 4000;
 
