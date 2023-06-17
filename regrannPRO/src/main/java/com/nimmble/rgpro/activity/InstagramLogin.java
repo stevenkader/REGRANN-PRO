@@ -65,6 +65,7 @@ public class InstagramLogin extends AppCompatActivity {
 
         webview.setLayerType(View.LAYER_TYPE_HARDWARE, null);
        // webview.getSettings().setUserAgentString("Mozilla/5.0 (iPhone; CPU iPhone OS 16_0_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.6 Mobile/15E148 Safari/604.1");
+        webview.getSettings().setUserAgentString("Mozilla/5.0 (iPhone; CPU iPhone OS 16_0_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.6 Mobile/15E148 Safari/604.1");
 
         webview.setWebViewClient(new WebViewClient() {
 
@@ -120,6 +121,35 @@ public class InstagramLogin extends AppCompatActivity {
         //   }
 
         webview.loadUrl("https://www.instagram.com/accounts/login/");
+
+        try {
+
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(InstagramLogin.this);
+
+            // set dialog message
+            alertDialogBuilder.setMessage("To protect your main account you should use a second dummy account to login with here.\n\nYou will not be able to repost private content but it is better to be safe.").setCancelable(false).setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            dialog.dismiss();
+                        }
+
+
+                    })
+                    .setNegativeButton("Cancel Login", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            finish();
+                        }
+                    });
+
+            // create alert dialog
+
+            AlertDialog alertDialog = alertDialogBuilder.create();
+            alertDialog.setTitle("Important - Account Safety");
+            // show it
+            alertDialog.show();
+
+        } catch (Exception e) {
+
+        }
     }
 
 

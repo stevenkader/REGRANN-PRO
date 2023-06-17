@@ -103,6 +103,7 @@ import com.google.android.play.core.install.model.UpdateAvailability;
 import com.google.android.play.core.review.ReviewInfo;
 import com.google.android.play.core.review.ReviewManager;
 import com.google.android.play.core.review.ReviewManagerFactory;
+import com.google.common.base.Charsets;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings;
@@ -139,6 +140,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -2501,7 +2503,7 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
         if (numRetries == 1) {
             initialURL = url;
             String post = getStringBetweenLastTwoSlashes(initialURL);
-            //    final_url = "https://www.instagram.com/graphql/query/?query_hash=b3055c01b4b222b8a47dc12b090e4e64&variables=%7B%22shortcode%22%3A%22" + post + "%22%2C%22child_comment_count%22%3A3%2C%22fetch_comment_count%22%3A40%2C%22parent_comment_count%22%3A24%2C%22has_threaded_comments%22%3Atrue%7D";
+
             final_url = "https://www.instagram.com/graphql/query?query_hash=2b0673e0dc4580674a88d426fe00ea90&variables=%7B%22shortcode%22%3A%22" + post + "%22%7D";
 
         } else {
@@ -2576,19 +2578,27 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
             @Override
             public void run() {
                 Log.d("app5", "retrying Volley # :" + numRetries);
-                if (numRetries > 0) {
+                if (numRetries > 1) {
                     sendEvent("prox_failed_" + numRetries);
                     GET(initialURL);
                 } else {
                     String final_url = "";
                     if (numRetries == 1) {
-                        if (initialURL.indexOf("?") > 0)
-                            final_url = initialURL.substring(0, initialURL.indexOf("?"));
-                        final_url = final_url + "?__a=1";
-                        final_url = final_url.replace(" ", "");
+                        //    if (initialURL.indexOf("?") > 0)
+                        //       final_url = initialURL.substring(0, initialURL.indexOf("?"));
+                        //  final_url = final_url + "?__a=1";
+                        // final_url = final_url.replace(" ", "");
 
+                        String post = getStringBetweenLastTwoSlashes(initialURL);
 
-                        final_url = "https://api.webscraping.ai/html?timeout=20000&api_key=8c960a48-b155-4a29-bec4-97aab8d87101&js=false&country=us&device=mobile&proxy=residential&url=" + final_url;
+                        String theurl = "https://www.instagram.com/graphql/query?query_hash=2b0673e0dc4580674a88d426fe00ea90&variables=%7B%22shortcode%22%3A%22" + post + "%22%7D";
+
+                        try {
+                            theurl = URLEncoder.encode(theurl, Charsets.UTF_8.name());
+                        } catch (Exception e) {
+                        }
+
+                        final_url = "https://api.webscraping.ai/html?timeout=20000&api_key=8c960a48-b155-4a29-bec4-97aab8d87101&js=false&country=us&device=mobile&proxy=residential&url=" + theurl;
 
                     }
                     getJSONQueryFromInstagramURL(final_url, volleyListener);
@@ -2619,7 +2629,7 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
                 Log.d("app5", "Volley ok!");
                 JSONObject json = new JSONObject(volleyReturn);
                 JSONObject graphQlObject;
-                if (numRetries == 2)
+                if (1 == 2 && numRetries == 2)
                     graphQlObject = json.getJSONObject("graphql");
                 else
                     graphQlObject = json.getJSONObject("data");
