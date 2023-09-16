@@ -39,6 +39,7 @@ import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings;
 import com.nimmble.rgpro.R;
 import com.nimmble.rgpro.sqlite.KeptListAdapter;
 import com.nimmble.rgpro.util.PRO;
+import com.nimmble.rgpro.util.Util;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -86,6 +87,7 @@ public class RegrannMainActivity extends AppCompatActivity {
         SharedPreferences.Editor editor1 = preferences.edit();
         editor1.putBoolean("removeAds", true);
 
+        Util.retreivePurchase();
 
         editor1.commit();
 
@@ -886,7 +888,6 @@ editor.commit();
                         overridePendingTransition(R.anim.slide_up_anim, R.anim.slide_down_anim);
                         startActivity(i);
                         finish();
-                        return;
 
                     }
 
@@ -919,7 +920,6 @@ editor.commit();
         }
         return null;
     }
-
 
 
 }

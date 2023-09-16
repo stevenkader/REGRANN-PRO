@@ -11,12 +11,22 @@ import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
+import com.android.billingclient.api.BillingClient;
+import com.android.billingclient.api.BillingClientStateListener;
+import com.android.billingclient.api.BillingResult;
+import com.android.billingclient.api.Purchase;
+import com.android.billingclient.api.PurchasesUpdatedListener;
 import com.nimmble.rgpro.R;
+import com.nimmble.rgpro.activity.RegrannApp;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.List;
 
 
 public class Util {
@@ -30,6 +40,7 @@ public class Util {
 
         return currentTempVideoFileName;
     }
+
     public static String getTempPhotoFilePathForMulti(String fname) {
         File file = new File(Environment.getExternalStorageDirectory(), Environment.DIRECTORY_PICTURES);
         Log.d("app5", " getTempvideofilepath : " + file + RootDirectoryPhoto + fname);
@@ -37,10 +48,74 @@ public class Util {
 
     }
 
+    static BillingClient billingClient;
+    static String sku = "rgrann_sub11";  // replace with your SKU
+
+
+    public static void retreivePurchase() {
+
+        PurchasesUpdatedListener b = new PurchasesUpdatedListener() {
+
+            @Override
+            public void onPurchasesUpdated(@NonNull BillingResult billingResult, @Nullable List<Purchase> list) {
+
+            }
+        };
+
+        billingClient = BillingClient.newBuilder(RegrannApp._this).setListener(b).enablePendingPurchases().build();
+
+        billingClient.startConnection(new BillingClientStateListener() {
+            @Override
+            public void onBillingSetupFinished(BillingResult billingResult) {
+                if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK) {
+                    // The BillingClient is ready. You can query purchases here.
+                    checkPurchasedItem();
+                }
+            }
+
+            @Override
+            public void onBillingServiceDisconnected() {
+                // Try to restart the connection on the next request to
+                // Google Play by calling the startConnection() method.
+            }
+        });
+    }
+
+    private static void checkPurchasedItem() {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(RegrannApp._this);
+        SharedPreferences.Editor editor = preferences.edit();
+
+        if (billingClient.isReady()) {
+            billingClient.queryPurchasesAsync(BillingClient.SkuType.SUBS, (billingResult, purchasesList) -> {
+                if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK && purchasesList != null) {
+                    for (Purchase purchase : purchasesList) {
+                        if (purchase.getProducts().get(0).equals(sku)) {
+                            // The SKU is already purchased
+                            Log.d("app5", "The SKU is already purchased");
+                            editor.putBoolean("subscribed", true);
+                            editor.putBoolean("really_subscribed", true);
+                            editor.commit();
+                            return;
+                        }
+                    }
+
+                    editor.putBoolean("subscribed", false);
+                    editor.putBoolean("really_subscribed", false);
+                    editor.commit();
+                    Log.d("app5", "NOT purchased");
+                } else {
+                    // Handle any error occurred
+                    //   Log.e("MainActivity", "Error occurred while querying purchases");
+                }
+
+
+            });
+        }
+    }
 
     public static String getTempVideoFilePath(boolean isMulti) {
 
-        if (isMulti == false) {
+        if (!isMulti) {
             return getTempVideoFilePath();
         }
 
@@ -68,10 +143,9 @@ public class Util {
         request.setAllowedOverRoaming(true);
         request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_HIDDEN);
 
-        StringBuilder sb = new StringBuilder();
-        sb.append(str3);
-        sb.append("");
-        request.setTitle(sb.toString());
+        String sb = str3 +
+                "";
+        request.setTitle(sb);
         String str4 = Environment.DIRECTORY_DOWNLOADS;
 
         String sb2 = Util.RootDirectoryPhoto + str3;
@@ -92,10 +166,9 @@ public class Util {
         request.setAllowedOverRoaming(true);
         request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_HIDDEN);
 
-        StringBuilder sb = new StringBuilder();
-        sb.append(str3);
-        sb.append("");
-        request.setTitle(sb.toString());
+        String sb = str3 +
+                "";
+        request.setTitle(sb);
 
         String str4;
         String sb2;
@@ -136,22 +209,20 @@ public class Util {
     }
 
 
-
-    static public boolean isKeepCaption (Context ctx)
-    {
+    static public boolean isKeepCaption(Context ctx) {
 
         SharedPreferences preferences;
         preferences = PreferenceManager.getDefaultSharedPreferences(ctx);
-     //  return preferences.getBoolean(IS_KEEP_CAPTION, false) ;
-        return false ;
+        //  return preferences.getBoolean(IS_KEEP_CAPTION, false) ;
+        return false;
     }
 
-    public static String prepareCaption(String title, String author, String caption_suffix,  Context ctx) {
-        return prepareCaption( title,  author,  ctx, caption_suffix, false);
+    public static String prepareCaption(String title, String author, String caption_suffix, Context ctx) {
+        return prepareCaption(title, author, ctx, caption_suffix, false);
     }
 
-    public static String prepareCaption(String title, String author, String caption_suffix,  Context ctx, boolean isTikTok) {
-        return prepareCaption( title,  author,  ctx, caption_suffix, isTikTok);
+    public static String prepareCaption(String title, String author, String caption_suffix, Context ctx, boolean isTikTok) {
+        return prepareCaption(title, author, ctx, caption_suffix, isTikTok);
     }
 
     public static String prepareCaption(String title, String author, Context ctx, String caption_suffix, boolean isTikTok) {
@@ -160,10 +231,10 @@ public class Util {
 
         try {
 
-            caption =  title ;
+            caption = title;
 
 
-            Log.d("regrann","caption 1 : " + caption);
+            Log.d("regrann", "caption 1 : " + caption);
             SharedPreferences preferences;
             preferences = PreferenceManager.getDefaultSharedPreferences(ctx);
 
@@ -186,49 +257,36 @@ public class Util {
                 caption = preferences.getString("signature_text", "");
 
             }
-            Log.d("regrann","caption 2 : " + caption);
+            Log.d("regrann", "caption 2 : " + caption);
             // set title to caption which now may include signature
 
-            newCaption = caption ;
+            newCaption = caption;
 
 
-
-                //count how many hashtags
-                if (title != null) {
-                    int count = newCaption.length() - newCaption.replace("#", "").length();
-
+            //count how many hashtags
+            if (title != null) {
+                int count = newCaption.length() - newCaption.replace("#", "").length();
 
 
+                String caption_prefix = preferences.getString("caption_prefix", "Reposted");
 
-                    String caption_prefix = preferences.getString("caption_prefix", "Reposted");
+                if (isTikTok)
+                    caption = caption_prefix + " from TikTok/@" + author + " " + newCaption;
+                else
 
-                    if (isTikTok)
-                        caption = caption_prefix + " from TikTok/@" + author + " " + newCaption;
-                        else
-
-                        caption = caption_prefix + " @" + author + " " + newCaption;
-
+                    caption = caption_prefix + " @" + author + " " + newCaption;
 
 
-
-
-                    if (count > 30 && signatureactive)
-
-                    {
-                        caption = caption_prefix + " @" + author + "  " + title;
-                    }
-
-
+                if (count > 30 && signatureactive) {
+                    caption = caption_prefix + " @" + author + "  " + title;
                 }
 
 
-
-            newCaption = caption + "  "  ;
-            Log.d("regrann","newcaption 1 : " + newCaption);
+            }
 
 
-
-
+            newCaption = caption + "  ";
+            Log.d("regrann", "newcaption 1 : " + newCaption);
 
 
         } catch (Exception e) {
@@ -236,16 +294,14 @@ public class Util {
         }
 
 
-
         return newCaption;
     }
-
 
 
     // Decodes image and scales it to reduce memory consumption
     public static Bitmap decodeFile(File f) {
         try {
-            int IMAGE_MAX_SIZE = 1000 ;
+            int IMAGE_MAX_SIZE = 1000;
             Bitmap b = null;
 
             //Decode image size
@@ -258,7 +314,7 @@ public class Util {
 
             int scale = 1;
             if (o.outHeight > IMAGE_MAX_SIZE || o.outWidth > IMAGE_MAX_SIZE) {
-                scale = (int)Math.pow(2, (int) Math.ceil(Math.log(IMAGE_MAX_SIZE /
+                scale = (int) Math.pow(2, (int) Math.ceil(Math.log(IMAGE_MAX_SIZE /
                         (double) Math.max(o.outHeight, o.outWidth)) / Math.log(0.5)));
             }
 
@@ -270,7 +326,8 @@ public class Util {
             fis.close();
 
             return b;
-        } catch (OutOfMemoryError e) {} catch (FileNotFoundException e) {
+        } catch (OutOfMemoryError e) {
+        } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();

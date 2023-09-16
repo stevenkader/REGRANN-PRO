@@ -88,8 +88,8 @@ public class InstagramLogin extends AppCompatActivity {
 
                     } catch (Exception e) {
                     }
-                    RegrannApp.sendEvent("private_loginbtnclickV2");
-                    RegrannApp.sendEvent("InLoginRequest_logincompleteV2");
+                    RegrannApp.sendEvent("private_loginbtnclickV3");
+                    RegrannApp.sendEvent("InLoginRequest_logincompleteV3");
                     Toast t = Toast.makeText(getApplicationContext(), "You are now logged in!", Toast.LENGTH_LONG);
                     t.setGravity(Gravity.CENTER, 0, 0);
                     t.show();
@@ -168,7 +168,7 @@ public class InstagramLogin extends AppCompatActivity {
             ShareActivity._this.loadPage();
             RegrannApp.sendEvent("private_backbutton_pressed");
         } catch (Exception e) {
-            RegrannApp.sendEvent("InLoginRequest_logincompleteV2");
+            RegrannApp.sendEvent("InLoginRequest_logincompleteV3");
         }
         finish();
         super.onBackPressed();
@@ -178,9 +178,9 @@ public class InstagramLogin extends AppCompatActivity {
     public void onClickSubmit(View v) {
         try {
             ShareActivity._this.loadPage();
-            RegrannApp.sendEvent("private_loginbtnclickV2");
+            RegrannApp.sendEvent("private_loginbtnclickV3");
         } catch (Exception e) {
-            RegrannApp.sendEvent("InLoginRequest_logincompleteV2");
+            RegrannApp.sendEvent("InLoginRequest_logincompleteV3");
         }
 
         finish();
