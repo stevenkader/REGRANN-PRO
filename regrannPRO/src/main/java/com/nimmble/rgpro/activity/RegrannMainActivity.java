@@ -868,7 +868,7 @@ editor.commit();
 
                     //    if (text.indexOf("ig.me") > 1 ||text.indexOf("instagram.com/tv/") > 1 || text.indexOf("instagram.com/p/") > 1) {
                     if (text.contains("instagram.com") || text.contains("fb.watch") || text.contains("youtube.com/shorts")
-                            || text.contains("facebook.com") || text.contains("twitter.com")) {
+                            || text.contains("facebook.com") || text.contains("twitter.com") || text.contains("x.com")) {
 
                         Intent i;
                         i = new Intent(_this, ShareActivity.class);

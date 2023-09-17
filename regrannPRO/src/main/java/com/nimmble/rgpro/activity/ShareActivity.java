@@ -442,14 +442,15 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
         try {
             if (url == null)
                 return false;
-
-            if (url.contains("tiktok.com") || url.contains("https://youtube.com/shorts/") || url.contains("facebook.com") || url.contains("twitter.com")) {
+            Log.d("app5", url);
+            if (url.contains("tiktok.com") || url.contains("https://youtube.com/shorts/") || url.contains("facebook.com") || url.contains("fb.watch") || url.contains("twitter.com") || url.contains("x.com")) {
 
                 if (url.contains("twitter.com")) socialApp = "Twitter";
+                if (url.contains("x.com")) socialApp = "Twitter";
                 if (url.contains("tiktok.com")) socialApp = "Tiktok";
                 if (url.contains("youtube.com")) socialApp = "Youtube";
                 if (url.contains("facebook.com")) socialApp = "Facebook";
-
+                if (url.contains("fb.watch")) socialApp = "Facebook";
                 return true;
             }
         } catch (Exception e) {
