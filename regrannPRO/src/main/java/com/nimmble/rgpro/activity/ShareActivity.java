@@ -6880,11 +6880,60 @@ v.seekTo(1);
     }
 
 
+    public static String resolveRedirect(String initialUrl) throws IOException {
+        String currentUrl = initialUrl;
+        HttpURLConnection connection = null;
+        int redirectCount = 0;
+        final int maxRedirects = 5; // Define a maximum number of redirects to follow
+
+        while (redirectCount < maxRedirects) {
+            URL url = new URL(currentUrl);
+            connection = (HttpURLConnection) url.openConnection();
+
+            // Set the HTTP request method to "HEAD" to only retrieve the headers
+            connection.setRequestMethod("HEAD");
+
+            // Follow redirects (HTTP status codes 301 and 302)
+            int responseCode = connection.getResponseCode();
+            if (responseCode == HttpURLConnection.HTTP_MOVED_PERM || responseCode == HttpURLConnection.HTTP_MOVED_TEMP) {
+                String newLocation = connection.getHeaderField("Location");
+                if (newLocation != null) {
+                    currentUrl = newLocation;
+                } else {
+                    // No "Location" header found; unable to resolve further
+                    break;
+                }
+            } else {
+                // Not a redirect status code; return the current URL
+                break;
+            }
+
+            redirectCount++;
+        }
+
+        if (redirectCount >= maxRedirects) {
+            // Reached the maximum number of redirects; return the last URL
+            return currentUrl;
+        }
+
+
+        // Get the final URL from the HttpURLConnection object
+        if (connection != null) {
+            URL finalUrl = connection.getURL();
+            return finalUrl.toString();
+        }
+
+
+        return currentUrl;
+    }
+
+
     // TWITTER STUFF
     public void downloadParts(String url) throws IOException {
         RequestQueue queue = Volley.newRequestQueue(this);
 
 
+        url = resolveRedirect(url);
         String final_url = "https://pyapp.jaredco.com/?url=" + url;
 
         // Request a string response from the provided URL.
