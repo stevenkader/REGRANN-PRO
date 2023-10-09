@@ -14,6 +14,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
@@ -26,8 +27,10 @@ import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 
+import androidx.core.app.ShareCompat;
 import androidx.core.content.FileProvider;
 
+import com.nimmble.rgpro.R;
 import com.nimmble.rgpro.util.Util;
 
 import org.apache.commons.io.FileUtils;
@@ -74,7 +77,7 @@ public class PostFromKeptActivity extends Activity implements OnClickListener, O
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        File folderDst = null;
         Intent intent = getIntent();
         Bundle extras = intent.getExtras();
         String action = intent.getAction();
@@ -96,7 +99,7 @@ public class PostFromKeptActivity extends Activity implements OnClickListener, O
                     // Copy photo back to /temp
 
                     try {
-                        File folderDst = new File(Environment.getExternalStorageDirectory(), Environment.DIRECTORY_DOWNLOADS + Util.RootDirectoryPhoto + "/" + new File(tempFileFullPathName).getName());
+                        folderDst = new File(Environment.getExternalStorageDirectory(), Environment.DIRECTORY_DOWNLOADS + Util.RootDirectoryPhoto + "/" + new File(tempFileFullPathName).getName());
 
 
                         File src = new File(Environment.getExternalStoragePublicDirectory(
@@ -130,7 +133,8 @@ public class PostFromKeptActivity extends Activity implements OnClickListener, O
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(_this.getApplication().getApplicationContext());
 
 
-            tempFile = new File(tempFileFullPathName);
+            tempFile = folderDst;  //new File(tempFileFullPathName);
+
 
             if (isVideo)
                 tempVideoFile = new File(tempVideoName);
@@ -200,6 +204,7 @@ public class PostFromKeptActivity extends Activity implements OnClickListener, O
 
     @Override
     public void onClick(View v) {
+        Uri MediaURI = null;
         try {
 
             if (v == btnInstagram) {
@@ -228,7 +233,7 @@ public class PostFromKeptActivity extends Activity implements OnClickListener, O
                     Objects.requireNonNull(clipboard).setPrimaryClip(clip);
 
 
-                    Uri MediaURI;
+
 
 
                     if (isVideo) {
@@ -257,16 +262,22 @@ public class PostFromKeptActivity extends Activity implements OnClickListener, O
                     shareIntent.putExtra(Intent.EXTRA_STREAM, MediaURI);
 
 
-                    startActivity(shareIntent);
-                    KeptForLaterActivity._this.removeCurrentPhoto();
-                    finish();
+                    String type = "image/*";
+
+                    createInstagramIntent(type, MediaURI);
+
+                    //  shareWithInstagramChooser(MediaURI);
+
+                    //   startActivity(shareIntent);
+
+                    //    finish();
 
                 } catch (Exception e) {
-                    showErrorToast(e.getMessage(), "Sorry. There was a problem. Please try again later.");
+                    shareWithInstagramChooser(MediaURI);
+                    //     showErrorToast(e.getMessage(), "Sorry. There was a problem. Please try again later.");
 
                 }
                 // FlurryAgent.onEndSession(serviceCtx);
-                return;
             }
 
         } catch (Exception e) {
@@ -274,6 +285,76 @@ public class PostFromKeptActivity extends Activity implements OnClickListener, O
 
         }
 
+    }
+
+
+    private void shareWithInstagramChooser(Uri MediaURI) {
+
+
+        try {
+            // flurryAgent.logEvent("Share button pressed");
+            // Create the new Intent using the 'Send' action.
+            Intent share = new Intent(Intent.ACTION_SEND);
+            share.setPackage("com.instagram.android");
+            share.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_NO_ANIMATION);
+
+            Intent i = ShareCompat.IntentBuilder.from(PostFromKeptActivity.this)
+                    .setText("Share to")
+
+                    .setStream(MediaURI)
+
+                    .getIntent()
+                    .setPackage("com.instagram.android");
+
+
+            if (isVideo) {
+                i.setType("video/*");
+
+            } else {
+
+
+                i.setType("image/*");
+            }
+            // Broadcast the Intent.
+
+
+            startActivity(i);
+
+
+            final Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    //
+                    finish();
+                    KeptForLaterActivity._this.removeCurrentPhoto();
+                }
+            }, 6000);
+        } catch (Exception e) {
+            showErrorToast(e.getMessage(), getString(R.string.therewasproblem));
+
+        }
+
+    }
+
+
+    private void createInstagramIntent(String type, Uri MediaURI) {
+
+        // Create the new Intent using the 'Send' action.
+        Intent share = new Intent(Intent.ACTION_SEND);
+
+        // Set the MIME type
+        share.setType(type);
+
+        // Create the URI from the media
+
+        Uri uri = MediaURI;
+
+        // Add the URI to the Intent.
+        share.putExtra(Intent.EXTRA_STREAM, uri);
+
+        // Broadcast the Intent.
+        startActivity(Intent.createChooser(share, "Share to"));
     }
 
     @Override

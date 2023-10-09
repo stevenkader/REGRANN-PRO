@@ -103,6 +103,15 @@ public class KeptForLaterActivity extends AppCompatActivity {
         }
     }
 
+
+    protected void onResume() {
+        super.onResume();
+        // Refresh the state of the +1 button each time the activity receives
+        // focus.
+
+    }
+
+
     private void displayListView() {
 
         Cursor cursor = dbHelper.fetchAllItems();

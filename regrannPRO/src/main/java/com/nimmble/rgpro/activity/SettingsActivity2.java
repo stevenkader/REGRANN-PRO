@@ -200,7 +200,7 @@ public class SettingsActivity2 extends PreferenceActivity {
                 @Override
                 public void run() {
                     //Do something after 100ms
-                    checkPermissions();
+                    //     checkPermissions();
                 }
             }, 1000);
         }

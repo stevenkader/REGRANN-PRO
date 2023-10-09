@@ -78,6 +78,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
+import androidx.core.app.ShareCompat;
 import androidx.core.content.FileProvider;
 
 import com.android.billingclient.api.AcknowledgePurchaseResponseListener;
@@ -777,9 +778,9 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
 
         if (Build.VERSION.SDK_INT >= 23 && permissionsNeeded.size() > 0) {
 
-            checkPermissions();
+            //    checkPermissions();
 
-            return;
+            //   return;
 
         }
 
@@ -1368,7 +1369,8 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
                                     if (spinner != null)
                                         spinner.setVisibility(View.GONE);
                                     photoReady = true;
-                                    showBottomButtons();
+                                    if (!isVideo)
+                                        showBottomButtons();
                                     //      previewImage.setImageBitmap(Util.decodeFile(new File(tempVideoFile.getPath())));
                                     //    previewImage.setVisibility(View.VISIBLE);
                                 }
@@ -2834,6 +2836,9 @@ v.seekTo(1);
                                         previewImage.setImageBitmap(Util.decodeFile(new File(path)));
 
                                         previewImage.setVisibility(View.VISIBLE);
+
+                                        if (!isVideo)
+                                            showBottomButtons();
                                     }
                                     //   }
 
@@ -3026,6 +3031,7 @@ v.seekTo(1);
             }
 
             isMulti = true;
+
 
             if (isQuickKeep) {
                 postExecute("error_noquickkeep");
@@ -3506,7 +3512,6 @@ v.seekTo(1);
                     Log.d("app5", "after compress");
                     sendEvent("sc_photo");
 
-                    showBottomButtons();
 
 
                 } catch (Exception e) {
@@ -5496,7 +5501,8 @@ v.seekTo(1);
 
 
                     photoReady = true;
-                    showBottomButtons();
+
+
                 }
 
 
@@ -5577,7 +5583,20 @@ v.seekTo(1);
 
 
             photoReady = true;
-            showBottomButtons();
+
+            final Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+
+                    try {
+                        showBottomButtons();
+                    } catch (Exception e) {
+                        Log.d("app5", "on finish");
+                    }
+                }
+            }, 1500);
+
         }
     }
 
@@ -6699,7 +6718,7 @@ v.seekTo(1);
 
     private void sendToInstagam() {
         Intent shareIntent = new Intent();
-
+        Uri MediaURI = null;
         try {
 
             String caption = Util.prepareCaption(title, author, _this.getApplication().getApplicationContext(), caption_suffix, tiktokLink);
@@ -6756,9 +6775,6 @@ v.seekTo(1);
                 }
 
 
-                Uri MediaURI;
-
-
                 if (isVideo) {
                     shareIntent.setType("video/mp4");
                     File t = new File(Util.getTempVideoFilePath(isMulti));
@@ -6792,6 +6808,87 @@ v.seekTo(1);
 
             Log.d("regrann", "Numwarnings : " + numWarnings);
 
+            if (false) {
+
+
+                // Instantiate an intent
+                Intent intent = new Intent("com.instagram.share.ADD_TO_STORY");
+
+// Set package
+                intent.setPackage("com.instagram.android");
+
+// Attach your App ID to the intent
+                String appId = "773402562742917"; // This is your application's Facebook App ID
+                intent.putExtra("com.instagram.platform.extra.APPLICATION_ID", appId);
+
+// Attach your video to the intent from a URI
+                Uri videoAssetUri = MediaURI;
+                intent.setDataAndType(videoAssetUri, "image/*");
+                intent.putExtra(Intent.EXTRA_STREAM, videoAssetUri);
+
+// Instantiate an activity
+                Activity activity = _this;
+
+// Grant URI permissions
+                intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+                //     List<ResolveInfo> resInfoList = activity.getPackageManager().queryIntentActivities(intent, PackageManager.ResolveInfoFlags.of(PackageManager.MATCH_DEFAULT_ONLY));
+
+                //   for (ResolveInfo resolveInfo : resInfoList)
+                // {
+                String packageName = "com.instagram.android";
+
+                activity.grantUriPermission(packageName, videoAssetUri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                //  }
+
+// Verify that the activity resolves the intent and start it
+                //   if (activity.getPackageManager().resolveActivity(intent, 0) != null)
+                //  {
+                activity.startActivityForResult(intent, 0);
+                //  }
+                return;
+
+            }
+
+            if (isVideo && !btnStoriesClicked) {
+                // Instantiate an intent
+                Intent intent = new Intent("com.instagram.share.ADD_TO_REEL");
+
+// Set package
+                intent.setPackage("com.instagram.android");
+
+// Attach your App ID to the intent
+                String appId = "773402562742917"; // This is your application's Facebook App ID
+                intent.putExtra("com.instagram.platform.extra.APPLICATION_ID", appId);
+
+// Attach your video to the intent from a URI
+                Uri videoAssetUri = MediaURI;
+                intent.setDataAndType(videoAssetUri, "video/*");
+                intent.putExtra(Intent.EXTRA_STREAM, videoAssetUri);
+
+// Instantiate an activity
+                Activity activity = _this;
+
+// Grant URI permissions
+                intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+                //     List<ResolveInfo> resInfoList = activity.getPackageManager().queryIntentActivities(intent, PackageManager.ResolveInfoFlags.of(PackageManager.MATCH_DEFAULT_ONLY));
+
+                //   for (ResolveInfo resolveInfo : resInfoList)
+                // {
+                String packageName = "com.instagram.android";
+
+                activity.grantUriPermission(packageName, videoAssetUri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                //  }
+
+// Verify that the activity resolves the intent and start it
+                //   if (activity.getPackageManager().resolveActivity(intent, 0) != null)
+                //  {
+                activity.startActivityForResult(intent, 0);
+                //  }
+                return;
+            }
+
             if ((numWarnings < 3 && inputMediaType == 0)) {
 
                 Log.d("regrann", "Numwarnings  2 : " + numWarnings);
@@ -6802,6 +6899,8 @@ v.seekTo(1);
                 showPasteDialog(shareIntent);
 
             } else {
+//int i = 0 ; int y = 2/i;
+
 
                 _this.startActivity(shareIntent);
                 final Handler handler = new Handler();
@@ -6811,7 +6910,7 @@ v.seekTo(1);
 
                         try {
 
-                            finish();
+                            //  finish();
                         } catch (Exception e) {
                             Log.d("app5", "on finish");
                         }
@@ -6824,60 +6923,133 @@ v.seekTo(1);
         } catch (Exception e8) {
             // bring user to the market to download the app.
 
+            shareWithInstagramChooser(MediaURI);
 
-            try {
-                shareIntent.setClassName(
-                        "com.instagram.android",
-                        "com.instagram.share.handleractivity.ShareHandlerActivity");
-
-                _this.startActivity(shareIntent);
-                final Handler handler = new Handler();
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-
-                        try {
-
-                            finish();
-                        } catch (Exception e) {
-                            Log.d("app5", "on finish");
-                        }
-                    }
-                }, 2000);
-            } catch (Exception e9) {
-/**
- AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(ShareActivity.this);
-
- // set dialog message
- alertDialogBuilder.setMessage(e9.getMessage()).setCancelable(false).setPositiveButton("Ok", new DialogInterface.OnClickListener() {
- public void onClick(DialogInterface dialog, int id) {
-
- finish();
- }
-
- });
-
- // create alert dialog
- AlertDialog alertDialog = alertDialogBuilder.create();
-
- // show it
- alertDialog.show();
-
-
-
- if (1==1) return ;
- **/
-
-
-                Intent intent = new Intent(Intent.ACTION_VIEW);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                intent.setData(Uri.parse("market://details?id=" + "com.instagram.android"));
-                startActivity(intent);
-            }
         }
 
 
     }
+
+
+    private void shareWithInstagramChooser(Uri MediaURI) {
+
+
+        try {
+            // flurryAgent.logEvent("Share button pressed");
+            // Create the new Intent using the 'Send' action.
+            Intent share = new Intent(Intent.ACTION_SEND);
+            share.setPackage("com.instagram.android");
+            share.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_NO_ANIMATION);
+
+            Intent i = ShareCompat.IntentBuilder.from(_this)
+                    .setText("Share to")
+
+                    .setStream(MediaURI)
+
+                    .getIntent()
+                    .setPackage("com.instagram.android");
+
+
+            if (isVideo) {
+                i.setType("video/*");
+
+            } else {
+
+
+                i.setType("image/*");
+            }
+            // Broadcast the Intent.
+
+
+            startActivity(i);
+
+
+            final Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    //
+                    //  finish();
+
+                }
+            }, 6000);
+        } catch (Exception e) {
+            showErrorToast(e.getMessage(), getString(R.string.therewasproblem));
+
+        }
+
+    }
+
+
+    /**
+     * private void shareWithInstagramChooser() {
+     * <p>
+     * <p>
+     * try {
+     * // flurryAgent.logEvent("Share button pressed");
+     * // Create the new Intent using the 'Send' action.
+     * Intent share = new Intent(Intent.ACTION_SEND);
+     * share.setPackage("com.instagram.android");
+     * //   share.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_NO_ANIMATION);
+     * <p>
+     * <p>
+     * <p>
+     * Uri MediaURI;
+     * <p>
+     * <p>
+     * if (isVideo) {
+     * <p>
+     * File t = new File(Util.getTempVideoFilePath());
+     * <p>
+     * <p>
+     * if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+     * MediaURI = FileProvider.getUriForFile(this, getApplicationContext().getPackageName() + ".provider", t);
+     * } else {
+     * MediaURI = Uri.fromFile(t);
+     * }
+     * <p>
+     * <p>
+     * } else {
+     * Log.d("app5", "tempfile :  " + tempFile.toString());
+     * <p>
+     * <p>
+     * if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+     * MediaURI = FileProvider.getUriForFile(this, getApplicationContext().getPackageName() + ".provider", tempFile);
+     * } else {
+     * MediaURI = Uri.fromFile(tempFile);
+     * }
+     * <p>
+     * <p>
+     * }
+     * <p>
+     * if (isVideo) {
+     * share.setType("video/*");
+     * share.putExtra(Intent.EXTRA_STREAM, MediaURI);
+     * } else {
+     * share.putExtra(Intent.EXTRA_STREAM, MediaURI);
+     * <p>
+     * share.setType("image/*");
+     * }
+     * // Broadcast the Intent.
+     * startActivity(Intent.createChooser(share, "Share to"));
+     * <p>
+     * <p>
+     * final Handler handler = new Handler();
+     * handler.postDelayed(new Runnable() {
+     *
+     * @Override public void run() {
+     * <p>
+     * // finish();
+     * <p>
+     * }
+     * }, 2000);
+     * } catch (Exception e) {
+     * showErrorToast(e.getMessage(), getString(R.string.therewasproblem));
+     * <p>
+     * }
+     * <p>
+     * }
+     **/
 
 
     public static String resolveRedirect(String initialUrl) throws IOException {
