@@ -3551,7 +3551,6 @@ v.seekTo(1);
 
     private void showBottomButtons() {
 
-
         if (!showInterstitial) {
             setBottomButtonsVisible();
         }
