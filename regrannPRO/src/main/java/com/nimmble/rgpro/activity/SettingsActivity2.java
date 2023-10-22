@@ -690,9 +690,13 @@ public class SettingsActivity2 extends PreferenceActivity {
                         cbxCreditWatermark.setChecked(false);
                         editor.putBoolean("watermark_checkbox", false);
                         editor.commit();
-                        Intent intent = new Intent();
+
+                        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                        intent.addCategory(Intent.CATEGORY_OPENABLE);
+
+
                         intent.setType("image/*");
-                        intent.setAction(Intent.ACTION_GET_CONTENT);
+
                         startActivityForResult(Intent.createChooser(intent, "Select Picture"), 1);
 
 
@@ -759,8 +763,12 @@ public class SettingsActivity2 extends PreferenceActivity {
             if (requestCode == 1) {
                 if (resultCode == RESULT_OK) {
 
+                    Uri selectedImageUri = imageReturnedIntent.getData();
 
-                    editor.putString("watermark_imagefile", getRealPathFromURI_API19(_this, imageReturnedIntent.getData()));
+                    RegrannApp._this.getContentResolver().takePersistableUriPermission(selectedImageUri, (Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION));
+
+
+                    editor.putString("watermark_imagefile", selectedImageUri.toString());
                     editor.apply();
 
                     RegrannApp.sendEvent("custom_watermark_uploaded");

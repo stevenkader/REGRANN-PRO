@@ -69,7 +69,7 @@ public class NewShareText extends Activity {
 
 
                                } else {
-                                   showErrorToast("Error", "Regrann doesn't support his share link.");
+                                   showErrorToast("Error", "Repost PRO doesn't support this share link.");
 
 
                                }

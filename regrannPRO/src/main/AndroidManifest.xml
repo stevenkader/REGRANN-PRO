@@ -138,6 +138,11 @@
             android:exported="false"
             android:label="Mode Settings" />
         <activity
+            android:name="com.nimmble.rgpro.activity.ChangeSaveFolder"
+            android:exported="false"
+            android:label="Change Save Folder Location" />
+
+        <activity
             android:name="com.nimmble.rgpro.activity.KeepForLaterActivity"
             android:exported="false"
 

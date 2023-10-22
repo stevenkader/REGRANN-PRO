@@ -33,7 +33,6 @@ import androidx.core.content.FileProvider;
 import com.nimmble.rgpro.R;
 import com.nimmble.rgpro.util.Util;
 
-import org.apache.commons.io.FileUtils;
 import org.json.JSONObject;
 
 import java.io.File;
@@ -78,6 +77,8 @@ public class PostFromKeptActivity extends Activity implements OnClickListener, O
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         File folderDst = null;
+        File src = null;
+        File videoSrc = null;
         Intent intent = getIntent();
         Bundle extras = intent.getExtras();
         String action = intent.getAction();
@@ -102,21 +103,21 @@ public class PostFromKeptActivity extends Activity implements OnClickListener, O
                         folderDst = new File(Environment.getExternalStorageDirectory(), Environment.DIRECTORY_DOWNLOADS + Util.RootDirectoryPhoto + "/" + new File(tempFileFullPathName).getName());
 
 
-                        File src = new File(Environment.getExternalStoragePublicDirectory(
+                        src = new File(Environment.getExternalStoragePublicDirectory(
                                 Environment.DIRECTORY_PICTURES) + "/regrann_postlater/" + new File(tempFileFullPathName).getName());
 
 
-                        FileUtils.copyFile(src, folderDst);
+                        //                FileUtils.copyFile(src, folderDst);
 
                         if (isVideo) {
                             File videoDst = new File(Environment.getExternalStorageDirectory(), Environment.DIRECTORY_DOWNLOADS + Util.RootDirectoryPhoto + "/" + new File(tempVideoName).getName());
 
 
-                            File videoSrc = new File(Environment.getExternalStoragePublicDirectory(
+                            videoSrc = new File(Environment.getExternalStoragePublicDirectory(
                                     Environment.DIRECTORY_PICTURES) + "/regrann_postlater/" + new File(tempVideoName).getName());
 
 
-                            FileUtils.copyFile(videoSrc, videoDst);
+                            //                    FileUtils.copyFile(videoSrc, videoDst);
                         }
 
 
@@ -133,11 +134,12 @@ public class PostFromKeptActivity extends Activity implements OnClickListener, O
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(_this.getApplication().getApplicationContext());
 
 
-            tempFile = folderDst;  //new File(tempFileFullPathName);
+            tempFile = src;  //new File(tempFileFullPathName);
 
 
             if (isVideo)
-                tempVideoFile = new File(tempVideoName);
+                // tempVideoFile = new File(tempVideoName);
+                tempVideoFile = videoSrc;
 
             photoReady = true;
 
@@ -264,7 +266,20 @@ public class PostFromKeptActivity extends Activity implements OnClickListener, O
 
                     String type = "image/*";
 
+                    if (isVideo)
+                        type = "video/*";
+
                     createInstagramIntent(type, MediaURI);
+
+                    final Handler handler = new Handler();
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            //
+                            finish();
+                            KeptForLaterActivity._this.removeCurrentPhoto();
+                        }
+                    }, 6000);
 
                     //  shareWithInstagramChooser(MediaURI);
 
@@ -342,7 +357,7 @@ public class PostFromKeptActivity extends Activity implements OnClickListener, O
 
         // Create the new Intent using the 'Send' action.
         Intent share = new Intent(Intent.ACTION_SEND);
-
+        share.setPackage("com.instagram.android");
         // Set the MIME type
         share.setType(type);
 

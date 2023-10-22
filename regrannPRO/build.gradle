@@ -16,8 +16,8 @@ android {
         applicationId "com.nimmble.rgpro"
         minSdkVersion 26
         targetSdkVersion 33
-        versionCode 514
-        versionName "5.50"
+        versionCode 520
+        versionName "5.56"
 
         multiDexEnabled true
         resValue 'string', 'pesdk_version', "v$pesdk_version"
@@ -96,11 +96,12 @@ android {
             debuggable false
         }
     }
-    buildToolsVersion '30.0.3'
+    buildToolsVersion '33.0.1'
     lint {
         disable 'MissingTranslation'
     }
     namespace 'com.nimmble.rgpro'
+    compileSdk 34
 
 
 }

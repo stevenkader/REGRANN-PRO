@@ -47,6 +47,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
+import android.provider.OpenableColumns;
 import android.text.SpannableString;
 import android.text.util.Linkify;
 import android.util.Log;
@@ -337,6 +338,7 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
             e.printStackTrace();
         }
     }
+
 
 
     public long readLongFromFile() throws IOException {
@@ -886,8 +888,7 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
 
         tempFileFullPathName = file2 + File.separator + tempFileName;
 
-        regrannPictureFolder = new File(Environment.getExternalStorageDirectory(), Environment.DIRECTORY_PICTURES + Util.RootDirectoryPhoto).getAbsolutePath();
-
+        regrannPictureFolder = Util.getDefaultSaveFolder();
 
         regrannDownloadfolder = new File(Environment.getExternalStorageDirectory(), Environment.DIRECTORY_DOWNLOADS + Util.RootDirectoryPhoto).getAbsolutePath();
 
@@ -1837,7 +1838,7 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
     }
 
 
-    private void showPasteDialog(final Intent shareIntent) {
+    private void showPasteDialog(Uri MediaURI) {
 
         final Dialog dialog = new Dialog(_this, R.style.FullHeightDialog);
         dialog.setContentView(R.layout.paste_dialog);
@@ -1854,69 +1855,13 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
 
                 try {
                     dialog.dismiss();
-                    _this.startActivity(shareIntent);
+
+
+                    createInstagramIntent2(MediaURI);
+                    //  _this.startActivity(shareIntent);
                 } catch (Exception e) {
 
-                    int i = 1;
-                    try {
 
-                        if (1 == 2) {
-
-                            shareIntent.setClassName(
-                                    "com.instagram.android",
-                                    "com.instagram.share.handleractivity.ReelShareHandlerActivityMultiMediaAlias");
-                        } else {
-
-                            shareIntent.setClassName(
-                                    "com.instagram.android",
-                                    "com.instagram.share.handleractivity.ShareHandlerActivity");
-                        }
-
-
-                        _this.startActivity(shareIntent);
-                        final Handler handler = new Handler();
-                        handler.postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-
-                                try {
-
-                                    finish();
-                                } catch (Exception e) {
-                                    Log.d("app5", "on finish");
-                                }
-                            }
-                        }, 2000);
-                    } catch (Exception e9) {
-
-                        try {
-                            shareIntent.setClassName(
-                                    "com.instagram.android",
-                                    "com.instagram.share.handleractivity.ShareHandlerActivity");
-
-                            _this.startActivity(shareIntent);
-                            final Handler handler = new Handler();
-                            handler.postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
-
-                                    try {
-
-                                        finish();
-                                    } catch (Exception e) {
-                                        Log.d("app5", "on finish");
-                                    }
-                                }
-                            }, 2000);
-                        } catch (Exception e88) {
-
-                            Intent intent = new Intent(Intent.ACTION_VIEW);
-                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                            intent.setData(Uri.parse("market://details?id=" + "com.instagram.android"));
-                            startActivity(intent);
-                        }
-
-                    }
                 }
                 final Handler handler = new Handler();
                 handler.postDelayed(new Runnable() {
@@ -1924,8 +1869,7 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
                     public void run() {
                         finish();
                     }
-                }, 500);
-                dialog.dismiss();
+                }, 1500);
 
 
             }
@@ -2015,12 +1959,12 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
 
                         int numWarnings = preferences.getInt("captionWarning", 0);
 
-                        if (numWarnings < 3 && inputMediaType == 0) {
+                        if (false) {
 
                             addToNumSessions();
 
 
-                            showPasteDialog(shareIntent);
+                            //  showPasteDialog(shareIntent);
 
                         } else {
                             startActivity(shareIntent);
@@ -2225,6 +2169,7 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
 
     }
 
+
     private Bitmap mark(Bitmap src, String watermark, int location, int color, int alpha,
                         int size, boolean underline) {
         Bitmap result = null;
@@ -2238,7 +2183,11 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
             if (customWatermark) {
 
                 Uri imageUri = Uri.parse(preferences.getString("watermark_imagefile", ""));
-                wm5 = BitmapFactory.decodeFile(imageUri.getPath());
+
+                wm5 = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
+
+
+                //   wm5 = BitmapFactory.decodeFile(imageUri.getPath());
 
             }
 
@@ -3640,6 +3589,23 @@ v.seekTo(1);
 
 
             profile_pic_url = null;
+
+            try {
+                int s = html.indexOf("\"user\":{\"pk\"");
+                if (s > 0) {
+                    s = html.indexOf("https", s);
+                    int e = html.indexOf("\"", s);
+
+                    profile_pic_url = html.substring(s, e);
+                    profile_pic_url = profile_pic_url.replace("\\/", "\\");
+                    Log.d("app5", "profile pic url " + profile_pic_url);
+
+
+                }
+
+
+            } catch (Exception e) {
+            }
 
 
             String type = null;
@@ -5276,7 +5242,10 @@ v.seekTo(1);
 
             } catch (Exception e) {
             }
+
             return fname;
+
+
         }
 
         protected void onProgressUpdate(Integer... progress) {
@@ -5594,7 +5563,7 @@ v.seekTo(1);
                         Log.d("app5", "on finish");
                     }
                 }
-            }, 1500);
+            }, 1000);
 
         }
     }
@@ -6006,15 +5975,24 @@ v.seekTo(1);
             String fname;
             Toast toast;
             String msg;
+
+            String saveToFolder = preferences.getString("save_folder", Util.getDefaultSaveFolder());
+
+
             if (isVideo) {
                 src = new File(Util.getTempVideoFilePath());
                 fname = regrannPictureFolder + File.separator + author + "_video_" + currTime + ".mp4";
-                saveToastMsg = "Video was saved in /Pictures/Regrann/Video-" + currTime + ".mp4";
+
+                //  fname = saveToFolder + "/"+ File.separator + author + "_video_" + currTime + ".mp4";
+                saveToastMsg = "Video was saved in  " + fname;
             } else {
+
+                //    fname =  saveToFolder +"/" +File.separator + author + "-" + currTime + ".jpg" ;
+
 
                 src = lastDownloadedFile;
                 fname = regrannPictureFolder + File.separator + author + "-" + currTime + ".jpg";
-                saveToastMsg = "Photo was saved in /Pictures/Regrann/" + author + "  -" + currTime + ".jpg";
+                saveToastMsg = "Photo was saved in " + fname;
             }
 
 
@@ -6063,6 +6041,17 @@ v.seekTo(1);
 
     }
 
+
+    private static String queryName(Context context, Uri uri) {
+        Cursor returnCursor =
+                context.getContentResolver().query(uri, null, null, null, null);
+        assert returnCursor != null;
+        int nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+        returnCursor.moveToFirst();
+        String name = returnCursor.getString(nameIndex);
+        returnCursor.close();
+        return name;
+    }
 
     private PhotoEditorSettingsList createPesdkSettingsList() {
 
@@ -6264,9 +6253,6 @@ v.seekTo(1);
 
                     return;
                 }
-
-                sendEvent("sc_savebtn");
-                copyCaptionToClipboard();
 
                 copyTempToSave();
 
@@ -6768,15 +6754,33 @@ v.seekTo(1);
             Objects.requireNonNull(clipboard).setPrimaryClip(clip);
 
 
-            if (!isMulti) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                }
+            if (isMulti) {
+                _this.startActivity(shareIntent);
+                final Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+
+                        try {
+
+                            finish();
+                        } catch (Exception e) {
+                            Log.d("app5", "on finish");
+                        }
+                    }
+                }, 2000);
+                return;
+            }
 
 
-                if (isVideo) {
-                    shareIntent.setType("video/mp4");
-                    File t = new File(Util.getTempVideoFilePath(isMulti));
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            }
+
+
+            if (isVideo) {
+                shareIntent.setType("video/mp4");
+                File t = new File(Util.getTempVideoFilePath(isMulti));
 
 
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -6801,13 +6805,12 @@ v.seekTo(1);
                 }
                 //    shareIntent.setAction(Intent.ACTION_SEND);
                 shareIntent.putExtra(Intent.EXTRA_STREAM, MediaURI);
-            }
 
             int numWarnings = preferences.getInt("captionWarning", 0);
 
             Log.d("regrann", "Numwarnings : " + numWarnings);
 
-            if (false) {
+            if (btnStoriesClicked) {
 
 
                 // Instantiate an intent
@@ -6822,7 +6825,10 @@ v.seekTo(1);
 
 // Attach your video to the intent from a URI
                 Uri videoAssetUri = MediaURI;
-                intent.setDataAndType(videoAssetUri, "image/*");
+                if (isVideo)
+                    intent.setDataAndType(videoAssetUri, "video/*");
+                else
+                    intent.setDataAndType(videoAssetUri, "image/*");
                 intent.putExtra(Intent.EXTRA_STREAM, videoAssetUri);
 
 // Instantiate an activity
@@ -6845,11 +6851,25 @@ v.seekTo(1);
                 //  {
                 activity.startActivityForResult(intent, 0);
                 //  }
+
+                final Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+
+                        try {
+
+                            finish();
+                        } catch (Exception e) {
+                            Log.d("app5", "on finish");
+                        }
+                    }
+                }, 2000);
                 return;
 
             }
 
-            if (isVideo && !btnStoriesClicked) {
+            if (isVideo) {
                 // Instantiate an intent
                 Intent intent = new Intent("com.instagram.share.ADD_TO_REEL");
 
@@ -6884,9 +6904,24 @@ v.seekTo(1);
                 //   if (activity.getPackageManager().resolveActivity(intent, 0) != null)
                 //  {
                 activity.startActivityForResult(intent, 0);
+
+                final Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+
+                        try {
+
+                            finish();
+                        } catch (Exception e) {
+                            Log.d("app5", "on finish");
+                        }
+                    }
+                }, 2000);
                 //  }
                 return;
             }
+
 
             if ((numWarnings < 3 && inputMediaType == 0)) {
 
@@ -6895,13 +6930,13 @@ v.seekTo(1);
                 addToNumSessions();
 
 
-                showPasteDialog(shareIntent);
+                showPasteDialog(MediaURI);
 
             } else {
-//int i = 0 ; int y = 2/i;
+
+                createInstagramIntent2(MediaURI);
 
 
-                _this.startActivity(shareIntent);
                 final Handler handler = new Handler();
                 handler.postDelayed(new Runnable() {
                     @Override
@@ -6909,7 +6944,7 @@ v.seekTo(1);
 
                         try {
 
-                            //  finish();
+                            finish();
                         } catch (Exception e) {
                             Log.d("app5", "on finish");
                         }
@@ -6920,13 +6955,72 @@ v.seekTo(1);
             }
 
         } catch (Exception e8) {
-            // bring user to the market to download the app.
 
-            shareWithInstagramChooser(MediaURI);
+
+            createInstagramIntent2(MediaURI);
+            //shareWithInstagramChooser(MediaURI);
 
         }
 
 
+    }
+
+
+    private void createInstagramIntent2(Uri MediaURI) {
+        Intent intent = new Intent("com.instagram.share.ADD_TO_FEED");
+
+// Set package
+        intent.setPackage("com.instagram.android");
+
+// Attach your App ID to the intent
+        String appId = "773402562742917"; // This is your application's Facebook App ID
+        intent.putExtra("com.instagram.platform.extra.APPLICATION_ID", appId);
+
+// Attach your video to the intent from a URI
+        Uri videoAssetUri = MediaURI;
+
+        String type = "image/*";
+
+        if (isVideo)
+            type = "video/*";
+
+        intent.setDataAndType(videoAssetUri, type);
+        intent.putExtra(Intent.EXTRA_STREAM, videoAssetUri);
+
+// Instantiate an activity
+        Activity activity = _this;
+
+// Grant URI permissions
+        intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+        //     List<ResolveInfo> resInfoList = activity.getPackageManager().queryIntentActivities(intent, PackageManager.ResolveInfoFlags.of(PackageManager.MATCH_DEFAULT_ONLY));
+
+        //   for (ResolveInfo resolveInfo : resInfoList)
+        // {
+        String packageName = "com.instagram.android";
+
+        activity.grantUriPermission(packageName, videoAssetUri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        //  }
+
+// Verify that the activity resolves the intent and start it
+        //   if (activity.getPackageManager().resolveActivity(intent, 0) != null)
+        //  {
+        activity.startActivityForResult(intent, 0);
+
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+
+                try {
+
+                    finish();
+                } catch (Exception e) {
+                    Log.d("app5", "on finish");
+                }
+            }
+        }, 2000);
+        //  }
     }
 
 
@@ -6968,7 +7062,7 @@ v.seekTo(1);
                 @Override
                 public void run() {
                     //
-                    //  finish();
+                    finish();
 
                 }
             }, 6000);
@@ -6977,6 +7071,26 @@ v.seekTo(1);
 
         }
 
+    }
+
+
+    private void createInstagramIntent(String type, Uri MediaURI) {
+
+        // Create the new Intent using the 'Send' action.
+        Intent share = new Intent(Intent.ACTION_SEND);
+
+        // Set the MIME type
+        share.setType(type);
+
+        // Create the URI from the media
+
+        Uri uri = MediaURI;
+
+        // Add the URI to the Intent.
+        share.putExtra(Intent.EXTRA_STREAM, uri);
+
+        // Broadcast the Intent.
+        startActivity(Intent.createChooser(share, "Share to"));
     }
 
 
