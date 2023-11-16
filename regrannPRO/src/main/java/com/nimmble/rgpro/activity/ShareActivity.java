@@ -6392,7 +6392,7 @@ v.seekTo(1);
 
 
             if (isVideo) {
-                shareIntent.setType("video/mp4");
+                shareIntent.setType("video/*");
                 File t = new File(Util.getTempVideoFilePath(isMulti));
 
 
@@ -6414,7 +6414,7 @@ v.seekTo(1);
                     }
 
 
-                    shareIntent.setType("image/jpeg");
+                shareIntent.setType("image/*");
                 }
                 //    shareIntent.setAction(Intent.ACTION_SEND);
                 shareIntent.putExtra(Intent.EXTRA_STREAM, MediaURI);
@@ -6482,58 +6482,6 @@ v.seekTo(1);
 
             }
 
-            if (isVideo) {
-                // Instantiate an intent
-                Intent intent = new Intent("com.instagram.share.ADD_TO_REEL");
-
-// Set package
-                intent.setPackage("com.instagram.android");
-
-// Attach your App ID to the intent
-                String appId = "773402562742917"; // This is your application's Facebook App ID
-                intent.putExtra("com.instagram.platform.extra.APPLICATION_ID", appId);
-
-// Attach your video to the intent from a URI
-                Uri videoAssetUri = MediaURI;
-                intent.setDataAndType(videoAssetUri, "video/*");
-                intent.putExtra(Intent.EXTRA_STREAM, videoAssetUri);
-
-// Instantiate an activity
-                Activity activity = _this;
-
-// Grant URI permissions
-                intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-
-                //     List<ResolveInfo> resInfoList = activity.getPackageManager().queryIntentActivities(intent, PackageManager.ResolveInfoFlags.of(PackageManager.MATCH_DEFAULT_ONLY));
-
-                //   for (ResolveInfo resolveInfo : resInfoList)
-                // {
-                String packageName = "com.instagram.android";
-
-                activity.grantUriPermission(packageName, videoAssetUri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                //  }
-
-// Verify that the activity resolves the intent and start it
-                //   if (activity.getPackageManager().resolveActivity(intent, 0) != null)
-                //  {
-                activity.startActivityForResult(intent, 0);
-
-                final Handler handler = new Handler();
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-
-                        try {
-
-                            finish();
-                        } catch (Exception e) {
-                            Log.d("app5", "on finish");
-                        }
-                    }
-                }, 2000);
-                //  }
-                return;
-            }
 
 
             if ((numWarnings < 3 && inputMediaType == 0)) {
@@ -6590,15 +6538,15 @@ v.seekTo(1);
         intent.putExtra("com.instagram.platform.extra.APPLICATION_ID", appId);
 
 // Attach your video to the intent from a URI
-        Uri videoAssetUri = MediaURI;
+
 
         String type = "image/*";
 
         if (isVideo)
             type = "video/*";
 
-        intent.setDataAndType(videoAssetUri, type);
-        intent.putExtra(Intent.EXTRA_STREAM, videoAssetUri);
+        intent.setDataAndType(MediaURI, type);
+        intent.putExtra(Intent.EXTRA_STREAM, MediaURI);
 
 // Instantiate an activity
         Activity activity = _this;
@@ -6612,7 +6560,7 @@ v.seekTo(1);
         // {
         String packageName = "com.instagram.android";
 
-        activity.grantUriPermission(packageName, videoAssetUri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        activity.grantUriPermission(packageName, MediaURI, Intent.FLAG_GRANT_READ_URI_PERMISSION);
         //  }
 
 // Verify that the activity resolves the intent and start it
