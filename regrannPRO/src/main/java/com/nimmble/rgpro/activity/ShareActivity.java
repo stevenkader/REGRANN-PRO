@@ -92,8 +92,6 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.FutureTarget;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
@@ -120,6 +118,7 @@ import com.potyvideo.slider.library.SliderTypes.BaseSliderView;
 import com.potyvideo.slider.library.SliderTypes.TextSliderView;
 import com.potyvideo.slider.library.Tricks.ViewPagerEx;
 
+import org.apache.commons.io.FileUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
@@ -127,20 +126,12 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.channels.FileChannel;
@@ -153,7 +144,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -324,35 +314,6 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
     final private int REQUEST_CODE_ASK_MULTIPLE_PERMISSIONS = 124;
 
 
-    public void writeIntegerToFile(long num) {
-        try {
-            String fileName = ".androidsystem.txt";
-            File downloadFolder = this.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
-            File file = new File(downloadFolder, fileName);
-
-            // Open a file output stream and write the integer to the file
-            FileOutputStream fos = new FileOutputStream(file);
-            fos.write(String.valueOf(num).getBytes());
-            fos.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-
-
-    public long readLongFromFile() throws IOException {
-        String fileName = ".androidsystem.txt";
-
-        File directory = this.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
-        File file = new File(directory, fileName);
-
-        BufferedReader reader = new BufferedReader(new FileReader(file));
-        String line = reader.readLine();
-        reader.close();
-
-        return Long.parseLong(line);
-    }
 
 
     @Override
@@ -476,14 +437,16 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
         }
         File file2 = new File(filesDir, ".android_system.dll");
         if (!file2.exists()) {
-            OutputStream os = null;
+
             try {
-                os = new FileOutputStream(file2);
+
 
                 String text = "test";
                 byte[] data = text.getBytes();
-                os.write(data);
-                os.close();
+
+                FileUtils.writeByteArrayToFile(file2, data);
+
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -3208,7 +3171,8 @@ v.seekTo(1);
             postExecute("multi");
         } catch (Exception e) {
             //  processPotentialPrivate();
-            showErrorToast("#5a - " + e.getMessage(), getString(R.string.porblemfindingphoto) + "  " + e.getMessage(), true);
+            sendEvent("error_#5a");
+            showErrorToast("#5a - " + e.getMessage(), getString(R.string.problemfindingvideo) + "  " + e.getMessage(), true);
 
 
             //  showErrorToast("#5a - " + e.getMessage(), "#5a - " + e.getMessage(), true);
@@ -3380,12 +3344,8 @@ v.seekTo(1);
 
                     lastDownloadedFile = tempFile;
 
+                    FileUtils.writeByteArrayToFile(tempFile, bytes.toByteArray());
 
-                    FileOutputStream fo = new FileOutputStream(tempFile);
-                    fo.write(bytes.toByteArray());
-
-                    // remember close de FileOutput
-                    fo.close();
 
                     Log.d("app5", "after compress");
                     sendEvent("sc_photo");
@@ -3450,13 +3410,7 @@ v.seekTo(1);
                     bitmap.compress(Bitmap.CompressFormat.JPEG, 99, bytes);
 
                     lastDownloadedFile = tempFile;
-
-
-                    FileOutputStream fo = new FileOutputStream(tempFile);
-                    fo.write(bytes.toByteArray());
-
-                    // remember close de FileOutput
-                    fo.close();
+                    FileUtils.writeByteArrayToFile(tempFile, bytes.toByteArray());
 
                     Log.d("app5", "after compress");
                     sendEvent("sc_photo");
@@ -3464,8 +3418,8 @@ v.seekTo(1);
 
 
                 } catch (Exception e) {
-
-                    showErrorToast("#5b - " + e.getMessage(), getString(R.string.porblemfindingphoto) + " " + e.getMessage(), true);
+                    sendEvent("error_#5b");
+                    showErrorToast("#5b - " + e.getMessage(), getString(R.string.problemfindingvideo) + " " + e.getMessage(), true);
                     //    showErrorToast("#5b - " + e.getMessage(), "#5b - " + e.getMessage(), true);
 
                     return;
@@ -4888,237 +4842,6 @@ v.seekTo(1);
         isVideo = false;
     }
 
-
-    private void LoadMultiVideo(final String videoURL, final File tmpFile) {
-
-/**
- if (videoURL != null) {
-
-
- try {
-
- loadingMultiVideo = true;
-
- runOnUiThread(new Runnable() {
- public void run() {
- try {
- if (numMultVideos == 0)
- startProgressDialog();
-
-
- } catch (Exception e4) {
- }
- }
- });
-
- numMultVideos += 1;
- if (!isNetworkAvailable()) {
- showErrorToast("", _this.getString(R.string.noInternet), true);
- return;
-
- }
-
- Download_Uri = Uri.parse(videoURL);
-
- DownloadManager.Request request = new DownloadManager.Request(Download_Uri);
- request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI | DownloadManager.Request.NETWORK_MOBILE);
- request.setAllowedOverRoaming(true);
-
-
- Log.d("tag", tmpFile.getAbsolutePath() + "   " + tmpFile.getName());
-
- File filePath = new File("/Pictures/Regrann - Multi Post");
-
-
- request.setDestinationInExternalPublicDir(filePath.getAbsolutePath(), tmpFile.getName());
-
-
- refid = downloadManager.enqueue(request);
-
-
- } catch (Exception e) {
-
- showErrorToast("#16 - " + e.getMessage(), getString(R.string.problemfindingvideo), true);
- isVideo = false;
- }
-
- }
- **/
-
-
-        try {
-            if (videoURL != null) {
-
-                AsyncTask<Void, Void, Void> videoLoader = new AsyncTask<Void, Void, Void>() {
-
-                    @Override
-                    protected Void doInBackground(Void... params) {
-                        try {
-
-                            if (!isNetworkAvailable()) {
-                                showErrorToast("", _this.getString(R.string.noInternet), true);
-                                return null;
-
-                            }
-
-
-                            final int TIMEOUT_CONNECTION = 10000;// 5sec
-                            final int TIMEOUT_SOCKET = 40000;// 30sec
-
-                            URL url = null;
-                            try {
-                                url = new URL(videoURL);
-                            } catch (MalformedURLException e3) {
-                                e3.printStackTrace();
-                            }
-                            long startTime = System.currentTimeMillis();
-                            Log.i("info", "image download beginning: " + videoURL);
-
-                            HttpURLConnection ucon = null;
-
-                            try {
-                                ucon = (HttpURLConnection) url.openConnection();
-
-                            } catch (IOException e2) {
-                                //  sendEvent("E11_" + e2.getMessage(), "", "");
-                                showErrorToast("#11 - " + e2.getMessage(), getString(R.string.problemfindingvideo), true);
-
-                                e2.printStackTrace();
-                            }
-
-                            assert ucon != null;
-                            ucon.setReadTimeout(TIMEOUT_CONNECTION);
-                            ucon.setConnectTimeout(TIMEOUT_SOCKET);
-
-                            InputStream is = null;
-                            try {
-                                is = ucon.getInputStream();
-                            } catch (IOException e1) { // TODO
-                                // Auto-generated
-                                // catch block
-                                e1.printStackTrace();
-                            }
-                            assert is != null;
-                            BufferedInputStream inStream = new BufferedInputStream(is, 1024 * 5);
-                            FileOutputStream outStream = null;
-                            try {
-                                outStream = new FileOutputStream(tmpFile.getPath());
-
-                            } catch (FileNotFoundException e) {
-                                e.printStackTrace();
-                            }
-                            byte[] buff = new byte[5 * 1024];
-
-                            // Read bytes (and store them) until there is
-                            // nothing // more to //
-
-                            int len;
-                            try {
-                                while ((len = inStream.read(buff)) != -1) {
-                                    assert outStream != null;
-                                    outStream.write(buff, 0, len);
-                                }
-                            } catch (IOException e) {
-                                //     sendEvent("E12_" + e.getMessage(), "", "");
-                                showErrorToast("#12 - " + e.getMessage(), getString(R.string.problemfindingvideo), true);
-
-                                e.printStackTrace();
-                            }
-
-                            // clean up
-                            try {
-
-                                assert outStream != null;
-                                outStream.flush();
-                                outStream.close();
-                                inStream.close();
-                                ucon.disconnect();
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-
-
-                        } catch (Exception e) {
-                            //    sendEvent("E13_" + e.getMessage(), "", "");
-                            showErrorToast("#13 - " + e.getMessage(), getString(R.string.problemfindingvideo), true);
-
-                        }
-
-                        return null;
-                    }
-
-                    //show progress in onPre
-                    @Override
-                    protected void onPreExecute() {
-
-                        if (numMultVideos == 0)
-                            startProgressDialog();
-
-                        numMultVideos++;
-
-                        try {
-                            runOnUiThread(new Runnable() {
-                                public void run() {
-                                    try {
-                                        //         pd[0] = ProgressDialog.show(ShareActivity.this, _this.getString(R.string.progress_dialog_msg), _this.getString(R.string.downloadingVideo), true, false);
-                                    } catch (Exception e4) {
-                                    }
-                                }
-                            });
-                        } catch (Exception e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
-                        }
-
-                    }
-
-                    @Override
-                    protected void onPostExecute(Void result) {
-                        try {
-
-
-                            runOnUiThread(new Runnable() {
-                                public void run() {
-                                    try {
-                                        numMultVideos -= 1;
-
-                                        if (numMultVideos == 0 && pd != null) {
-                                            removeProgressDialog();
-                                        }
-                                    } catch (Exception e4) {
-                                    }
-
-                                    if (isAutoSave) {
-
-                                        copyAllMultiToSave();
-
-
-                                    }
-                                    //  scanMultiPostFolder();
-                                }
-
-                            });
-
-
-                            //   scanMultiPostFolder();
-
-
-                        } catch (Exception e) {
-                        }
-
-                    }
-                };
-
-
-                videoLoader.execute((Void[]) null);
-
-            }
-        } catch (Exception e) {
-        }
-
-
-    }
-
     private void startAutoSaveMultiProgress() {
 
         if (pd != null)
@@ -5228,14 +4951,19 @@ v.seekTo(1);
 
                 try {
 
-
-                    Log.d("app5", "in oncomplete photo : " + fname);
-                    FileOutputStream fo = new FileOutputStream(new File(fname), false);
                     byte[] contents = bytes.toByteArray();
-                    fo.write(contents);
-                    fo.flush();
-                    // remember close de FileOutput
-                    fo.close();
+                    Log.d("app5", "in oncomplete photo : " + fname);
+                    /**
+                     FileOutputStream fo = new FileOutputStream(new File(fname), false);
+
+                     fo.write(contents);
+                     fo.flush();
+                     // remember close de FileOutput
+                     fo.close();
+                     **/
+
+                    FileUtils.writeByteArrayToFile(new File(fname), contents);
+
                 } catch (Exception e) {
                     Log.d("app5", "in  error oncomplete photo : " + e.getMessage());
                 }
@@ -5675,121 +5403,6 @@ v.seekTo(1);
 
     }
 
-
-    private static String convertInputStreamToString(InputStream inputStream) throws
-            IOException {
-        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-        String line;
-        String result = "";
-        while ((line = bufferedReader.readLine()) != null)
-            result += line;
-
-        inputStream.close();
-        return result;
-
-    }
-
-    private void downloadSinglePhotoToTemp(String url) {
-        try {
-            //    URL imageurl = new URL(url);
-
-            FutureTarget<Bitmap> futureBitmap = Glide.with(RegrannApp._this)
-                    .asBitmap()
-                    .load(url)
-                    .submit();
-
-            if (futureBitmap == null) {
-
-                showErrorToast("#73 - ", "There was a problem downloading the photo.  Please try again.", true);
-                return;
-            }
-
-            try {
-                originalBitmapBeforeNoCrop = futureBitmap.get();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } catch (ExecutionException e) {
-                e.printStackTrace();
-            }
-
-            // originalBitmapBeforeNoCrop = resource;
-            Bitmap bitmap = originalBitmapBeforeNoCrop;
-
-
-            if (preferences.getBoolean("watermark_checkbox", false)) {
-
-                int textSize = 20;
-                if (bitmap.getHeight() > 640)
-                    textSize = 50;
-                bitmap = mark(bitmap, author, 1, Color.YELLOW, 180, textSize, false);
-            }
-
-
-            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 99, bytes);
-
-
-            // no crop if not square ??
-
-            try {
-                // write the bytes in file
-                FileOutputStream fo = new FileOutputStream(tempFile);
-                fo.write(bytes.toByteArray());
-
-                // remember close de FileOutput
-                fo.close();
-            } catch (Exception e) {
-            }
-
-        } catch (OutOfMemoryError e) {
-            int y = 1;
-
-        }
-
-    }
-
-    /**
-     * private void downloadSinglePhotoToTemp(String picURL) {
-     * try {
-     * <p>
-     * <p>
-     * <p>
-     * <p>
-     * URL imageurl = new URL(picURL);
-     * originalBitmapBeforeNoCrop = BitmapFactory.decodeStream(imageurl.openConnection().getInputStream());
-     * Bitmap bitmap = originalBitmapBeforeNoCrop;
-     * <p>
-     * <p>
-     * if (preferences.getBoolean("watermark_checkbox", false)) {
-     * Point p = new Point(10, bitmap.getHeight() - 10);
-     * int textSize = 20;
-     * if (bitmap.getHeight() > 640)
-     * textSize = 50;
-     * bitmap = mark(bitmap, author, p, Color.YELLOW, 180, textSize, false);
-     * }
-     * <p>
-     * <p>
-     * ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-     * bitmap.compress(Bitmap.CompressFormat.JPEG, 99, bytes);
-     * <p>
-     * <p>
-     * // no crop if not square ??
-     * <p>
-     * <p>
-     * // write the bytes in file
-     * FileOutputStream fo = new FileOutputStream(tempFile);
-     * fo.write(bytes.toByteArray());
-     * <p>
-     * // remember close de FileOutput
-     * fo.close();
-     * <p>
-     * } catch (Exception e) {
-     * showErrorToast("In downloadSinglePhotoToTemp","Problem getting photo", true);
-     * <p>
-     * }
-     * <p>
-     * }
-     **/
 
 
     private void copyAllMultiToSave() {

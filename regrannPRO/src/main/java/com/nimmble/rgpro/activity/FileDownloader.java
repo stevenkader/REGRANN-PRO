@@ -7,9 +7,10 @@ import android.widget.Toast;
 
 import com.nimmble.rgpro.util.Util;
 
+import org.apache.commons.io.FileUtils;
+
 import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -51,21 +52,25 @@ public class FileDownloader {
                 // Get the file name from the URL
                 String fileName = fname;
 
-                File outputFile = new File(DOWNLOAD_FOLDER + "/Regrann/", fileName);
+                File outputFile = new File(Environment.getExternalStorageDirectory(), Environment.DIRECTORY_DOWNLOADS + "/Regrann/" + fileName);
 
                 InputStream inputStream = new BufferedInputStream(connection.getInputStream());
-                FileOutputStream outputStream = new FileOutputStream(outputFile);
 
-                byte[] buffer = new byte[1024];
-                int bytesRead;
-                while ((bytesRead = inputStream.read(buffer)) != -1) {
-                    outputStream.write(buffer, 0, bytesRead);
-                }
+                FileUtils.copyInputStreamToFile(inputStream, outputFile);
 
-                outputStream.flush();
-                outputStream.close();
-                inputStream.close();
+/**
+ FileOutputStream outputStream = new FileOutputStream(outputFile);
 
+ byte[] buffer = new byte[1024];
+ int bytesRead;
+ while ((bytesRead = inputStream.read(buffer)) != -1) {
+ outputStream.write(buffer, 0, bytesRead);
+ }
+
+ outputStream.flush();
+ outputStream.close();
+ inputStream.close();
+ **/
                 return true;
             } catch (Exception e) {
 
