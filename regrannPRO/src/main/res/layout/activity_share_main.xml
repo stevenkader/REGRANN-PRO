@@ -52,12 +52,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
 
-            android:layout_marginTop="20dp"
-            android:layout_marginBottom="20dp"
+            android:layout_marginTop="15dp"
+            android:layout_marginBottom="15dp"
             android:adjustViewBounds="true"
             android:contentDescription="@string/preview_image"
-            android:minWidth="20dp"
-            android:minHeight="20dp"
+            android:minWidth="100dp"
+            android:minHeight="100dp"
             android:scaleType="fitCenter"
             android:visibility="visible" />
 
@@ -132,7 +132,7 @@
             android:gravity="center"
             android:text="Only first photo/video will show for private Multi-Photo posts"
             android:textAlignment="center"
-            android:visibility="invisible" />
+            android:visibility="gone" />
 
         <LinearLayout
             android:id="@+id/wmarkposition"

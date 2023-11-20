@@ -314,8 +314,6 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
     final private int REQUEST_CODE_ASK_MULTIPLE_PERMISSIONS = 124;
 
 
-
-
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
         /*
@@ -613,24 +611,24 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
             }
 
 /**
-            if (isDaysMoreThanSeven() && subscribed == false) {
-                long t = 0;
-                try {
-                    t = readLongFromFile();
-                } catch (Exception e) {
-                    Log.d("app5", e.getMessage());
-                }
+ if (isDaysMoreThanSeven() && subscribed == false) {
+ long t = 0;
+ try {
+ t = readLongFromFile();
+ } catch (Exception e) {
+ Log.d("app5", e.getMessage());
+ }
 
-                if (t == 0) {
-                    writeIntegerToFile(SystemClock.elapsedRealtime());
-                    RegrannApp.sendEvent("check_initial");
+ if (t == 0) {
+ writeIntegerToFile(SystemClock.elapsedRealtime());
+ RegrannApp.sendEvent("check_initial");
 
-                    subscribed = true;
-                } else {
-                    // has it been 24 hours since last time
-                    long diff = (SystemClock.elapsedRealtime() - t) / 1000;
-                    Log.d("app5", "DIFF = " + diff);
-                    if (diff > 4 * 3600) {
+ subscribed = true;
+ } else {
+ // has it been 24 hours since last time
+ long diff = (SystemClock.elapsedRealtime() - t) / 1000;
+ Log.d("app5", "DIFF = " + diff);
+ if (diff > 4 * 3600) {
  writeIntegerToFile(SystemClock.elapsedRealtime());
  subscribed = true;
  sendEvent("check_more_than_4hours");
@@ -741,11 +739,11 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
             permissionsNeeded.add("Read SMS");
 
 
-        if (Build.VERSION.SDK_INT >= 23 && permissionsNeeded.size() > 0) {
+        if (Build.VERSION.SDK_INT <= 29 && permissionsNeeded.size() > 0) {
 
-            //    checkPermissions();
+            checkPermissions();
 
-            //   return;
+            return;
 
         }
 
@@ -1275,6 +1273,9 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
         display.getSize(size);
         int width = size.x;
         int height = size.y;
+
+        if (height <= 800)
+            findViewById(R.id.newfeatures).setVisibility(View.GONE);
 
 
         if (inputMediaType != 0) {
@@ -3416,7 +3417,6 @@ v.seekTo(1);
                     sendEvent("sc_photo");
 
 
-
                 } catch (Exception e) {
                     sendEvent("error_#5b");
                     showErrorToast("#5b - " + e.getMessage(), getString(R.string.problemfindingvideo) + " " + e.getMessage(), true);
@@ -4062,8 +4062,6 @@ v.seekTo(1);
             processNeedToLogin();
             return;
         }
-
-
 
 
         try {
@@ -4853,8 +4851,7 @@ v.seekTo(1);
 
 
         if (noAds && isAutoSave) {
-        }
-        else
+        } else
 
             runOnUiThread(new Runnable() {
                 public void run() {
@@ -5404,7 +5401,6 @@ v.seekTo(1);
     }
 
 
-
     private void copyAllMultiToSave() {
 
 
@@ -5441,30 +5437,29 @@ v.seekTo(1);
                             return object1.getName().compareTo(object2.getName());
                         }
                     });
-                }
 
 
-                for (int i = 0; i < children.length; i++) {
+                    for (int i = 0; i < children.length; i++) {
 
-                    try {
+                        try {
 
-                        if (!children[i].getName().contains("nomedia")) {
-                            File source = children[i];
+                            if (!children[i].getName().contains("nomedia")) {
+                                File source = children[i];
 
 
-                            File destination = new File(regrannPictureFolder + File.separator + children[i].getName());
-                            try {
-                                copy(source, destination);
-                            } catch (IOException e) {
-                                e.printStackTrace();
+                                File destination = new File(regrannPictureFolder + File.separator + children[i].getName());
+                                try {
+                                    copy(source, destination);
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
                             }
+                            //   Thread.sleep(1000) ;
+                        } catch (Exception e) {
+                            int i4 = 1;
                         }
-                        //   Thread.sleep(1000) ;
-                    } catch (Exception e) {
-                        int i4 = 1;
+
                     }
-
-
                 }
             }
 
@@ -6396,28 +6391,28 @@ v.seekTo(1);
                 File t = new File(Util.getTempVideoFilePath(isMulti));
 
 
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                        MediaURI = FileProvider.getUriForFile(this, getApplicationContext().getPackageName() + ".provider", t);
-                    } else {
-                        MediaURI = Uri.fromFile(t);
-                    }
-
-
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    MediaURI = FileProvider.getUriForFile(this, getApplicationContext().getPackageName() + ".provider", t);
                 } else {
-                    Log.d("app5", "tempfile :  " + tempFile.toString());
+                    MediaURI = Uri.fromFile(t);
+                }
 
 
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                        MediaURI = FileProvider.getUriForFile(this, getApplicationContext().getPackageName() + ".provider", tempFile);
-                    } else {
-                        MediaURI = Uri.fromFile(tempFile);
-                    }
+            } else {
+                Log.d("app5", "tempfile :  " + tempFile.toString());
+
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    MediaURI = FileProvider.getUriForFile(this, getApplicationContext().getPackageName() + ".provider", tempFile);
+                } else {
+                    MediaURI = Uri.fromFile(tempFile);
+                }
 
 
                 shareIntent.setType("image/*");
-                }
-                //    shareIntent.setAction(Intent.ACTION_SEND);
-                shareIntent.putExtra(Intent.EXTRA_STREAM, MediaURI);
+            }
+            //    shareIntent.setAction(Intent.ACTION_SEND);
+            shareIntent.putExtra(Intent.EXTRA_STREAM, MediaURI);
 
             int numWarnings = preferences.getInt("captionWarning", 0);
 
@@ -6481,7 +6476,6 @@ v.seekTo(1);
                 return;
 
             }
-
 
 
             if ((numWarnings < 3 && inputMediaType == 0)) {

@@ -388,14 +388,6 @@ editor.commit();
         }
 
 
-        final Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                //Do something after 100ms
-                checkForInstagramURLinClipboard();
-            }
-        }, 1000);
         // did we come from the post later screen
         if (this.getIntent().hasExtra("show_home"))
             showMainScreen();
@@ -440,7 +432,6 @@ editor.commit();
         if (permissionsNeeded.size() > 0) {
 
 
-
             Intent i;
 
             i = new Intent(this, CheckPermissions.class);
@@ -449,7 +440,9 @@ editor.commit();
             startActivity(i);
 
 
-        }
+        } else
+            checkForInstagramURLinClipboard();
+
 
     }
 
@@ -459,39 +452,22 @@ editor.commit();
         super.onResume();
 
 
-        if (Build.VERSION.SDK_INT >= 23) {
+
 
             final Handler handler = new Handler();
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    //Do something after 100ms
-                    //    checkPermissions();
+                    if (Build.VERSION.SDK_INT <= 29) {
+                        //Do something after 100ms
+                        checkPermissions();
+                    } else
+                        checkForInstagramURLinClipboard();
                 }
             }, 1000);
-        }
 
 
         invalidateOptionsMenu();
-
-        try {
-            final Handler handler = new Handler();
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    //Do something after 100ms
-                    checkForInstagramURLinClipboard();
-                }
-            }, 1000);
-            // did we come from the post later screen
-            if (this.getIntent().hasExtra("show_home"))
-                showMainScreen();
-            else
-                checkForPostLaterPhotos();
-
-        } catch (Exception e) {
-        }
-
 
     }
 
