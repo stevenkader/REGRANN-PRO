@@ -37,7 +37,10 @@ import android.media.MediaPlayer.OnCompletionListener;
 import android.media.MediaPlayer.OnPreparedListener;
 import android.media.MediaScannerConnection;
 import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
 import android.net.NetworkInfo;
+import android.net.NetworkRequest;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -126,11 +129,13 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -2467,6 +2472,51 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
 
     }
 
+
+    public static void makeHttpGetRequest(String urlString, Context context, NetworkResponseCallback callback) {
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkRequest.Builder builder = new NetworkRequest.Builder();
+        builder.addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR);
+
+        cm.requestNetwork(builder.build(), new ConnectivityManager.NetworkCallback() {
+            @Override
+            public void onAvailable(Network network) {
+                super.onAvailable(network);
+                try {
+                    URL url = new URL(urlString);
+                    HttpURLConnection urlConnection = (HttpURLConnection) network.openConnection(url);
+                    try {
+                        BufferedReader in = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
+                        StringBuilder response = new StringBuilder();
+                        String inputLine;
+                        while ((inputLine = in.readLine()) != null) {
+                            response.append(inputLine);
+                        }
+                        in.close();
+                        callback.onResponse(response.toString());
+                    } finally {
+                        urlConnection.disconnect();
+                    }
+                } catch (IOException e) {
+                    callback.onError(e);
+                }
+            }
+
+            @Override
+            public void onLost(Network network) {
+                super.onLost(network);
+                callback.onError(new IOException("Cellular network lost"));
+            }
+        });
+    }
+
+    public interface NetworkResponseCallback {
+        void onResponse(String response);
+
+        void onError(Exception e);
+    }
+
     public String getStringBetweenLastTwoSlashes(String input) {
         if (input == null || input.isEmpty()) {
             return null; // or you could choose to return an empty string ""
@@ -2500,10 +2550,7 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
                 } else {
                     String final_url = "";
                     if (numRetries == 1) {
-                        //    if (initialURL.indexOf("?") > 0)
-                        //       final_url = initialURL.substring(0, initialURL.indexOf("?"));
-                        //  final_url = final_url + "?__a=1";
-                        // final_url = final_url.replace(" ", "");
+                        numRetries++;
 
                         String post = getStringBetweenLastTwoSlashes(initialURL);
 
@@ -2514,16 +2561,54 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
                         } catch (Exception e) {
                         }
 
-                        final_url = "https://api.webscraping.ai/html?timeout=20000&api_key=8c960a48-b155-4a29-bec4-97aab8d87101&js=false&country=us&device=mobile&proxy=residential&url=" + theurl;
+                        final_url = "https://www.instagram.com/graphql/query?query_hash=2b0673e0dc4580674a88d426fe00ea90&variables=%7B%22shortcode%22%3A%22" + post + "%22%7D";
 
                     }
-                    getJSONQueryFromInstagramURL(final_url, volleyListener);
+
+                    try {
+
+                        if (!NetworkUtil.isCellularDataAvailable(_this)) {
+                            onDataLoaded("ERROR", "");
+                            return;
+                        }
+
+
+                        NetworkUtil.makeHttpGetRequest(final_url, _this, new NetworkUtil.NetworkResponseCallback() {
+                            @Override
+                            public void onResponse(String response) {
+                                // Handle the successful response here
+                                runOnUiThread(() -> {
+                                    onDataLoaded(response, "");
+                                    // Update UI or show response data
+                                    //    Toast.makeText(_this, "Response: " + response, Toast.LENGTH_LONG).show();
+                                });
+                            }
+
+                            @Override
+                            public void onError(Exception e) {
+                                // Handle the error here
+                                runOnUiThread(() -> {
+                                    onDataLoaded("ERROR", "");
+
+                                    // Update UI or show error message
+                                    //  Toast.makeText(_this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                                });
+                            }
+                        });
+                    } catch (Exception e) {
+                        onDataLoaded("ERROR", "");
+
+                    }
+
+
+                    // getJSONQueryFromInstagramURL(final_url, volleyListener);
                 }
             }
         }, 1000);
 
 
     }
+
 
     @Override
     public void onDataLoaded(String volleyReturn, String url) {
@@ -4607,6 +4692,7 @@ v.seekTo(1);
     public void onPause() {
 
         super.onPause();
+
 
         //    LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(this);
         //  localBroadcastManager.unregisterReceiver(myDownloadLinkReceiver);
