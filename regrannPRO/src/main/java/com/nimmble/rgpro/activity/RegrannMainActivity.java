@@ -38,7 +38,6 @@ import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings;
 import com.nimmble.rgpro.R;
 import com.nimmble.rgpro.sqlite.KeptListAdapter;
-import com.nimmble.rgpro.util.PRO;
 import com.nimmble.rgpro.util.Util;
 
 import java.util.ArrayList;
@@ -92,121 +91,8 @@ public class RegrannMainActivity extends AppCompatActivity {
         editor1.commit();
 
 
-        //  IntegrationHelper.validateIntegration(this);
-
-        //  MediationTestSuite.launch(RegrannMainActivity.this);
-        //  MediationTestSuite.addTestDevice("B1D20D0F336796629655D59351F179F8");
-        //  MediationTestSuite.addTestDevice("03B8364E84BB1446DA5C8FDFA9A4E356");
-
-
-/**
-
-        acknowledgePurchaseResponseListener = new AcknowledgePurchaseResponseListener() {
-@Override public void onAcknowledgePurchaseResponse(BillingResult billingResult) {
-
-
-AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(_this);
-
-// set dialog message
-alertDialogBuilder.setTitle("Upgrade Complete").setMessage(getString(R.string.purchase_complete)).setCancelable(false).setIcon(R.mipmap.ic_launcher).setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-public void onClick(DialogInterface dialog, int id) {
-RegrannApp.sendEvent("ug_purchase_acknowledged");
-
-}
-
-});
-
-// create alert dialog
-AlertDialog alertDialog = alertDialogBuilder.create();
-
-                        // show it
-                        alertDialog.show();
-
-
-            }
-
-        };
-
-        billingClient = BillingClient.newBuilder(this).enablePendingPurchases().setListener(new PurchasesUpdatedListener() {
-            @Override
-            public void onPurchasesUpdated(BillingResult responseCode, List<Purchase> purchases) {
-
-                if (responseCode.getResponseCode() == BillingClient.BillingResponseCode.OK
-                        && purchases != null) {
-
-                    for (Purchase purchase : purchases) {
-                        //When every a new purchase is made
-
-
-
-
-AcknowledgePurchaseParams acknowledgePurchaseParams =
-AcknowledgePurchaseParams.newBuilder()
-.setPurchaseToken(purchase.getPurchaseToken())
-.build();
-
-
-if (purchase.getPurchaseState() == Purchase.PurchaseState.PURCHASED) {
-
-
-SharedPreferences.Editor editor = preferences.edit();
-editor.putBoolean("subscribed", true);
-
-editor = preferences.edit();
-editor.putBoolean("really_subscribed", true);
-
-
-editor.commit();
-
-billingClient.acknowledgePurchase(acknowledgePurchaseParams, acknowledgePurchaseResponseListener);
-}
-
-
-//  noAds = true;
-
-}
-
-// do something you want
-
-}
-
-
-}
-}).build();
-
- billingClient.queryPurchasesAsync(BillingClient.SkuType.SUBS, new PurchasesResponseListener() {
-@Override public void onQueryPurchasesResponse(@NonNull BillingResult billingResult, @NonNull List<Purchase> list) {
-if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK) {
-
-
-if (list.size() > 0) {
-
-for (Purchase purchase : list) {
-
-if (purchase.getPurchaseState() == Purchase.PurchaseState.PURCHASED) {
-
-SharedPreferences.Editor editor = preferences.edit();
-
-editor.putBoolean("subscribed", false);
-
-
-editor.putBoolean("really_subscribed", false);
-editor.commit();
-
-
-}
-}
-}
-//      Log.i("app5", "Skipped subscription purchases query since they are not supported");
-}
-
-}
-});
- **/
-
-
-        PRO p = new PRO(_this);
-        p.checkIsActiveSub();
+        //  PRO p = new PRO(_this);
+        //   p.checkIsActiveSub();
 
         noAds = true;
 

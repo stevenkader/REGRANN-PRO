@@ -495,6 +495,7 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
 
         _this = this;
 
+        getJSONfromBrowser = false;
         url = null;
         author = null;
         sharedPref = this.getPreferences(Context.MODE_PRIVATE);
@@ -574,7 +575,7 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
 
             if (days != checkedToday && ((days % 14) == 0)) {
                 Log.d("app5", "checking is sub is active");
-                p.checkIsActiveSub();
+                Util.retreivePurchase();
                 SharedPreferences.Editor editor = preferences.edit();
                 editor.putInt("checkedsubday", days);
                 editor.commit();
@@ -2567,34 +2568,11 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
 
                     try {
 
-                        if (!NetworkUtil.isCellularDataAvailable(_this)) {
-                            onDataLoaded("ERROR", "");
-                            return;
-                        }
+                        getJSONfromBrowser = true;
+                        GET(final_url);
+                        sendEvent("json_from_browser");
 
 
-                        NetworkUtil.makeHttpGetRequest(final_url, _this, new NetworkUtil.NetworkResponseCallback() {
-                            @Override
-                            public void onResponse(String response) {
-                                // Handle the successful response here
-                                runOnUiThread(() -> {
-                                    onDataLoaded(response, "");
-                                    // Update UI or show response data
-                                    //    Toast.makeText(_this, "Response: " + response, Toast.LENGTH_LONG).show();
-                                });
-                            }
-
-                            @Override
-                            public void onError(Exception e) {
-                                // Handle the error here
-                                runOnUiThread(() -> {
-                                    onDataLoaded("ERROR", "");
-
-                                    // Update UI or show error message
-                                    //  Toast.makeText(_this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                                });
-                            }
-                        });
                     } catch (Exception e) {
                         onDataLoaded("ERROR", "");
 
@@ -2609,6 +2587,8 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
 
     }
 
+
+    private boolean getJSONfromBrowser = false;
 
     @Override
     public void onDataLoaded(String volleyReturn, String url) {
@@ -2625,8 +2605,13 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
             shouldRetryVolley();
         } else {
             try {
-
                 Log.d("app5", "Volley ok!");
+                if (volleyReturn.contains("shortcode_media")) {
+                    int j = volleyReturn.indexOf("{");
+                    volleyReturn = volleyReturn.substring(j);
+                }
+
+
                 JSONObject json = new JSONObject(volleyReturn);
                 JSONObject graphQlObject;
                 if (false)
@@ -4242,6 +4227,12 @@ v.seekTo(1);
     }
 
     private void processHTML(String html) {
+
+
+        if (html.indexOf("shortcode_media") > 0 && getJSONfromBrowser) {
+            onDataLoaded(html, url);
+            return;
+        }
 
         processNewInstagramURL(html);
 

@@ -30,6 +30,7 @@ import com.calldorado.doralytics.sdk.base.DoraEventValue;
 import com.google.common.collect.ImmutableList;
 import com.nimmble.rgpro.R;
 import com.nimmble.rgpro.util.Const;
+import com.nimmble.rgpro.util.Util;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -81,7 +82,7 @@ public class RequestPaymentActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         _this = this;
 
-
+        Util.retreivePurchase();
         preferences = PreferenceManager.getDefaultSharedPreferences(this.getApplication().getApplicationContext());
 
         setContentView(R.layout.activity_request_payment);
@@ -187,7 +188,7 @@ public class RequestPaymentActivity extends AppCompatActivity {
                         } else {
                             if (purchase.getPurchaseState() == Purchase.PurchaseState.PURCHASED) {
 
-                                if (preferences.getBoolean("really_subscribed", false) == false) {
+                                if (!preferences.getBoolean("really_subscribed", false)) {
                                     RegrannApp.sendEvent("ug_purchase_complete_v2");
 
                                     SharedPreferences.Editor editor = preferences.edit();
@@ -268,7 +269,6 @@ public class RequestPaymentActivity extends AppCompatActivity {
                     showErrorToast("Purchasing / Payment problem", "There was a problem, please try again later. You should not have been charged.", true);
                     // Toast.makeText(_this, "There was a problem with purchase, please try again later", Toast.LENGTH_LONG);
 
-                    return;
                 }
 
 
