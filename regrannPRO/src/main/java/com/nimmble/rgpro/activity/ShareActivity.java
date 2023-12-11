@@ -106,7 +106,6 @@ import com.google.android.play.core.install.model.UpdateAvailability;
 import com.google.android.play.core.review.ReviewInfo;
 import com.google.android.play.core.review.ReviewManager;
 import com.google.android.play.core.review.ReviewManagerFactory;
-import com.google.common.base.Charsets;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings;
@@ -136,9 +135,12 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.Authenticator;
 import java.net.HttpURLConnection;
+import java.net.InetSocketAddress;
+import java.net.PasswordAuthentication;
+import java.net.Proxy;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -1826,6 +1828,13 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
                 try {
                     dialog.dismiss();
 
+                    if (isVideo) {
+
+
+                        shareWithInstagramChooser();
+
+                        return;
+                    }
 
                     createInstagramIntent2(MediaURI);
                     //  _this.startActivity(shareIntent);
@@ -2377,6 +2386,49 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
 
     static boolean alreadyTriedGET = false;
 
+    public static String sendGetRequestThroughProxy(String targetUrl, String proxyHost, int proxyPort, final String proxyUser, final String proxyPassword) throws IOException {
+        // Configure proxy settings
+        Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyHost, proxyPort));
+
+        // Set up an Authenticator for proxy authentication
+        Authenticator.setDefault(new Authenticator() {
+            @Override
+            protected PasswordAuthentication getPasswordAuthentication() {
+                if (getRequestorType() == RequestorType.PROXY) {
+                    return new PasswordAuthentication(proxyUser, proxyPassword.toCharArray());
+                }
+                return null;
+            }
+        });
+
+        // Open connection through the proxy
+        URL url = new URL(targetUrl);
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection(proxy);
+
+        // Optional: Set request method and headers
+        connection.setRequestMethod("GET");
+        // connection.setRequestProperty("User-Agent", "Mozilla/5.0");
+
+        // Read the response
+        StringBuilder response = new StringBuilder();
+        try {
+            try (BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
+                String line;
+                while ((line = in.readLine()) != null) {
+                    response.append(line);
+                }
+            }
+        } catch (Exception e) {
+            int i = 10;
+        }
+
+        // Close the connection
+        connection.disconnect();
+
+        return response.toString();
+    }
+
+
     private void startProcessURL(String url) {
 
         alreadyTriedGET = false;
@@ -2537,40 +2589,50 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
         return input.substring(secondLastSlashIndex + 1, lastSlashIndex);
     }
 
-
+    String final_url = "";
     private void shouldRetryVolley() {
+
 
         final Handler handler1 = new Handler();
         handler1.postDelayed(new Runnable() {
             @Override
             public void run() {
                 Log.d("app5", "retrying Volley # :" + numRetries);
-                if (numRetries > 1) {
+                if (numRetries > 3) {
                     sendEvent("prox_failed_" + numRetries);
+                    alreadyTriedGET = false;
                     GET(initialURL);
                 } else {
-                    String final_url = "";
-                    if (numRetries == 1) {
-                        numRetries++;
 
-                        String post = getStringBetweenLastTwoSlashes(initialURL);
 
-                        String theurl = "https://www.instagram.com/graphql/query?query_hash=2b0673e0dc4580674a88d426fe00ea90&variables=%7B%22shortcode%22%3A%22" + post + "%22%7D";
+                    numRetries++;
 
-                        try {
-                            theurl = URLEncoder.encode(theurl, Charsets.UTF_8.name());
-                        } catch (Exception e) {
-                        }
+                    String post = getStringBetweenLastTwoSlashes(initialURL);
 
-                        final_url = "https://www.instagram.com/graphql/query?query_hash=2b0673e0dc4580674a88d426fe00ea90&variables=%7B%22shortcode%22%3A%22" + post + "%22%7D";
+                    final_url = "https://www.instagram.com/graphql/query?query_hash=2b0673e0dc4580674a88d426fe00ea90&variables=%7B%22shortcode%22%3A%22" + post + "%22%7D";
 
-                    }
 
                     try {
 
-                        getJSONfromBrowser = true;
-                        GET(final_url);
-                        sendEvent("json_from_browser");
+
+                        Thread thread = new Thread(new Runnable() {
+
+                            @Override
+                            public void run() {
+                                try {
+                                    proxyRequest(final_url);
+
+                                    // Your code goes here
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        });
+
+                        thread.start();
+
+
+                        sendEvent("json_from_python");
 
 
                     } catch (Exception e) {
@@ -4317,7 +4379,11 @@ v.seekTo(1);
                     webview.getSettings().setLoadWithOverviewMode(true);
 
                     //     webview.getSettings().setUserAgentString("Mozilla/5.0 (iPhone; CPU iPhone OS 6_0 like Mac OS X) AppleWebKit/536.26 (KHTML, like Gecko) Version/6.0 Mobile/10A5376e Safari/8536.25");
+
                     webview.getSettings().setUserAgentString("Mozilla/5.0 (iPhone; CPU iPhone OS 16_0_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.6 Mobile/15E148 Safari/604.1");
+
+
+                    // webview.getSettings().setUserAgentString("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36");
 
                     webview.setWebViewClient(new WebViewClient() {
 
@@ -5893,7 +5959,7 @@ v.seekTo(1);
             }
 
             if (isVideo) {
-                share.setType("video/*");
+                share.setType("video/mp4");
                 share.putExtra(Intent.EXTRA_STREAM, MediaURI);
             } else {
                 share.putExtra(Intent.EXTRA_STREAM, MediaURI);
@@ -6464,7 +6530,7 @@ v.seekTo(1);
 
 
             if (isVideo) {
-                shareIntent.setType("video/*");
+                shareIntent.setType("video/mp4");
                 File t = new File(Util.getTempVideoFilePath(isMulti));
 
 
@@ -6511,7 +6577,7 @@ v.seekTo(1);
 // Attach your video to the intent from a URI
                 Uri videoAssetUri = MediaURI;
                 if (isVideo)
-                    intent.setDataAndType(videoAssetUri, "video/*");
+                    intent.setDataAndType(videoAssetUri, "video/mp4");
                 else
                     intent.setDataAndType(videoAssetUri, "image/*");
                 intent.putExtra(Intent.EXTRA_STREAM, videoAssetUri);
@@ -6566,6 +6632,14 @@ v.seekTo(1);
 
             } else {
 
+                if (isVideo) {
+
+
+                    shareWithInstagramChooser();
+
+                    return;
+                }
+
                 createInstagramIntent2(MediaURI);
 
 
@@ -6589,11 +6663,83 @@ v.seekTo(1);
         } catch (Exception e8) {
 
 
-            createInstagramIntent2(MediaURI);
-            //shareWithInstagramChooser(MediaURI);
+            shareWithInstagramChooser();
 
         }
 
+
+    }
+
+
+    boolean shareChooserActive = false;
+
+    private void shareWithInstagramChooser() {
+
+
+        try {
+
+            // Create the new Intent using the 'Send' action.
+            Intent share = new Intent(Intent.ACTION_SEND);
+            share.setPackage("com.instagram.android");
+
+
+            share.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+
+            Uri MediaURI;
+
+
+            if (isVideo) {
+
+                File t = new File(Util.getTempVideoFilePath());
+
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    MediaURI = FileProvider.getUriForFile(this, getApplicationContext().getPackageName() + ".provider", t);
+                } else {
+                    MediaURI = Uri.fromFile(t);
+                }
+
+
+            } else {
+                Log.d("app5", "tempfile :  " + tempFile.toString());
+
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    MediaURI = FileProvider.getUriForFile(this, getApplicationContext().getPackageName() + ".provider", tempFile);
+                } else {
+                    MediaURI = Uri.fromFile(tempFile);
+                }
+
+
+            }
+
+            if (isVideo) {
+                share.setType("video/mp4");
+                share.putExtra(Intent.EXTRA_STREAM, MediaURI);
+            } else {
+                share.putExtra(Intent.EXTRA_STREAM, MediaURI);
+
+                share.setType("image/*");
+            }
+
+
+            // Broadcast the Intent.
+            startActivity(Intent.createChooser(share, "Share to"));
+
+            cleanUp();
+
+
+            final Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    finish();
+                }
+            }, 2000);
+        } catch (Exception e) {
+            showErrorToast(e.getMessage(), getString(R.string.therewasproblem));
+
+        }
 
     }
 
@@ -6614,7 +6760,7 @@ v.seekTo(1);
         String type = "image/*";
 
         if (isVideo)
-            type = "video/*";
+            type = "video/mp4";
 
         intent.setDataAndType(MediaURI, type);
         intent.putExtra(Intent.EXTRA_STREAM, MediaURI);
@@ -6676,7 +6822,7 @@ v.seekTo(1);
 
 
             if (isVideo) {
-                i.setType("video/*");
+                i.setType("video/mp4");
 
             } else {
 
@@ -6842,6 +6988,46 @@ v.seekTo(1);
 
 
         return currentUrl;
+    }
+
+
+    private void proxyRequest(String url) {
+
+        RequestQueue queue = Volley.newRequestQueue(this);
+
+        String final_url = "https://pyapp.jaredco.com/prox/?url=" + url;
+
+        // Request a string response from the provided URL.
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, final_url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+
+                        onDataLoaded(response, final_url);
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                int code = 0;
+                try {
+                    onDataLoaded("", final_url);
+
+
+                } catch (Exception e) {
+                }
+
+
+            }
+        });
+
+
+        stringRequest.setRetryPolicy(new DefaultRetryPolicy(12000,
+                1,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+// Add the request to the RequestQueue.
+        queue.add(stringRequest);
+
+
     }
 
 
