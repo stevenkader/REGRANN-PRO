@@ -135,11 +135,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.Authenticator;
 import java.net.HttpURLConnection;
-import java.net.InetSocketAddress;
-import java.net.PasswordAuthentication;
-import java.net.Proxy;
 import java.net.URL;
 import java.nio.channels.FileChannel;
 import java.nio.file.Files;
@@ -165,6 +161,7 @@ import ly.img.android.pesdk.backend.model.state.VideoEditorSaveSettings;
 import ly.img.android.pesdk.ui.activity.EditorBuilder;
 import ly.img.android.pesdk.ui.model.state.UiConfigFilter;
 import ly.img.android.pesdk.ui.model.state.UiConfigText;
+import okhttp3.Credentials;
 
 
 public class ShareActivity extends AppCompatActivity implements VolleyRequestListener, BaseSliderView.OnSliderClickListener, ViewPagerEx.OnPageChangeListener, OnClickListener, OnCompletionListener, OnPreparedListener {
@@ -2386,47 +2383,6 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
 
     static boolean alreadyTriedGET = false;
 
-    public static String sendGetRequestThroughProxy(String targetUrl, String proxyHost, int proxyPort, final String proxyUser, final String proxyPassword) throws IOException {
-        // Configure proxy settings
-        Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyHost, proxyPort));
-
-        // Set up an Authenticator for proxy authentication
-        Authenticator.setDefault(new Authenticator() {
-            @Override
-            protected PasswordAuthentication getPasswordAuthentication() {
-                if (getRequestorType() == RequestorType.PROXY) {
-                    return new PasswordAuthentication(proxyUser, proxyPassword.toCharArray());
-                }
-                return null;
-            }
-        });
-
-        // Open connection through the proxy
-        URL url = new URL(targetUrl);
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection(proxy);
-
-        // Optional: Set request method and headers
-        connection.setRequestMethod("GET");
-        // connection.setRequestProperty("User-Agent", "Mozilla/5.0");
-
-        // Read the response
-        StringBuilder response = new StringBuilder();
-        try {
-            try (BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
-                String line;
-                while ((line = in.readLine()) != null) {
-                    response.append(line);
-                }
-            }
-        } catch (Exception e) {
-            int i = 10;
-        }
-
-        // Close the connection
-        connection.disconnect();
-
-        return response.toString();
-    }
 
 
     private void startProcessURL(String url) {
@@ -2589,7 +2545,49 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
         return input.substring(secondLastSlashIndex + 1, lastSlashIndex);
     }
 
+
+    public String prox(String urlString) {
+        String username = "36jl9mi7f6ro30j-country-us";
+        String password = "t0keeniknf2lioq";
+        String proxyAddress = "rp.proxyscrape.com";
+        int proxyPort = 6060;
+
+        try {
+
+            URL url = new URL(urlString);
+
+
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+
+
+            connection.setRequestProperty("Connection", "close");
+            String credential = Credentials.basic(username, password);
+            connection.addRequestProperty("Proxy-Authorization", credential);
+
+            int responseCode = connection.getResponseCode();
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                String inputLine;
+                StringBuilder response = new StringBuilder();
+
+                while ((inputLine = in.readLine()) != null) {
+                    response.append(inputLine);
+                }
+                in.close();
+
+                return response.toString();
+            } else {
+                return "twitter_error";
+            }
+
+        } catch (Exception e) {
+            return "twitter_error";
+        }
+    }
+
+
     String final_url = "";
+
     private void shouldRetryVolley() {
 
 
@@ -2632,7 +2630,7 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
                         thread.start();
 
 
-                        sendEvent("json_from_python");
+                        sendEvent("json_from_proxy");
 
 
                     } catch (Exception e) {
@@ -6993,39 +6991,8 @@ v.seekTo(1);
 
     private void proxyRequest(String url) {
 
-        RequestQueue queue = Volley.newRequestQueue(this);
-
-        String final_url = "https://pyapp.jaredco.com/prox/?url=" + url;
-
-        // Request a string response from the provided URL.
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, final_url,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-
-                        onDataLoaded(response, final_url);
-                    }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                int code = 0;
-                try {
-                    onDataLoaded("", final_url);
-
-
-                } catch (Exception e) {
-                }
-
-
-            }
-        });
-
-
-        stringRequest.setRetryPolicy(new DefaultRetryPolicy(12000,
-                1,
-                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-// Add the request to the RequestQueue.
-        queue.add(stringRequest);
+        String res = prox(url);
+        onDataLoaded(res, url);
 
 
     }
