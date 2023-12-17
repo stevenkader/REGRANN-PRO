@@ -2425,7 +2425,7 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
 
     private void getJSONQueryFromInstagramURL(final String url, VolleyRequestListener listener) {
         numRetries++;
-        sendEvent("prox_attemp_" + numRetries);
+
         String final_url = "";
 
 
@@ -2547,12 +2547,14 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
 
 
     public String prox(String urlString) {
-        String username = "36jl9mi7f6ro30j-country-us";
+        String username = "36jl9mi7f6ro30j";
         String password = "t0keeniknf2lioq";
         String proxyAddress = "rp.proxyscrape.com";
         int proxyPort = 6060;
 
         try {
+
+            // showErrorToast("json_from_proxy","json_from_proxy");
 
             URL url = new URL(urlString);
 
@@ -2563,6 +2565,11 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
             connection.setRequestProperty("Connection", "close");
             String credential = Credentials.basic(username, password);
             connection.addRequestProperty("Proxy-Authorization", credential);
+            connection.setConnectTimeout(3000);
+
+// Set a read timeout of 3000 milliseconds (3 seconds)
+            connection.setReadTimeout(3000);
+            Log.d("app5", "proxy_connection_started");
 
             int responseCode = connection.getResponseCode();
             if (responseCode == HttpURLConnection.HTTP_OK) {
@@ -2577,11 +2584,12 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
 
                 return response.toString();
             } else {
-                return "twitter_error";
+                return "ERROR";
             }
 
         } catch (Exception e) {
-            return "twitter_error";
+            Log.d("app5", "prox erro : " + e.getMessage());
+            return "ERROR";
         }
     }
 
@@ -2591,12 +2599,12 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
     private void shouldRetryVolley() {
 
 
-        final Handler handler1 = new Handler();
+        final Handler handler1 = new Handler(Looper.getMainLooper());
         handler1.postDelayed(new Runnable() {
             @Override
             public void run() {
                 Log.d("app5", "retrying Volley # :" + numRetries);
-                if (numRetries > 3) {
+                if (numRetries > 6) {
                     sendEvent("prox_failed_" + numRetries);
                     alreadyTriedGET = false;
                     GET(initialURL);
@@ -2642,7 +2650,7 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
                     // getJSONQueryFromInstagramURL(final_url, volleyListener);
                 }
             }
-        }, 1000);
+        }, 10);
 
 
     }
