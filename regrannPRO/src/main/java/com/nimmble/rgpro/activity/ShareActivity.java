@@ -163,7 +163,6 @@ import ly.img.android.pesdk.ui.model.state.UiConfigFilter;
 import ly.img.android.pesdk.ui.model.state.UiConfigText;
 import okhttp3.Credentials;
 
-
 public class ShareActivity extends AppCompatActivity implements VolleyRequestListener, BaseSliderView.OnSliderClickListener, ViewPagerEx.OnPageChangeListener, OnClickListener, OnCompletionListener, OnPreparedListener {
 
     private ImageView postlater;
@@ -2094,7 +2093,7 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
 
             Log.d("app5", "Count of Runs :" + count);
 
-            if (count != 4) {
+            if (count != 8) {
 
                 // check for update every second time
 
@@ -2396,7 +2395,9 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
 
         }
 
-        if (url.contains("stories") || url.contains("/s/")) {
+
+        if (false) {
+
             GET(currentURL);
             return;
 
@@ -2422,11 +2423,12 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
     }
 
     static String initialURL;
-
+    boolean fromStoryIGRAM = false;
     private void getJSONQueryFromInstagramURL(final String url, VolleyRequestListener listener) {
         numRetries++;
 
         String final_url = "";
+        fromStoryIGRAM = false;
 
 
         RequestQueue queue = Volley.newRequestQueue(this);
@@ -2436,20 +2438,27 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
 
             final_url = "https://www.instagram.com/graphql/query?query_hash=2b0673e0dc4580674a88d426fe00ea90&variables=%7B%22shortcode%22%3A%22" + post + "%22%7D";
 
+            if (initialURL.contains("stories") || initialURL.contains("/s/")) {
+                final_url = "https://igram.world/api/ig/story?url=" + initialURL;
+                fromStoryIGRAM = true;
+            }
         } else {
             final_url = url;
 
         }
 
 
-        Log.d("app5", numRetries + "   " + final_url);
+        //  Log.d("app5", numRetries + "   " + final_url);
         // Request a string response from the provided URL.
         StringRequest stringRequest = new StringRequest(Request.Method.GET, final_url,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
 
-                        listener.onDataLoaded(response, initialURL);
+                        if (fromStoryIGRAM)
+                            processStoriesFromIGRAM(response, initialURL);
+                        else
+                            listener.onDataLoaded(response, initialURL);
                     }
                 }, new Response.ErrorListener() {
             @Override
@@ -2597,70 +2606,66 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
     String final_url = "";
 
     private void shouldRetryVolley() {
+        fromStoryIGRAM = false;
 
-
-        final Handler handler1 = new Handler(Looper.getMainLooper());
+        final Handler handler1 = new Handler();
         handler1.postDelayed(new Runnable() {
             @Override
             public void run() {
-                Log.d("app5", "retrying Volley # :" + numRetries);
-                if (numRetries > 6) {
+                //   Log.d("app5", "retrying Volley # :" + numRetries);
+                if (numRetries > 1) {
                     sendEvent("prox_failed_" + numRetries);
-                    alreadyTriedGET = false;
+                    getJSONfromBrowser = false;
                     GET(initialURL);
                 } else {
+                    String final_url = "";
+                    if (numRetries == 1) {
+                        numRetries++;
 
 
-                    numRetries++;
+                        String post = getStringBetweenLastTwoSlashes(initialURL);
+                        proxyRequest(post);
+                        /**
+                         String theurl = "https://www.instagram.com/graphql/query?query_hash=2b0673e0dc4580674a88d426fe00ea90&variables=%7B%22shortcode%22%3A%22" + post + "%22%7D";
 
-                    String post = getStringBetweenLastTwoSlashes(initialURL);
+                         try {
+                         theurl = URLEncoder.encode(theurl, Charsets.UTF_8.name());
+                         } catch (Exception e) {
+                         }
 
-                    final_url = "https://www.instagram.com/graphql/query?query_hash=2b0673e0dc4580674a88d426fe00ea90&variables=%7B%22shortcode%22%3A%22" + post + "%22%7D";
-
-
-                    try {
-
-
-                        Thread thread = new Thread(new Runnable() {
-
-                            @Override
-                            public void run() {
-                                try {
-                                    proxyRequest(final_url);
-
-                                    // Your code goes here
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        });
-
-                        thread.start();
-
-
-                        sendEvent("json_from_proxy");
-
-
-                    } catch (Exception e) {
-                        onDataLoaded("ERROR", "");
-
+                         final_url = "https://www.instagram.com/graphql/query?query_hash=2b0673e0dc4580674a88d426fe00ea90&variables=%7B%22shortcode%22%3A%22" + post + "%22%7D";
+                         **/
                     }
+
+                    /**
+                     try {
+
+                     getJSONfromBrowser = true;
+                     GET(final_url);
+
+                     sendEvent("json_from_browser");
+
+
+                     } catch (Exception e) {
+                     onDataLoaded("ERROR", "");
+
+                     }
+                     **/
 
 
                     // getJSONQueryFromInstagramURL(final_url, volleyListener);
                 }
             }
-        }, 10);
+        }, 1000);
 
 
     }
-
 
     private boolean getJSONfromBrowser = false;
 
     @Override
     public void onDataLoaded(String volleyReturn, String url) {
-        Log.d("app5", "VOLLEY : " + volleyReturn);
+        //  Log.d("app5", "VOLLEY : " + volleyReturn);
 
 
         if (volleyReturn.contains("not-logged-in")) {
@@ -2686,6 +2691,12 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
                     graphQlObject = json.getJSONObject("graphql");
                 else
                     graphQlObject = json.getJSONObject("data");
+
+
+                if (graphQlObject == null) {
+                    shouldRetryVolley();
+                    return;
+                }
 
                 JSONObject shortCode_media_object = graphQlObject.getJSONObject("shortcode_media");
 
@@ -3325,6 +3336,8 @@ v.seekTo(1);
 
     private void processJSON(String jsonRes) {
 
+        //  jsonRes = "{    \"instaloader\": {        \"node_type\": \"Post\",        \"version\": \"4.10.1\"    },    \"node\": {        \"__typename\": \"GraphVideo\",        \"caption_is_edited\": false,        \"commenting_disabled_for_viewer\": false,        \"comments_disabled\": false,        \"dash_info\": {            \"is_dash_eligible\": false,            \"number_of_qualities\": 0,            \"video_dash_manifest\": null        },        \"dimensions\": {            \"height\": 1333,            \"width\": 750        },        \"display_resources\": [            {                \"config_height\": 1137,                \"config_width\": 640,                \"src\": \"https://scontent-mia3-1.cdninstagram.com/v/t51.2885-15/412576894_389958627010969_1800120334536040115_n.jpg?stp=dst-jpg_e15_p640x640&_nc_ht=scontent-mia3-1.cdninstagram.com&_nc_cat=1&_nc_ohc=FlfUlWwAFqAAX_tBHYL&edm=AP_V10EBAAAA&ccb=7-5&oh=00_AfBZ8gUiOeox0ODB0Gfp48QfpYp9hjYgABs0nLbDcEEYJw&oe=65983F93&_nc_sid=2999b8\"            },            {                \"config_height\": 1333,                \"config_width\": 750,                \"src\": \"https://scontent-mia3-1.cdninstagram.com/v/t51.2885-15/412576894_389958627010969_1800120334536040115_n.jpg?stp=dst-jpg_e15&_nc_ht=scontent-mia3-1.cdninstagram.com&_nc_cat=1&_nc_ohc=FlfUlWwAFqAAX_tBHYL&edm=AP_V10EBAAAA&ccb=7-5&oh=00_AfBecoQbZYYbmw_ZDCCx5QzCjA_EbtbHwi9DTeN8ATXNxQ&oe=65983F93&_nc_sid=2999b8\"            },            {                \"config_height\": 1920,                \"config_width\": 1080,                \"src\": \"https://scontent-mia3-1.cdninstagram.com/v/t51.2885-15/412576894_389958627010969_1800120334536040115_n.jpg?stp=dst-jpg_e15&_nc_ht=scontent-mia3-1.cdninstagram.com&_nc_cat=1&_nc_ohc=FlfUlWwAFqAAX_tBHYL&edm=AP_V10EBAAAA&ccb=7-5&oh=00_AfBecoQbZYYbmw_ZDCCx5QzCjA_EbtbHwi9DTeN8ATXNxQ&oe=65983F93&_nc_sid=2999b8\"            }        ],        \"display_url\": \"https://scontent-mia3-1.cdninstagram.com/v/t51.2885-15/412576894_389958627010969_1800120334536040115_n.jpg?stp=dst-jpg_e15&_nc_ht=scontent-mia3-1.cdninstagram.com&_nc_cat=1&_nc_ohc=FlfUlWwAFqAAX_tBHYL&edm=AP_V10EBAAAA&ccb=7-5&oh=00_AfBecoQbZYYbmw_ZDCCx5QzCjA_EbtbHwi9DTeN8ATXNxQ&oe=65983F93&_nc_sid=2999b8\",        \"edge_media_preview_like\": {            \"count\": 1649242,            \"edges\": []        },        \"edge_media_to_caption\": {            \"edges\": [                {                    \"node\": {                        \"text\": \"Indian navy training \\ud83d\\ude32\\u2764\\ufe0f\\n.\\n.\\n.\\n.\\n.\\n#viral #reels #navy #navylover #navy traning #indian navy\"                    }                }            ]        },        \"edge_media_to_comment\": {            \"count\": 2821,            \"edges\": [],            \"page_info\": {                \"end_cursor\": \"\",                \"has_next_page\": true            }        },        \"edge_media_to_sponsor_user\": {            \"edges\": []        },        \"edge_media_to_tagged_user\": {            \"edges\": []        },        \"edge_web_media_to_related_media\": {            \"edges\": []        },        \"encoding_status\": null,        \"fact_check_information\": null,        \"fact_check_overall_rating\": null,        \"gating_info\": null,        \"has_ranked_comments\": false,        \"id\": \"3264055344560953195\",        \"is_ad\": false,        \"is_published\": true,        \"is_video\": true,        \"location\": null,        \"media_preview\": \"ABgqpwxOxyilvT0/Or5t3IyzBM9s/wBeapRl/uBiqk5POPxqz5YC5PT1/wD19veup3OTTTe5XWHZIcY/Dp9RRVhCGyc8rjj6gH8etFJbBLczyW5x17f1q0o3RhfoD+fNRAbTnrir8YR+BgN6Hqf8+1XoQ210KNuoWZh2HAJ759aKuSWxXLDqcH8uKKSQOVyGWyEY/dks47dT+Pp+NRROHODgMBgA8c/h1/nW1ENsIxxlcnHc461zspO/Pf8A+vWZojVWd4xl/mGP88/40UwjkH1zn34opXK5Uf/Z\",        \"owner\": {            \"blocked_by_viewer\": false,            \"followed_by_viewer\": false,            \"full_name\": \"Indian navy \\ud83d\\udc9e Merchant Navy\",            \"has_blocked_viewer\": false,            \"id\": \"48298436318\",            \"is_private\": false,            \"is_unpublished\": false,            \"is_verified\": false,            \"profile_pic_url\": \"https://scontent-mia3-1.cdninstagram.com/v/t51.2885-19/384793336_341786778267788_8681494039250300202_n.jpg?stp=dst-jpg_s150x150&_nc_ht=scontent-mia3-1.cdninstagram.com&_nc_cat=1&_nc_ohc=VltonyPKA54AX_QpemR&edm=AP_V10EBAAAA&ccb=7-5&oh=00_AfBCulRbY7-p5w_GRLH0tTGGjBRUU-Xl73UIAUCCLdYl2A&oe=659C028F&_nc_sid=2999b8\",            \"requested_by_viewer\": false,            \"username\": \"navylovers._official\"        },        \"product_type\": \"clips\",        \"shortcode\": \"C1MQQrLxVdr\",        \"taken_at_timestamp\": 1703325786,        \"thumbnail_src\": \"https://scontent-mia3-1.cdninstagram.com/v/t51.2885-15/412576894_389958627010969_1800120334536040115_n.jpg?stp=c0.280.720.720a_dst-jpg_e15_s640x640&_nc_ht=scontent-mia3-1.cdninstagram.com&_nc_cat=1&_nc_ohc=FlfUlWwAFqAAX_tBHYL&edm=AP_V10EBAAAA&ccb=7-5&oh=00_AfAJ-_ARv4GjxQbl6VzDTsPmXP-d63jJh51HddjGUiygRQ&oe=65983F93&_nc_sid=2999b8\",        \"title\": \"\",        \"tracking_token\": \"eyJ2ZXJzaW9uIjo1LCJwYXlsb2FkIjp7ImlzX2FuYWx5dGljc190cmFja2VkIjp0cnVlLCJ1dWlkIjoiZGJhYzBkYjE1NjgxNDFjNzk4MjNhOWYyZTRkMTJlMDgzMjY0MDU1MzQ0NTYwOTUzMTk1In0sInNpZ25hdHVyZSI6IiJ9\",        \"video_duration\": 14.652,        \"video_url\": \"https://scontent-mia3-1.cdninstagram.com/v/t66.30100-16/10000000_1845722152558571_6886254468376108415_n.mp4?efg=e30&_nc_ht=scontent-mia3-1.cdninstagram.com&_nc_cat=111&_nc_ohc=G8Y-r3LrrUEAX9HoNF9&edm=AP_V10EBAAAA&ccb=7-5&oh=00_AfCvuIE3uJ3tOCjdS8n9eo41onK6EL5yR48QGC-m6ckUhQ&oe=659B5C3E&_nc_sid=2999b8\",        \"video_view_count\": 19575786,        \"viewer_can_reshare\": true,        \"viewer_has_liked\": false,        \"viewer_has_saved\": false,        \"viewer_has_saved_to_collection\": false,        \"viewer_in_photo_of_you\": false    }}";
+
         JSONObject json = null;
         Log.d("app5", jsonRes);
 
@@ -3333,6 +3346,7 @@ v.seekTo(1);
 
             json = new JSONObject(jsonRes);
 
+            //  json = json.getJSONObject("node");
             try {
                 author = json.getJSONObject("owner").getString("username");
 
@@ -3414,7 +3428,7 @@ v.seekTo(1);
 
             processPotentialPrivate();
             // showErrorToast("Problem", "There seems to be a problem.  Please try again later.", true);
-
+            return;
 
         }
 
@@ -3431,6 +3445,7 @@ v.seekTo(1);
             processMultiPhotoJSON(json, 2);
             return;
         }
+
 
 
         downloadSinglePhotoFromURL(url);
@@ -3514,21 +3529,20 @@ v.seekTo(1);
                 //Background work here
 
 
-                try {
-                    Bitmap bitmap = null;
+                if (!isVideo) {
                     try {
-                        URL imageurl = new URL(url);
-                        originalBitmapBeforeNoCrop = BitmapFactory.decodeStream(imageurl.openConnection().getInputStream());
-                        bitmap = originalBitmapBeforeNoCrop;
-                        origBitmap = bitmap;
-                    } catch (Exception e) {
+                        Bitmap bitmap = null;
+                        try {
+                            URL imageurl = new URL(url);
+                            originalBitmapBeforeNoCrop = BitmapFactory.decodeStream(imageurl.openConnection().getInputStream());
+                            bitmap = originalBitmapBeforeNoCrop;
+                            origBitmap = bitmap;
+                        } catch (Exception e) {
 
-                        showErrorToast("Out of memory", "Sorry not enough memory to continue", true);
+                            showErrorToast("Out of memory", "Sorry not enough memory to continue", true);
 
-                    }
+                        }
 
-
-                    if (!isVideo) {
 
                         try {
                             if (preferences.getBoolean("watermark_checkbox", false) ||
@@ -3542,25 +3556,26 @@ v.seekTo(1);
                         } catch (Exception e99) {
 
                         }
+
+
+                        Log.d("app5", "before compress");
+                        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, 99, bytes);
+
+                        lastDownloadedFile = tempFile;
+                        FileUtils.writeByteArrayToFile(tempFile, bytes.toByteArray());
+
+                        Log.d("app5", "after compress");
+                        sendEvent("sc_photo");
+
+
+                    } catch (Exception e) {
+                        sendEvent("error_#5b");
+                        showErrorToast("#5b - " + e.getMessage(), getString(R.string.problemfindingvideo) + " " + e.getMessage(), true);
+                        //    showErrorToast("#5b - " + e.getMessage(), "#5b - " + e.getMessage(), true);
+
+                        return;
                     }
-
-                    Log.d("app5", "before compress");
-                    ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-                    bitmap.compress(Bitmap.CompressFormat.JPEG, 99, bytes);
-
-                    lastDownloadedFile = tempFile;
-                    FileUtils.writeByteArrayToFile(tempFile, bytes.toByteArray());
-
-                    Log.d("app5", "after compress");
-                    sendEvent("sc_photo");
-
-
-                } catch (Exception e) {
-                    sendEvent("error_#5b");
-                    showErrorToast("#5b - " + e.getMessage(), getString(R.string.problemfindingvideo) + " " + e.getMessage(), true);
-                    //    showErrorToast("#5b - " + e.getMessage(), "#5b - " + e.getMessage(), true);
-
-                    return;
                 }
 
                 handler.post(new Runnable() {
@@ -4189,6 +4204,62 @@ v.seekTo(1);
 
     private final String urlFinished = " ";
 
+    private void processStoriesFromIGRAM(String res, String initialURL) {
+        //Log.d("app5", "in processStoriesFromIGRAM for Stories ");
+        isStoryURL = true;
+        url = "";
+        videoURL = "";
+        int startPos = initialURL.indexOf("stories");
+        int endPos;
+
+        try {
+
+            if (startPos > 1) {
+                endPos = initialURL.indexOf("/", startPos + 9);
+                author = initialURL.substring(startPos + 8, endPos);
+            } else {
+                startPos = initialURL.indexOf("/s/");
+                endPos = initialURL.indexOf("/", startPos + 4);
+                author = initialURL.substring(startPos + 5, endPos);
+            }
+        } catch (Exception e) {
+        }
+
+
+        Log.d("app5", "author = " + author);
+        Log.d("app5", res + "\n\n" + initialURL);
+
+
+        try {
+
+
+            JSONObject json = new JSONObject(res);
+            JSONObject jsonA = json.getJSONArray("result").getJSONObject(0);
+
+            url = jsonA.getJSONObject("image_versions2").getJSONArray("candidates").getJSONObject(0).getString("url");
+
+
+            isVideo = false;
+
+            if (jsonA.has("video_versions")) {
+                JSONArray jsonB = jsonA.getJSONArray("video_versions");
+                if (jsonB != null) {
+                    isVideo = true;
+
+                    videoURL = jsonB.getJSONObject(0).getString("url");
+                }
+            }
+
+            if (url != "")
+                downloadSinglePhotoFromURL(url);
+
+
+        } catch (Exception e) {
+            shouldRetryVolley();
+        }
+
+    }
+
     private void processHTMLforStories(String html) {
         Log.d("app5", "in processHTML for Stories ");
         isStoryURL = true;
@@ -4296,12 +4367,12 @@ v.seekTo(1);
 
     private void processHTML(String html) {
 
-
-        if (html.indexOf("shortcode_media") > 0 && getJSONfromBrowser) {
-            onDataLoaded(html, url);
-            return;
-        }
-
+/**
+ if (html.indexOf("shortcode_media") > 0 && getJSONfromBrowser) {
+ onDataLoaded(html, url);
+ return;
+ }
+ **/
         processNewInstagramURL(html);
 
     }
@@ -5365,8 +5436,8 @@ v.seekTo(1);
         if (!done) {
             sendEvent("download_failed_vid_complete_" + fromSocial);
             if (!fromSocial) {
-
-                GET(initialURL);
+                showErrorToast("error", "There was a problem finding this video from Instagram.  Please try another one.", true);
+                //   GET(initialURL);
             }
             return;
         }
@@ -6997,10 +7068,54 @@ v.seekTo(1);
     }
 
 
-    private void proxyRequest(String url) {
+    // private void proxyRequest(String url) {
 
-        String res = prox(url);
-        onDataLoaded(res, url);
+    //   String res = prox(url);
+    // onDataLoaded(res, url);
+
+
+    //}
+
+
+    private void proxyRequest(String shortcode) {
+
+        RequestQueue queue = Volley.newRequestQueue(this);
+
+        String final_url = "https://pyapp.jaredco.com/getjson/?shortcode=" + shortcode;
+
+        // Request a string response from the provided URL.
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, final_url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+
+                        if (response.equals("ERROR"))
+                            shouldRetryVolley();
+                        else
+                            processJSON(response);
+
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                int code = 0;
+                try {
+                    shouldRetryVolley();
+
+
+                } catch (Exception e) {
+                }
+
+
+            }
+        });
+
+
+        stringRequest.setRetryPolicy(new DefaultRetryPolicy(12000,
+                1,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+// Add the request to the RequestQueue.
+        queue.add(stringRequest);
 
 
     }
