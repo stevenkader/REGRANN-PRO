@@ -121,7 +121,7 @@ public class InstagramLogin extends AppCompatActivity {
         //   }
 
         webview.loadUrl("https://www.instagram.com/accounts/login/");
-
+/**
         try {
 
             AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(InstagramLogin.this);
@@ -140,16 +140,17 @@ public class InstagramLogin extends AppCompatActivity {
                         }
                     });
 
-            // create alert dialog
+ // create alert dialog
 
-            AlertDialog alertDialog = alertDialogBuilder.create();
-            alertDialog.setTitle("Important - Account Safety");
-            // show it
-            alertDialog.show();
+ AlertDialog alertDialog = alertDialogBuilder.create();
+ alertDialog.setTitle("Important - Account Safety");
+ // show it
+ alertDialog.show();
 
-        } catch (Exception e) {
+ } catch (Exception e) {
 
-        }
+ }
+ **/
     }
 
 

@@ -14,7 +14,6 @@ import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.ClipData;
 import android.content.ClipboardManager;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -1135,28 +1134,6 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
 
     }
 
-
-    public long getFilePathToMediaID(String songPath, Context context) {
-        long id = 0;
-        ContentResolver cr = context.getContentResolver();
-
-        Uri uri = MediaStore.Files.getContentUri("external");
-        String selection = MediaStore.Audio.Media.DATA;
-        String[] selectionArgs = {songPath};
-        String[] projection = {MediaStore.Audio.Media._ID};
-        String sortOrder = MediaStore.Audio.Media.TITLE + " ASC";
-
-        Cursor cursor = cr.query(uri, projection, selection + "=?", selectionArgs, null);
-
-        if (cursor != null) {
-            while (cursor.moveToNext()) {
-                int idIndex = cursor.getColumnIndex(MediaStore.Audio.Media._ID);
-                id = Long.parseLong(cursor.getString(idIndex));
-            }
-        }
-
-        return id;
-    }
 
     private void initMainScreen() {
 
@@ -2396,12 +2373,6 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
         }
 
 
-        if (false) {
-
-            GET(currentURL);
-            return;
-
-        }
 
         if (url.contains("/reel/")) {
             shouldBeVideo = true;
@@ -2806,7 +2777,7 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
                                 } else if (isAutoSave) {
                                     addToCount(1);
                                     if (!isVideo) {
-                                        copyTempToSave();
+                                        new CopyFileTask(_this).execute();
                                         //   finish();
                                     } else
                                         LoadVideo();
@@ -3669,6 +3640,14 @@ v.seekTo(1);
 
 
     private void processNewInstagramURL(String html) {
+
+
+        if (html.indexOf(">Log in<") > 0) {
+            processPotentialPrivate();
+            return;
+        }
+
+
         Document doc = Jsoup.parse(html);
         try {
             Elements metaTags = doc.getElementsByTag("meta");
@@ -4226,8 +4205,6 @@ v.seekTo(1);
         }
 
 
-        Log.d("app5", "author = " + author);
-        Log.d("app5", res + "\n\n" + initialURL);
 
 
         try {
@@ -4843,7 +4820,7 @@ v.seekTo(1);
 
 
             if (isAutoSave) {
-                copyTempToSave();
+                new CopyFileTask(_this).execute();
                 //   finish();
 
             } else if (isQuickPost) {
@@ -5365,7 +5342,7 @@ v.seekTo(1);
 
 
                 if (isAutoSave) {
-                    copyTempToSave();
+                    new CopyFileTask(_this).execute();
                     //   finish();
                 } else if (isQuickPost) {
                     if (isVideo) {
@@ -5447,7 +5424,7 @@ v.seekTo(1);
 
 
         if (isAutoSave) {
-            copyTempToSave();
+            new CopyFileTask(_this).execute();
             //   finish();
         } else if (isQuickPost) {
             if (isVideo) {
@@ -5792,81 +5769,105 @@ v.seekTo(1);
         }
     }
 
-    public void copyTempToSave() {
-        try {
+    private class CopyFileTask extends AsyncTask<Void, Void, Boolean> {
+        private final Context context;
+        private String message;
 
-            File src;
-
-            Long currTime = System.currentTimeMillis();
-
-
-            String fname;
-            Toast toast;
-            String msg;
-
-            String saveToFolder = preferences.getString("save_folder", Util.getDefaultSaveFolder());
-
-
-            if (isVideo) {
-                src = new File(Util.getTempVideoFilePath());
-                fname = regrannPictureFolder + File.separator + author + "_video_" + currTime + ".mp4";
-
-                //  fname = saveToFolder + "/"+ File.separator + author + "_video_" + currTime + ".mp4";
-                saveToastMsg = "Video was saved in  " + fname;
-            } else {
-
-                //    fname =  saveToFolder +"/" +File.separator + author + "-" + currTime + ".jpg" ;
-
-
-                src = lastDownloadedFile;
-                fname = regrannPictureFolder + File.separator + author + "-" + currTime + ".jpg";
-                saveToastMsg = "Photo was saved in " + fname;
-            }
-
-
-            File dst = new File(fname);
-
-            copy(src, dst);
-
-            Intent mediaScannerIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-            Uri fileContentUri = Uri.fromFile(dst); // With 'permFile' being the File object
-            mediaScannerIntent.setData(fileContentUri);
-            this.sendBroadcast(mediaScannerIntent);
-
-
-            if (noAds && isAutoSave) {
-                // user is premium and we are in quick save mode
-
-                toast = Toast.makeText(getBaseContext(), saveToastMsg, Toast.LENGTH_LONG);
-                toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
-                toast.show();
-
-                finish();
-                return;
-            }
-
-
-            toast = Toast.makeText(getBaseContext(), saveToastMsg, Toast.LENGTH_LONG);
-            toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
-            toast.show();
-
-
-            if (!isMulti)
-                changeSaveButton();
-
-            int numWarnings = sharedPref.getInt("countOfRuns", 0);
-
-
-            if (numWarnings < 3) {
-                addToNumSessions();
-            }
-
-
-        } catch (
-                Exception e) {
-            int i = 1;
+        public CopyFileTask(Context context) {
+            this.context = context;
         }
 
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            spinner.setVisibility(View.VISIBLE);
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... voids) {
+            try {
+                // Your file copy logic here
+
+                // Note: Avoid any UI operations here, as this is the background thread
+                File src;
+
+                Long currTime = System.currentTimeMillis();
+
+
+                String fname;
+                Toast toast;
+                String msg;
+                if (isVideo) {
+                    src = new File(Util.getTempVideoFilePath());
+                    fname = regrannPictureFolder + File.separator + author + "_video_" + currTime + ".mp4";
+                    saveToastMsg = "Video was saved in /Pictures/Regrann/Video-" + currTime + ".mp4";
+                } else {
+
+
+                    src = lastDownloadedFile;
+                    fname = regrannPictureFolder + File.separator + author + "-" + currTime + ".jpg";
+                    saveToastMsg = "Photo was saved in /Pictures/Regrann/" + author + "  -" + currTime + ".jpg";
+                }
+
+
+                File dst = new File(fname);
+
+                copy(src, dst);
+
+                Intent mediaScannerIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+                Uri fileContentUri = Uri.fromFile(dst); // With 'permFile' being the File object
+                mediaScannerIntent.setData(fileContentUri);
+                _this.sendBroadcast(mediaScannerIntent);
+
+
+                if (noAds && isAutoSave) {
+                    // user is premium and we are in quick save mode
+
+                    toast = Toast.makeText(getBaseContext(), saveToastMsg, Toast.LENGTH_LONG);
+                    toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+                    toast.show();
+
+                    finish();
+                    return true;
+                }
+
+
+                if (isAutoSave) {
+                    // user is premium and we are in quick save mode
+
+
+                    //   findViewById(R.id.upgradeBtn).setVisibility(View.VISIBLE);
+                    //  findViewById(R.id.backBtn).setVisibility(View.VISIBLE);
+                    TextView t = findViewById(R.id.autosaveText);
+                    t.setText("Quick Save Done");
+
+
+                    int delay = 500;
+
+                    final Handler handler = new Handler();
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            Log.d("app5", "remove spinner 4903");
+                            spinner.setVisibility(View.GONE);
+
+
+                            sendEvent("gms5_ad_needs_to_show");
+
+
+                            finish();
+
+                        }
+                    }, delay);
+                }
+
+
+                return true; // Return true if successful
+            } catch (Exception e) {
+                // Handle exceptions
+                return false;
+            }
+        }
     }
 
 
@@ -6082,7 +6083,7 @@ v.seekTo(1);
                     return;
                 }
 
-                copyTempToSave();
+                new CopyFileTask(_this).execute();
 
 
                 return;
@@ -6192,7 +6193,7 @@ v.seekTo(1);
                             }
 
 
-                            copyTempToSave();
+                            new CopyFileTask(_this).execute();
 
 
                         } catch (Exception e) {
