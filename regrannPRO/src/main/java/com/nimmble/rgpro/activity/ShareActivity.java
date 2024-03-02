@@ -5780,12 +5780,12 @@ v.seekTo(1);
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            spinner.setVisibility(View.VISIBLE);
+         //   spinner.setVisibility(View.VISIBLE);
         }
 
         @Override
         protected void onPostExecute(Boolean b) {
-
+            //  spinner.setVisibility(View.GONE);
             changeSaveButton();
         }
 
@@ -5856,7 +5856,7 @@ v.seekTo(1);
                         @Override
                         public void run() {
                             Log.d("app5", "remove spinner 4903");
-                            spinner.setVisibility(View.GONE);
+                            //  spinner.setVisibility(View.GONE);
 
 
                             sendEvent("gms5_ad_needs_to_show");
