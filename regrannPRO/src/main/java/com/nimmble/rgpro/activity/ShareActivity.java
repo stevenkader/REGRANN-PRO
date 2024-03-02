@@ -5784,6 +5784,13 @@ v.seekTo(1);
         }
 
         @Override
+        protected void onPostExecute(Boolean b) {
+
+            changeSaveButton();
+        }
+
+
+        @Override
         protected Boolean doInBackground(Void... voids) {
             try {
                 // Your file copy logic here
