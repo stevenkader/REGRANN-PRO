@@ -6387,9 +6387,11 @@ v.seekTo(1);
 
     private void changeSaveButton() {
 
-
-        btndownloadphoto.setImageResource(R.drawable.savedicon);
-        btndownloadphoto.setEnabled(false);
+        try {
+            btndownloadphoto.setImageResource(R.drawable.savedicon);
+            btndownloadphoto.setEnabled(false);
+        } catch (Exception e) {
+        }
 
 
     }
