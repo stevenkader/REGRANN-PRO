@@ -1296,7 +1296,7 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
                     public void run() {
                         try {
                             Log.d("app5", "twitter download onComplete - deleting ");
-                            deleteVideoFromServer();
+                        //    deleteVideoFromServer();
                             sendEvent(socialApp + "_video");
 
                             try {
@@ -1392,10 +1392,74 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
     }
 
 
+    private void checkForInstagramURLinClipboard() {
+
+
+        ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+
+        ClipData clipData = clipboard != null ? clipboard.getPrimaryClip() : null;
+
+        if (clipData != null) {
+
+            try {
+                final ClipData.Item item = clipData.getItemAt(0);
+                String text = item.coerceToText(ShareActivity.this).toString();
+                ClipData clip = ClipData.newPlainText("message", "");
+                clipboard.setPrimaryClip(clip);
+
+                clearClipboard();
+
+                Log.d("app5", "Clip text " + text);
+                if (text.length() > 18) {
+
+                    //    if (text.indexOf("ig.me") > 1 ||text.indexOf("instagram.com/tv/") > 1 || text.indexOf("instagram.com/p/") > 1) {
+                    if (text.contains("instagram.com") || text.contains("fb.watch") || text.contains("youtube.com/shorts")
+                            || text.contains("facebook.com") || text.contains("twitter.com") || text.contains("x.com")) {
+
+                        Intent i;
+                        i = new Intent(_this, ShareActivity.class);
+
+                        text = text.substring(text.indexOf("https://"));
+
+
+                        i.putExtra("mediaUrl", text);
+
+                        i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        i.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+
+
+                        i.putExtra("isJPEG", "no");
+                        System.out.println("***media url " + text);
+
+                        overridePendingTransition(R.anim.slide_up_anim, R.anim.slide_down_anim);
+                        startActivity(i);
+                        finish();
+
+                    }
+
+                }
+
+
+            } catch (Exception e) {
+            }
+        }
+
+
+    }
+
+
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus)
+
+            checkForInstagramURLinClipboard();
+    }
+
     @Override
     public void onResume() {
 
         super.onResume();
+
 
         try {
             appUpdateManager = AppUpdateManagerFactory.create(this);
@@ -7135,7 +7199,26 @@ v.seekTo(1);
     public void downloadParts(String url) throws IOException {
         RequestQueue queue = Volley.newRequestQueue(this);
 
+        runOnUiThread(new Runnable() {
+            public void run() {
 
+                if (spinner != null) {
+                    Log.d("app5", "remove spinne 4635r");
+                    spinner.setVisibility(View.GONE);
+                }
+                pd = ProgressDialog.show(ShareActivity.this, _this.getString(R.string.progress_dialog_msg), "Looking for media.....", true, true);
+
+            }
+        });
+
+
+        runOnUiThread(new Runnable() {
+            public void run() {
+                Toast toast = Toast.makeText(_this, "Looking for media...", Toast.LENGTH_LONG);
+
+                toast.show();
+            }
+        });
         url = resolveRedirect(url);
         String final_url = "https://pyapp.jaredco.com/?url=" + url;
 
@@ -7144,7 +7227,13 @@ v.seekTo(1);
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
+                        runOnUiThread(new Runnable() {
+                            public void run() {
+                                removeProgressDialog();
+                                pd = ProgressDialog.show(ShareActivity.this, _this.getString(R.string.progress_dialog_msg), "Found - Starting download.....", true, true);
 
+                            }
+                        });
                         twitterDataLoaded(response, final_url);
                     }
                 }, new Response.ErrorListener() {

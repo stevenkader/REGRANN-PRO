@@ -3,6 +3,7 @@ package com.nimmble.rgpro.activity;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Environment;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.nimmble.rgpro.util.Util;
@@ -38,7 +39,8 @@ public class FileDownloader {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            Toast.makeText(context, "Downloading video...", Toast.LENGTH_SHORT).show();
+            Log.d("app5", "download toast");
+            Toast.makeText(context, "Downloading video...", Toast.LENGTH_LONG).show();
         }
 
         @Override
