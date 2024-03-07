@@ -1,5 +1,7 @@
 package com.nimmble.rgpro.activity;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -61,6 +63,64 @@ public class KeptForLaterActivity extends AppCompatActivity {
     }
 
 
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus)
+
+            checkForInstagramURLinClipboard();
+    }
+
+    private void checkForInstagramURLinClipboard() {
+
+        ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+
+        ClipData clipData = clipboard != null ? clipboard.getPrimaryClip() : null;
+
+        if (clipData != null) {
+
+            try {
+                final ClipData.Item item = clipData.getItemAt(0);
+                String text = item.coerceToText(KeptForLaterActivity.this).toString();
+
+
+                if (text.length() > 18) {
+
+                    ClipData clip = ClipData.newPlainText("message", "");
+                    clipboard.setPrimaryClip(clip);
+
+                    //    if (text.indexOf("ig.me") > 1 ||text.indexOf("instagram.com/tv/") > 1 || text.indexOf("instagram.com/p/") > 1) {
+                    if (text.contains("instagram.com") || text.contains("youtube.com/shorts") || text.contains("fb.watch") || text.contains("tiktok") || text.contains("facebook.com") || text.contains("twitter.com") || text.contains("x.com")) {
+
+
+                        Intent i;
+                        i = new Intent(_this, ShareActivity.class);
+                        text = text.substring(text.indexOf("https://"));
+
+                        i.putExtra("mediaUrl", text);
+
+                        //    i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        //  i.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+
+
+                        i.putExtra("isJPEG", "no");
+                        System.out.println("***media url " + text);
+
+
+                        startActivity(i);
+                        //   finish();
+
+                    }
+
+                }
+
+
+            } catch (Exception e) {
+                int i = 1;
+            }
+        }
+
+
+    }
 
 
     @Override

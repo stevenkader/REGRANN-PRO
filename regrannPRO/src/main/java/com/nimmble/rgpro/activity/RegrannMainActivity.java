@@ -56,11 +56,11 @@ public class RegrannMainActivity extends AppCompatActivity {
 
     boolean firstRun, olderUser;
 
-    boolean noAds  ;
+    boolean noAds;
     final private int REQUEST_CODE_ASK_MULTIPLE_PERMISSIONS = 124;
 
 
-    ProgressBar spinner ;
+    ProgressBar spinner;
 
     private BillingClient billingClient;
     boolean billingReady = false;
@@ -124,15 +124,14 @@ public class RegrannMainActivity extends AppCompatActivity {
                             if (task.isSuccessful()) {
 
 
-
                                 SharedPreferences.Editor editor = preferences.edit();
                                 editor.putString("multipost_videoid", mFirebaseRemoteConfig.getString("multipost_videoid"));
-                             //   editor.putString("caption_prefix", mFirebaseRemoteConfig.getString("caption_prefix"));
+                                //   editor.putString("caption_prefix", mFirebaseRemoteConfig.getString("caption_prefix"));
                                 editor.putString("upgrade_to_premium", mFirebaseRemoteConfig.getString("upgrade_to_premium"));
                                 editor.putString("upgrade_header_text", mFirebaseRemoteConfig.getString("upgrade_header_text"));
                                 editor.putString("upgrade_features", mFirebaseRemoteConfig.getString("upgrade_features"));
                                 editor.putString("upgrade_button_text", mFirebaseRemoteConfig.getString("upgrade_button_text"));
-                                editor.putBoolean("show_midrect",  mFirebaseRemoteConfig.getBoolean("show_midrect"));
+                                editor.putBoolean("show_midrect", mFirebaseRemoteConfig.getBoolean("show_midrect"));
                                 editor.commit();
 
                             }
@@ -143,9 +142,6 @@ public class RegrannMainActivity extends AppCompatActivity {
 
         } catch (Throwable w) {
         }
-
-
-
 
 
         Intent i = getIntent();
@@ -172,7 +168,6 @@ public class RegrannMainActivity extends AppCompatActivity {
 
 
         //    instaAPI = new InstaAPI(this);
-
 
 
         if (getIntent().hasExtra("update_notice")) {
@@ -259,9 +254,6 @@ public class RegrannMainActivity extends AppCompatActivity {
         }
 
 
-
-
-
         if ((firstRun && newUser)) {
 
             SharedPreferences.Editor editor = preferences.edit();
@@ -277,12 +269,11 @@ public class RegrannMainActivity extends AppCompatActivity {
         // did we come from the post later screen
         if (this.getIntent().hasExtra("show_home"))
             showMainScreen();
-        else
-            checkForPostLaterPhotos();
+        //   else
+        //     checkForPostLaterPhotos();
 
 
     }
-
 
 
     public void onClickBtnChangeLogin(View v) {
@@ -293,10 +284,8 @@ public class RegrannMainActivity extends AppCompatActivity {
     }
 
 
-
-
     private boolean addPermission(List<String> permissionsList, String permission) {
-        int i = ActivityCompat.checkSelfPermission(this, permission) ;
+        int i = ActivityCompat.checkSelfPermission(this, permission);
 
         if (ActivityCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
             permissionsList.add(permission);
@@ -314,7 +303,6 @@ public class RegrannMainActivity extends AppCompatActivity {
             permissionsNeeded.add("Read SMS");
 
 
-
         if (permissionsNeeded.size() > 0) {
 
 
@@ -326,9 +314,7 @@ public class RegrannMainActivity extends AppCompatActivity {
             startActivity(i);
 
 
-        } else
-            checkForInstagramURLinClipboard();
-
+        }
 
     }
 
@@ -338,19 +324,16 @@ public class RegrannMainActivity extends AppCompatActivity {
         super.onResume();
 
 
-
-
-            final Handler handler = new Handler();
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    if (Build.VERSION.SDK_INT <= 29) {
-                        //Do something after 100ms
-                        checkPermissions();
-                    } else
-                        checkForInstagramURLinClipboard();
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (Build.VERSION.SDK_INT <= 29) {
+                    //Do something after 100ms
+                    checkPermissions();
                 }
-            }, 1000);
+            }
+        }, 1000);
 
 
         invalidateOptionsMenu();
@@ -406,99 +389,99 @@ public class RegrannMainActivity extends AppCompatActivity {
     }
 
     /**
-    public void queryPurchases() {
-        Runnable queryToExecute = new Runnable() {
-            @Override
-            public void run() {
-
-                try {
-
-
-
-    RegrannApp.sendEvent("query_purchases", "", "");
-    RegrannApp.sendEvent("query_purchases", "", "");
-                    Purchase.PurchasesResult purchasesResult = billingClient.queryPurchases(BillingClient.SkuType.INAPP);
-
-                    if (purchasesResult.getResponseCode() == BillingClient.BillingResponseCode.OK) {
-
-                        RegrannApp.sendEvent("query_purchases_ok", "", "");
-                        if (purchasesResult.getPurchasesList().size() > 0) {
-
-
-
-                            for (Purchase purchase : purchasesResult.getPurchasesList()) {
-
-                                if (false) {
-
-
-                                    ConsumeParams consumeParams = ConsumeParams.newBuilder()
-                                            .setPurchaseToken(purchase.getPurchaseToken())
-                                            .build();
-
-    ConsumeResponseListener consumeResponseListener = new ConsumeResponseListener() {
-    @Override public void onConsumeResponse(BillingResult billingResult, String purchaseToken) {
-
-    }
-    };
-
-    SharedPreferences.Editor editor;
-    editor = preferences.edit();
-
-    editor.putBoolean("subscribed", false);
-
-    editor = preferences.edit();
-    editor.putBoolean("really_subscribed", false);
-
-
-
-    editor.commit();
-
-    billingClient.consumeAsync(consumeParams, consumeResponseListener);
-    }
-
-
-    if (purchase.getPurchaseState() == Purchase.PurchaseState.PURCHASED) {
-    RegrannApp.sendEvent("query_purchase_foundpurchase", "", "");
-    SharedPreferences.Editor editor = preferences.edit();
-    editor.putBoolean("subscribed", true);
-
-    editor = preferences.edit();
-    editor.putBoolean("really_subscribed", true);
-
-
-
-    editor.commit();
-
-
-
-    }
-    }
-
-    }
-
-
-                    }
-                } catch (Exception e) {
-                    int i = 1 ;
-                }
-            }
-
-        };
-
-        try {
-            executeServiceRequest(queryToExecute);
-        } catch (Exception e) {
-        }
-
-     }
-
-
-
-     private void executeServiceRequest(Runnable runnable) {
-     if (billingReady) {
-     runnable.run();
-     }
-     }
+     * public void queryPurchases() {
+     * Runnable queryToExecute = new Runnable() {
+     *
+     * @Override public void run() {
+     * <p>
+     * try {
+     * <p>
+     * <p>
+     * <p>
+     * RegrannApp.sendEvent("query_purchases", "", "");
+     * RegrannApp.sendEvent("query_purchases", "", "");
+     * Purchase.PurchasesResult purchasesResult = billingClient.queryPurchases(BillingClient.SkuType.INAPP);
+     * <p>
+     * if (purchasesResult.getResponseCode() == BillingClient.BillingResponseCode.OK) {
+     * <p>
+     * RegrannApp.sendEvent("query_purchases_ok", "", "");
+     * if (purchasesResult.getPurchasesList().size() > 0) {
+     * <p>
+     * <p>
+     * <p>
+     * for (Purchase purchase : purchasesResult.getPurchasesList()) {
+     * <p>
+     * if (false) {
+     * <p>
+     * <p>
+     * ConsumeParams consumeParams = ConsumeParams.newBuilder()
+     * .setPurchaseToken(purchase.getPurchaseToken())
+     * .build();
+     * <p>
+     * ConsumeResponseListener consumeResponseListener = new ConsumeResponseListener() {
+     * @Override public void onConsumeResponse(BillingResult billingResult, String purchaseToken) {
+     * <p>
+     * }
+     * };
+     * <p>
+     * SharedPreferences.Editor editor;
+     * editor = preferences.edit();
+     * <p>
+     * editor.putBoolean("subscribed", false);
+     * <p>
+     * editor = preferences.edit();
+     * editor.putBoolean("really_subscribed", false);
+     * <p>
+     * <p>
+     * <p>
+     * editor.commit();
+     * <p>
+     * billingClient.consumeAsync(consumeParams, consumeResponseListener);
+     * }
+     * <p>
+     * <p>
+     * if (purchase.getPurchaseState() == Purchase.PurchaseState.PURCHASED) {
+     * RegrannApp.sendEvent("query_purchase_foundpurchase", "", "");
+     * SharedPreferences.Editor editor = preferences.edit();
+     * editor.putBoolean("subscribed", true);
+     * <p>
+     * editor = preferences.edit();
+     * editor.putBoolean("really_subscribed", true);
+     * <p>
+     * <p>
+     * <p>
+     * editor.commit();
+     * <p>
+     * <p>
+     * <p>
+     * }
+     * }
+     * <p>
+     * }
+     * <p>
+     * <p>
+     * }
+     * } catch (Exception e) {
+     * int i = 1 ;
+     * }
+     * }
+     * <p>
+     * };
+     * <p>
+     * try {
+     * executeServiceRequest(queryToExecute);
+     * } catch (Exception e) {
+     * }
+     * <p>
+     * }
+     * <p>
+     * <p>
+     * <p>
+     * private void executeServiceRequest(Runnable runnable) {
+     * if (billingReady) {
+     * runnable.run();
+     * }
+     * }
      **/
 
     private void checkForPostLaterPhotos() {
@@ -583,7 +566,7 @@ public class RegrannMainActivity extends AppCompatActivity {
     }
 
 
-    int numClicks  = 0 ;
+    int numClicks = 0;
 
     private void showMainScreen() {
 
@@ -597,22 +580,21 @@ public class RegrannMainActivity extends AppCompatActivity {
 
 
     private void emailSupport() {
-        String version  = "";
+        String version = "";
 
         try {
             PackageManager manager = _this.getPackageManager();
             PackageInfo info = manager.getPackageInfo(
                     _this.getPackageName(), 0);
-             version = info.versionName;
-        }catch (Exception e){}
+            version = info.versionName;
+        } catch (Exception e) {
+        }
 
 
-        String details = "APP VERSION: " +  version
+        String details = "APP VERSION: " + version
                 + "\nANDROID OS: " + Build.VERSION.RELEASE
                 + "\nMANUFACTURER : " + Build.MANUFACTURER
                 + "\nMODEL : " + Build.MODEL;
-
-
 
 
         Intent intent = new Intent(Intent.ACTION_SEND);
@@ -710,22 +692,22 @@ public class RegrannMainActivity extends AppCompatActivity {
     }
 
 
-        private void checkForInstagramURLinClipboard() {
+    private void checkForInstagramURLinClipboard() {
 
 
-            ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+        ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
 
-            ClipData clipData = clipboard != null ? clipboard.getPrimaryClip() : null;
+        ClipData clipData = clipboard != null ? clipboard.getPrimaryClip() : null;
 
-            if (clipData != null) {
+        if (clipData != null) {
 
-                try {
-                    final ClipData.Item item = clipData.getItemAt(0);
-                    String text = item.coerceToText(RegrannMainActivity.this).toString();
+            try {
+                final ClipData.Item item = clipData.getItemAt(0);
+                String text = item.coerceToText(RegrannMainActivity.this).toString();
                 ClipData clip = ClipData.newPlainText("message", "");
                 clipboard.setPrimaryClip(clip);
 
-                    Log.d("app5", "Clip text " + text);
+                Log.d("app5", "Clip text " + text);
                 if (text.length() > 18) {
 
                     //    if (text.indexOf("ig.me") > 1 ||text.indexOf("instagram.com/tv/") > 1 || text.indexOf("instagram.com/p/") > 1) {
@@ -750,21 +732,31 @@ public class RegrannMainActivity extends AppCompatActivity {
                         overridePendingTransition(R.anim.slide_up_anim, R.anim.slide_down_anim);
                         startActivity(i);
                         finish();
+                        return;
 
                     }
 
                 }
 
 
-                } catch (Exception e) {
-                }
+            } catch (Exception e) {
             }
 
-
-
-
+            // did we come from the post later screen
+            if (this.getIntent().hasExtra("show_home")) showMainScreen();
+            else checkForPostLaterPhotos();
         }
 
+
+    }
+
+
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus)
+
+            checkForInstagramURLinClipboard();
+    }
 
     public static String getUserCountry(Context context) {
         try {
