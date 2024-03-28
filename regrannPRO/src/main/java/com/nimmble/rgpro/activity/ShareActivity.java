@@ -1413,8 +1413,7 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
                 if (text.length() > 18) {
 
                     //    if (text.indexOf("ig.me") > 1 ||text.indexOf("instagram.com/tv/") > 1 || text.indexOf("instagram.com/p/") > 1) {
-                    if (text.contains("instagram.com") || text.contains("fb.watch") || text.contains("youtube.com/shorts")
-                            || text.contains("facebook.com") || text.contains("twitter.com") || text.contains("x.com")) {
+                    if (text.contains("instagram.com") || text.contains("youtube.com/shorts") || text.contains("fb.watch") || text.contains("tiktok") || text.contains("facebook.com") || text.contains("x.com") || text.contains("twitter.com")) {
 
                         Intent i;
                         i = new Intent(_this, ShareActivity.class);
@@ -5851,6 +5850,48 @@ v.seekTo(1);
         protected void onPostExecute(Boolean b) {
             //  spinner.setVisibility(View.GONE);
             changeSaveButton();
+
+            if (noAds && isAutoSave) {
+                // user is premium and we are in quick save mode
+
+                Toast toast = Toast.makeText(getBaseContext(), saveToastMsg, Toast.LENGTH_LONG);
+                toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+                toast.show();
+
+                finish();
+
+            }
+
+
+            if (isAutoSave) {
+                // user is premium and we are in quick save mode
+
+
+                //   findViewById(R.id.upgradeBtn).setVisibility(View.VISIBLE);
+                //  findViewById(R.id.backBtn).setVisibility(View.VISIBLE);
+                TextView t = findViewById(R.id.autosaveText);
+                t.setText("Quick Save Done");
+
+
+                int delay = 500;
+
+                final Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        Log.d("app5", "remove spinner 4903");
+                        //  spinner.setVisibility(View.GONE);
+
+
+                        sendEvent("gms5_ad_needs_to_show");
+
+
+                        finish();
+
+                    }
+                }, delay);
+            }
+
         }
 
 
@@ -5891,46 +5932,6 @@ v.seekTo(1);
                 _this.sendBroadcast(mediaScannerIntent);
 
 
-                if (noAds && isAutoSave) {
-                    // user is premium and we are in quick save mode
-
-                    toast = Toast.makeText(getBaseContext(), saveToastMsg, Toast.LENGTH_LONG);
-                    toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
-                    toast.show();
-
-                    finish();
-                    return true;
-                }
-
-
-                if (isAutoSave) {
-                    // user is premium and we are in quick save mode
-
-
-                    //   findViewById(R.id.upgradeBtn).setVisibility(View.VISIBLE);
-                    //  findViewById(R.id.backBtn).setVisibility(View.VISIBLE);
-                    TextView t = findViewById(R.id.autosaveText);
-                    t.setText("Quick Save Done");
-
-
-                    int delay = 500;
-
-                    final Handler handler = new Handler();
-                    handler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            Log.d("app5", "remove spinner 4903");
-                            //  spinner.setVisibility(View.GONE);
-
-
-                            sendEvent("gms5_ad_needs_to_show");
-
-
-                            finish();
-
-                        }
-                    }, delay);
-                }
 
 
                 return true; // Return true if successful

@@ -269,8 +269,8 @@ public class RegrannMainActivity extends AppCompatActivity {
         // did we come from the post later screen
         if (this.getIntent().hasExtra("show_home"))
             showMainScreen();
-        //   else
-        //     checkForPostLaterPhotos();
+        else
+            checkForPostLaterPhotos();
 
 
     }
@@ -711,8 +711,7 @@ public class RegrannMainActivity extends AppCompatActivity {
                 if (text.length() > 18) {
 
                     //    if (text.indexOf("ig.me") > 1 ||text.indexOf("instagram.com/tv/") > 1 || text.indexOf("instagram.com/p/") > 1) {
-                    if (text.contains("instagram.com") || text.contains("fb.watch") || text.contains("youtube.com/shorts")
-                            || text.contains("facebook.com") || text.contains("twitter.com") || text.contains("x.com")) {
+                    if (text.contains("instagram.com") || text.contains("youtube.com/shorts") || text.contains("fb.watch") || text.contains("tiktok") || text.contains("facebook.com") || text.contains("x.com") || text.contains("twitter.com")) {
 
                         Intent i;
                         i = new Intent(_this, ShareActivity.class);
