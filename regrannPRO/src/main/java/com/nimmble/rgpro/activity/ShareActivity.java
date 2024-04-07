@@ -2512,8 +2512,8 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
         });
 
 
-        stringRequest.setRetryPolicy(new DefaultRetryPolicy(12000,
-                1,
+        stringRequest.setRetryPolicy(new DefaultRetryPolicy(32000,
+                2,
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
 // Add the request to the RequestQueue.
         queue.add(stringRequest);
@@ -7186,8 +7186,8 @@ v.seekTo(1);
         });
 
 
-        stringRequest.setRetryPolicy(new DefaultRetryPolicy(12000,
-                1,
+        stringRequest.setRetryPolicy(new DefaultRetryPolicy(32000,
+                2,
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
 // Add the request to the RequestQueue.
         queue.add(stringRequest);
@@ -7253,8 +7253,8 @@ v.seekTo(1);
         });
 
 
-        stringRequest.setRetryPolicy(new DefaultRetryPolicy(12000,
-                1,
+        stringRequest.setRetryPolicy(new DefaultRetryPolicy(32000,
+                2,
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
 // Add the request to the RequestQueue.
         queue.add(stringRequest);
@@ -7296,8 +7296,8 @@ v.seekTo(1);
         });
 
 
-        stringRequest.setRetryPolicy(new DefaultRetryPolicy(12000,
-                1,
+        stringRequest.setRetryPolicy(new DefaultRetryPolicy(32000,
+                2,
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
 // Add the request to the RequestQueue.
         queue.add(stringRequest);
