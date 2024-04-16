@@ -931,31 +931,33 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
             }
         }
 
-        if (getIntent().getStringExtra("mediaUrl") != null)
+        if (getIntent().getStringExtra("mediaUrl") != null) {
             if (isValidSocial(getIntent().getStringExtra("mediaUrl"))) {
                 try {
-
+                    initMainScreen();
                     AsyncTask.execute(new Runnable() {
                         @Override
                         public void run() {
                             try {
+                                Thread.sleep(1000);
                                 downloadParts(getIntent().getStringExtra("mediaUrl"));
 
 
-                            } catch (IOException e) {
-                                throw new RuntimeException(e);
+                            } catch (Exception e) {
+
                             }
 
                             //TODO your background code
                         }
                     });
                 } catch (Exception e) {
-                    throw new RuntimeException(e);
+
                 }
-                initMainScreen();
+
                 // this is a twitter url
                 return;
             }
+        }
 
 
         if (getIntent().getBooleanExtra("fromExtension", false)) {
@@ -1296,7 +1298,7 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
                     public void run() {
                         try {
                             Log.d("app5", "twitter download onComplete - deleting ");
-                        //    deleteVideoFromServer();
+                            //    deleteVideoFromServer();
                             sendEvent(socialApp + "_video");
 
                             try {
@@ -2423,7 +2425,6 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
     static boolean alreadyTriedGET = false;
 
 
-
     private void startProcessURL(String url) {
 
         alreadyTriedGET = false;
@@ -2434,7 +2435,6 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
             return;
 
         }
-
 
 
         if (url.contains("/reel/")) {
@@ -2458,6 +2458,7 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
 
     static String initialURL;
     boolean fromStoryIGRAM = false;
+
     private void getJSONQueryFromInstagramURL(final String url, VolleyRequestListener listener) {
         numRetries++;
 
@@ -3481,7 +3482,6 @@ v.seekTo(1);
         }
 
 
-
         downloadSinglePhotoFromURL(url);
 
     }
@@ -4266,8 +4266,6 @@ v.seekTo(1);
             }
         } catch (Exception e) {
         }
-
-
 
 
         try {
@@ -5843,7 +5841,7 @@ v.seekTo(1);
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-         //   spinner.setVisibility(View.VISIBLE);
+            //   spinner.setVisibility(View.VISIBLE);
         }
 
         @Override
@@ -5930,8 +5928,6 @@ v.seekTo(1);
                 Uri fileContentUri = Uri.fromFile(dst); // With 'permFile' being the File object
                 mediaScannerIntent.setData(fileContentUri);
                 _this.sendBroadcast(mediaScannerIntent);
-
-
 
 
                 return true; // Return true if successful
@@ -7195,6 +7191,7 @@ v.seekTo(1);
 
     }
 
+    AlertDialog waitdialog;
 
     // TWITTER STUFF
     public void downloadParts(String url) throws IOException {
@@ -7207,7 +7204,6 @@ v.seekTo(1);
                     Log.d("app5", "remove spinne 4635r");
                     spinner.setVisibility(View.GONE);
                 }
-                pd = ProgressDialog.show(ShareActivity.this, _this.getString(R.string.progress_dialog_msg), "Looking for media.....", true, true);
 
             }
         });
@@ -7215,6 +7211,8 @@ v.seekTo(1);
 
         runOnUiThread(new Runnable() {
             public void run() {
+                pd = ProgressDialog.show(ShareActivity.this, _this.getString(R.string.progress_dialog_msg), "Looking for media.....", true, true);
+
                 Toast toast = Toast.makeText(_this, "Looking for media...", Toast.LENGTH_LONG);
 
                 toast.show();
