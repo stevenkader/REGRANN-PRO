@@ -25,11 +25,8 @@ import com.android.billingclient.api.ProductDetailsResponseListener;
 import com.android.billingclient.api.Purchase;
 import com.android.billingclient.api.PurchasesUpdatedListener;
 import com.android.billingclient.api.QueryProductDetailsParams;
-import com.calldorado.doralytics.sdk.DoraSDK;
-import com.calldorado.doralytics.sdk.base.DoraEventValue;
 import com.google.common.collect.ImmutableList;
 import com.nimmble.rgpro.R;
-import com.nimmble.rgpro.util.Const;
 import com.nimmble.rgpro.util.Util;
 
 import java.util.ArrayList;
@@ -214,15 +211,9 @@ public class RequestPaymentActivity extends AppCompatActivity {
 
                                     HashMap.put("purchase_token", purchase.getPurchaseToken());
 
-                                    if (Const.DoraAcive) {
-                                        DoraSDK.sendEvent("app_iap", "CUSTOM_EVENT", new DoraEventValue(price, currencyCode),
-                                                HashMap);
-                                        Log.d("sdkEvent:", "sub_monthly");
-                                    }
+
                                     editor.commit();
                                 }
-
-                                //    Qonversion.getSharedInstance().syncPurchases();
 
 
                                 billingClient.acknowledgePurchase(acknowledgePurchaseParams, acknowledgePurchaseResponseListener);

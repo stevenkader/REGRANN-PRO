@@ -85,9 +85,6 @@
             </intent-filter>
         </activity>
 
-        <service
-            android:name="com.nimmble.rgpro.activity.FetchDownloadUrlService"
-            android:exported="false" />
 
         <activity
             android:name="com.nimmble.rgpro.activity.ShareActivity"
@@ -176,17 +173,6 @@
                 <data android:mimeType="image/*" />
             </intent-filter>
         </activity>
-
-        <service
-            android:name="com.nimmble.rgpro.service.ClipboardListenerService"
-            android:exported="true"
-            android:label="Regrann Service">
-            <intent-filter>
-                <action
-                    android:name="com.nimmble.rgpro.service.ClipboardListenerService"
-                    android:process=":remote" />
-            </intent-filter>
-        </service>
 
         <meta-data
             android:name="com.google.android.gms.version"

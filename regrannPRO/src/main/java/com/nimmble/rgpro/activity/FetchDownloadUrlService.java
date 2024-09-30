@@ -1,32 +1,6 @@
 package com.nimmble.rgpro.activity;
 
-import android.app.IntentService;
-import android.content.Context;
-import android.content.Intent;
-import android.text.TextUtils;
-import android.util.Log;
-
-import androidx.annotation.Nullable;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
-
-import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
+/**
 public class FetchDownloadUrlService extends IntentService {
     public static boolean RUNNING = false;
     private TiktokPost postData;
@@ -234,3 +208,4 @@ public class FetchDownloadUrlService extends IntentService {
     }
 
 }
+ **/

@@ -18,7 +18,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -97,14 +96,6 @@ import com.android.volley.toolbox.Volley;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.play.core.appupdate.AppUpdateInfo;
-import com.google.android.play.core.appupdate.AppUpdateManager;
-import com.google.android.play.core.appupdate.AppUpdateManagerFactory;
-import com.google.android.play.core.install.model.AppUpdateType;
-import com.google.android.play.core.install.model.UpdateAvailability;
-import com.google.android.play.core.review.ReviewInfo;
-import com.google.android.play.core.review.ReviewManager;
-import com.google.android.play.core.review.ReviewManagerFactory;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings;
@@ -121,6 +112,7 @@ import com.potyvideo.slider.library.Tricks.ViewPagerEx;
 
 import org.apache.commons.io.FileUtils;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -246,7 +238,7 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
     int inputMediaType = 0;
     String inputFileName = "";
     private TextView t;
-    private String profile_pic_url = null;
+    static String profile_pic_url = null;
     private Bitmap originalBitmapBeforeNoCrop;
     DownloadManager downloadManager;
     int PESDK_RESULT = 10023;
@@ -481,7 +473,7 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
         return false;
     }
 
-    AppUpdateManager appUpdateManager;
+
 
     static boolean calledInitAppodeal = false;
 
@@ -503,55 +495,8 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
 
 
         numMultVideos = 0;
-        /**
-         calledInitAppodeal = true;
-         if (calledInitAppodeal == false) {
-
-
-         Appodeal.initialize(_this, "2e28be102913dd26a77ffeb78016e2ab8c841702b43065aa", Appodeal.NONE, new ApdInitializationCallback() {
-        @Override public void onInitializationFinished(@Nullable List<ApdInitializationError> list) {
-        //Appodeal initialization finished
-
-        Log.d("app5", "AppoDeal init done");
-        }
-        });
-         calledInitAppodeal = true;
-         }
-         **/
 
         // Creates instance of the manager.
-        appUpdateManager = AppUpdateManagerFactory.create(this);
-
-// Returns an intent object that you use to check for an update.
-        com.google.android.play.core.tasks.Task<AppUpdateInfo> appUpdateInfoTask = appUpdateManager.getAppUpdateInfo();
-
-// Checks that the platform will allow the specified type of update.
-        // Checks whether the platform allows the specified type of update,
-// and checks the update priority.
-        appUpdateInfoTask.addOnSuccessListener(appUpdateInfo -> {
-            if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE
-                    && appUpdateInfo.clientVersionStalenessDays() != null
-                    && appUpdateInfo.clientVersionStalenessDays() >= 14
-                    && appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE)) {
-
-
-                // Request an immediate update.
-                try {
-                    appUpdateManager.startUpdateFlowForResult(
-                            // Pass the intent that is returned by 'getAppUpdateInfo()'.
-                            appUpdateInfo,
-                            // Or 'AppUpdateType.FLEXIBLE' for flexible updates.
-                            AppUpdateType.IMMEDIATE,
-                            // The current activity making the update request.
-                            _this,
-                            // Include a request cod
-                            // e to later monitor this update request.
-                            11800);
-                } catch (Exception e) {
-                }
-            }
-        });
-
         numRetries = 0;
 
         PRO p = new PRO(this);
@@ -682,7 +627,7 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
         downloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
 
         registerReceiver(onComplete,
-                new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
+                new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE), Context.RECEIVER_NOT_EXPORTED);
 
 
         FirebaseAnalytics mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
@@ -1462,34 +1407,7 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
         super.onResume();
 
 
-        try {
-            appUpdateManager = AppUpdateManagerFactory.create(this);
-            appUpdateManager
-                    .getAppUpdateInfo()
-                    .addOnSuccessListener(
-                            appUpdateInfo -> {
-
-                                if (appUpdateInfo.updateAvailability()
-                                        == UpdateAvailability.DEVELOPER_TRIGGERED_UPDATE_IN_PROGRESS) {
-                                    // If an in-app update is already running, resume the update.
-                                    try {
-                                        appUpdateManager.startUpdateFlowForResult(
-                                                appUpdateInfo,
-                                                AppUpdateType.IMMEDIATE,
-                                                _this,
-                                                11800);
-                                    } catch (IntentSender.SendIntentException e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-                            });
-        } catch (Exception e) {
-        }
-
-        //    LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(this);
-        //  localBroadcastManager.registerReceiver(myDownloadLinkReceiver, new IntentFilter("POST_DATA"));
-        registerReceiver(downloadCompleteReceiver, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
-
+        registerReceiver(downloadCompleteReceiver, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE), Context.RECEIVER_NOT_EXPORTED);
 
     }
 
@@ -2036,62 +1954,6 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
 
     }
 
-
-    private void showGetRatingDialog() {
-
-        try {
-
-
-            sendEvent("sc_rating_show");
-
-            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(ShareActivity.this);
-
-            // set dialog message
-            alertDialogBuilder.setTitle("Rate Repost");
-            alertDialogBuilder.setIcon(R.drawable.ic_launcher);
-
-            alertDialogBuilder.setMessage(_this.getString(R.string.rateText))
-                    .setCancelable(false).setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            // if this button is clicked, close
-                            // current activity
-                            // flurryAgent.logEvent("Ok to rate selected");
-                            try {
-
-                                sendEvent("sc_rating_ok");
-                                ReviewManager manager = ReviewManagerFactory.create(_this);
-
-                                com.google.android.play.core.tasks.Task<ReviewInfo> request = manager.requestReviewFlow();
-                                request.addOnCompleteListener(task -> {
-                                    if (task.isSuccessful()) {
-                                        // We can get the ReviewInfo object
-                                        ReviewInfo reviewInfo = task.getResult();
-                                        com.google.android.play.core.tasks.Task<Void> flow = manager.launchReviewFlow(_this, reviewInfo);
-
-
-                                    } else {
-                                        // There was some problem, continue regardless of the result.
-                                    }
-                                });
-
-
-                            } catch (Exception e) {
-                            }
-                        }
-
-                    });
-
-            // create alert dialog
-            AlertDialog alertDialog = alertDialogBuilder.create();
-
-            // show it
-            alertDialog.show();
-        } catch (Exception e) {
-        }
-
-    }
-
-
     private void addToNumSessions() {
 
         int numWarnings = preferences.getInt("captionWarning", 0);
@@ -2122,70 +1984,6 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
         editor.apply();
 
     }
-
-    private void checkForRatingRequest() {
-        try {
-
-            sharedPref = this.getPreferences(Context.MODE_PRIVATE);
-
-            count = sharedPref.getInt("countOfRuns", 0);
-            count2 = sharedPref.getInt("countOfRuns2", 0);
-
-            addToCount(1);
-
-            Log.d("app5", "Count of Runs :" + count);
-
-            if (count != 8) {
-
-                // check for update every second time
-
-
-                return;
-            }
-
-
-            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(ShareActivity.this);
-
-            // flurryAgent.logEvent("Rating Good or Bad Dialog");
-            // set dialog message
-            alertDialogBuilder.setIcon(R.drawable.ic_launcher);
-
-            alertDialogBuilder.setMessage(_this.getString(R.string.rateHowIsExperience)).setCancelable(false)
-                    .setNegativeButton(_this.getString(R.string.bad), new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            // if this button is clicked, just close
-                            // the dialog box and do nothing
-
-                            sendEvent("sc_rate_badbtn");
-
-                            dialog.cancel();
-                        }
-                    })
-                    .setPositiveButton(_this.getString(R.string.good), new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            // if this button is clicked, close
-                            // current activity
-                            // flurryAgent.logEvent("Good Selected");
-
-                            sendEvent("sc_rate_goodbtn");
-
-
-                            showGetRatingDialog();
-                        }
-                    });
-
-            // create alert dialog
-            rateRequestDialog = alertDialogBuilder.create();
-
-            // show it
-            rateRequestDialog.show();
-
-
-        } catch (Exception e) {
-        }
-
-    }
-
 
     private Bitmap mark(Bitmap src, String watermark, int location, int color, int alpha,
                         int size, boolean underline) {
@@ -2709,7 +2507,7 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
             return;
         }
 
-        if (volleyReturn.startsWith("ERROR")) {
+        if (true) {
             shouldRetryVolley();
         } else {
             try {
@@ -2891,7 +2689,7 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
                                     }
 
 
-                                    checkForRatingRequest();
+
 
 
 /**                                    if (isVideo) {
@@ -3103,7 +2901,7 @@ v.seekTo(1);
         boolean[] isVideoArr = null;
         String[] picURLs = null;
         String[] videoURLs = null;
-
+        isMulti = true;
         try {
 
             // Get the directory for the user's public pictures directory.
@@ -3338,7 +3136,7 @@ v.seekTo(1);
                 runOnUiThread(new Runnable() {
                     public void run() {
                         Log.d("app5", "remove spinner 3032");
-                        //            spinner.setVisibility(View.GONE);
+                        //         spinner.setVisibility(View.GONE);
                         //          showBottomButtons();
 
                     }
@@ -3354,6 +3152,9 @@ v.seekTo(1);
 
 
             postExecute("multi");
+            if (spinner != null)
+                spinner.setVisibility(View.GONE);
+            showBottomButtons();
         } catch (Exception e) {
             //  processPotentialPrivate();
             sendEvent("error_#5a");
@@ -7147,13 +6948,149 @@ v.seekTo(1);
 
     //}
 
+    public void extractPostDetails(String jsonString) {
+        try {
+            JSONObject jsonObject = new JSONObject(jsonString);
+            JSONObject data = jsonObject.getJSONObject("data");
+            JSONArray items = data.getJSONArray("items");
+
+            for (int i = 0; i < items.length(); i++) {
+                JSONObject item = items.getJSONObject(i);
+
+                // Extract the caption text (post title)
+                JSONObject caption = item.getJSONObject("caption");
+                if (caption != null)
+                    title = caption.getString("text");
+
+                // Extract the author's username
+                JSONObject user = item.getJSONObject("user");
+                if (user != null)
+                    author = user.getString("username");
+
+                JSONObject owner = item.getJSONObject("owner");
+                if (owner != null)
+                    profile_pic_url = user.getString("profile_pic_url");
+                Log.d("app5", "Profile Pic URL: " + profile_pic_url);
+
+                // Check the media type: 1 = photo, 2 = video, 8 = carousel
+                int mediaType = item.getInt("media_type");
+
+                if (mediaType == 1) { // Handle photo
+                    // Extract photo URL
+                    JSONArray imageVersions = item.getJSONObject("image_versions2").getJSONArray("candidates");
+                    JSONObject imageObject = imageVersions.getJSONObject(0); // Get the first image candidate
+                    String photoURL = imageObject.getString("url");
+                    downloadSinglePhotoFromURL(photoURL);
+
+                    sendEvent("sh_extract_photo");
+                    // Print photo details (placeholder for further handling)
+                    Log.d("app5", "Post Title: " + title);
+                    Log.d("app5", "Author: " + author);
+                    Log.d("app5", "Photo URL: " + photoURL);
+
+                } else if (mediaType == 2) { // Handle video
+                    // Extract video URL
+                    JSONArray videoVersions = item.getJSONArray("video_versions");
+                    JSONObject videoObject = videoVersions.getJSONObject(0); // Get the first video version
+                    this.videoURL = videoObject.getString("url");
+                    isVideo = true;
+                    LoadVideo();
+                    sendEvent("sh_extract_video");
+
+                    // Print video details (placeholder for further handling)
+                    Log.d("app5", "Post Title: " + title);
+                    Log.d("app5", "Author: " + author);
+                    Log.d("app5", "Video URL: " + videoURL);
+
+                } else if (mediaType == 8) { // Handle carousel (multiple photos/videos)
+                    // Loop through the carousel media
+                    processMultiPhotoJSON(item, 2);
+                    sendEvent("sh_extract_multi");
+                    if (1 == 1) continue;
+
+
+                    JSONArray carouselMedia = item.getJSONArray("carousel_media");
+                    for (int j = 0; j < carouselMedia.length(); j++) {
+                        JSONObject mediaItem = carouselMedia.getJSONObject(j);
+
+                        // Check the media type for each item in the carousel
+                        int carouselMediaType = mediaItem.getInt("media_type");
+
+                        if (carouselMediaType == 2) { // Handle video in carousel
+                            // Extract video URL
+                            JSONArray videoVersions = mediaItem.getJSONArray("video_versions");
+                            JSONObject videoObject = videoVersions.getJSONObject(0); // Get the first video version
+                            String videoUrl = videoObject.getString("url");
+
+                            // Print video details (placeholder for further handling)
+                            Log.d("app5", "Carousel Video URL: " + videoUrl);
+
+                        } else if (carouselMediaType == 1) { // Handle photo in carousel
+                            // Extract photo URL
+                            JSONArray imageVersions = mediaItem.getJSONObject("image_versions2").getJSONArray("candidates");
+                            JSONObject imageObject = imageVersions.getJSONObject(0); // Get the first image candidate
+                            String imageUrl = imageObject.getString("url");
+
+                            // Print photo details (placeholder for further handling)
+                            Log.d("app5", "Carousel Photo URL: " + imageUrl);
+                        }
+
+
+                        // Print the post and author for the carousel
+                        Log.d("app5", "Post Title (Carousel): " + title);
+                        Log.d("app5", "Author (Carousel): " + author);
+                    }
+
+                }
+
+            }
+        } catch (Exception e) {
+            shouldRetryVolley();
+        }
+    }
+
+
+    public static void extractVideoDetails(String jsonString) {
+        try {
+            JSONObject jsonObject = new JSONObject(jsonString);
+            JSONObject data = jsonObject.getJSONObject("data");
+            JSONArray items = data.getJSONArray("items");
+
+            for (int i = 0; i < items.length(); i++) {
+                JSONObject item = items.getJSONObject(i);
+
+                // Extract the caption text (post title)
+                JSONObject caption2 = item.getJSONObject("caption");
+                String caption = caption2.getString("text");
+
+                // Extract the author's username
+                JSONObject user = item.getJSONObject("user");
+                String author = user.getString("username");
+
+                // Extract the video URL
+                JSONArray videoVersions = item.getJSONArray("video_versions");
+                JSONObject videoObject = videoVersions.getJSONObject(0); // Get the first video version
+                String videoUrl = videoObject.getString("url");
+
+                // Print the extracted values
+                Log.d("app5", "Post caption: " + caption);
+                Log.d("app5", "Author: " + author);
+                Log.d("app5", "Video URL: " + videoUrl);
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     private void proxyRequest(String shortcode) {
 
         RequestQueue queue = Volley.newRequestQueue(this);
 
-        String final_url = "https://pyapp.jaredco.com/getjson/?shortcode=" + shortcode;
+        String final_url = "https://pyapp.jaredco.com/test_getjson/?shortcode=" + shortcode;
 
+        Log.d("app5", final_url);
         // Request a string response from the provided URL.
         StringRequest stringRequest = new StringRequest(Request.Method.GET, final_url,
                 new Response.Listener<String>() {
@@ -7163,7 +7100,7 @@ v.seekTo(1);
                         if (response.equals("ERROR"))
                             shouldRetryVolley();
                         else
-                            processJSON(response);
+                            extractPostDetails(response);
 
                     }
                 }, new Response.ErrorListener() {
