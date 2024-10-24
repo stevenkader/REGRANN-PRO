@@ -640,7 +640,7 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
         downloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
 
         registerReceiver(onComplete,
-                new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE), Context.RECEIVER_NOT_EXPORTED);
+                new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE), Context.RECEIVER_EXPORTED);
 
 
         FirebaseAnalytics mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
