@@ -474,14 +474,27 @@ public class RequestPaymentActivity extends AppCompatActivity {
 
         RegrannApp.sendEvent("ug_removeAds_beginflow", "", "");
 
-        ImmutableList productDetailsParamsList =
-                ImmutableList.of(
-                        BillingFlowParams.ProductDetailsParams.newBuilder()
-                                // retrieve a value for "productDetails" by calling queryProductDetailsAsync()
-                                .setProductDetails(skuDetailsRemoveAds)
-                                .setOfferToken("")
-                                .build()
-                );
+
+        List<ProductDetails.SubscriptionOfferDetails> offerDetailsList = skuDetailsRemoveAds.getSubscriptionOfferDetails();
+
+
+// Check if the offerDetailsList is not null or empty
+        if (offerDetailsList != null && !offerDetailsList.isEmpty()) {
+            // Retrieve the first available offerToken (you may need to adapt based on your requirements)
+            String offerToken = offerDetailsList.get(1).getOfferToken();
+
+            ImmutableList<BillingFlowParams.ProductDetailsParams> productDetailsParamsList =
+                    ImmutableList.of(
+                            BillingFlowParams.ProductDetailsParams.newBuilder()
+                                    .setProductDetails(skuDetailsRemoveAds)
+                                    .setOfferToken(offerToken)  // Use the valid offerToken here
+                                    .build()
+                    );
+
+            // Proceed with using productDetailsParamsList
+
+
+
 
         BillingFlowParams billingFlowParams = BillingFlowParams.newBuilder()
                 .setProductDetailsParamsList(productDetailsParamsList)
@@ -492,7 +505,11 @@ public class RequestPaymentActivity extends AppCompatActivity {
         //          .setProductDetailsParamsList(skuDetailsRemoveAds).build();
         BillingResult responseCode = billingClient.launchBillingFlow(_this, billingFlowParams);
 
+        } else {
+            // Handle the case where there are no offers available
+            Log.e("Billing", "No subscription offer details available for the product.");
 
+        }
     }
 
 

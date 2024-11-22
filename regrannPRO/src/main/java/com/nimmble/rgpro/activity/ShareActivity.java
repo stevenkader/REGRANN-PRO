@@ -91,6 +91,7 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -112,6 +113,7 @@ import com.potyvideo.slider.library.Tricks.ViewPagerEx;
 
 import org.apache.commons.io.FileUtils;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -134,7 +136,9 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
@@ -471,7 +475,6 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
         }
         return false;
     }
-
 
 
     static boolean calledInitAppodeal = false;
@@ -1044,6 +1047,8 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
             }
         }
 
+        //  sendStoryPostRequest("");
+
 
     }
 
@@ -1091,6 +1096,68 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
 
             }
         }
+
+    }
+
+
+    private void sendStoryPostRequest(String storyUrl) {
+        // Create the JSON object to send in the request
+        final String[] responseData = {null};
+        try {
+            JSONObject jsonData = new JSONObject();
+            jsonData.put("url", "https://www.instagram.com/stories/occupydemocrats/3505914420851443206?utm_source=ig_story_item_share&igsh=MWc5bHV5MWtvcXM3dg==");
+
+            // Create a new request queue
+            RequestQueue queue = Volley.newRequestQueue(this);
+
+            // Create a new POST request with JSON data
+            String url = "https://api-wh.igram.world/api/v1/instagram/story";
+            JsonObjectRequest postRequest = new JsonObjectRequest(Request.Method.POST, url, jsonData,
+                    new Response.Listener<JSONObject>() {
+                        @Override
+                        public void onResponse(JSONObject response) {
+                            // Handle the response here
+
+                            responseData[0] = response.toString();
+                            processStoriesFromIGRAM(responseData[0], initialURL);
+                        }
+                    },
+                    new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            // Handle error here
+                            System.out.println("Error: " + error.toString());
+                            responseData[0] = "ERROR";
+                        }
+                    }) {
+                @Override
+                public Map<String, String> getHeaders() {
+                    Map<String, String> headers = new HashMap<>();
+                    headers.put("Accept", "application/json, text/plain, */*");
+                    headers.put("Accept-Encoding", "gzip, deflate, br");
+                    headers.put("Accept-Language", "en-CA,en-US;q=0.9,en;q=0.8");
+                    headers.put("Connection", "keep-alive");
+                    headers.put("Content-Type", "application/json");
+                    headers.put("Host", "api-wh.igram.world");
+                    headers.put("Origin", "https://igram.world");
+                    headers.put("Priority", "u=3, i");
+                    headers.put("Referer", "https://igram.world/");
+                    headers.put("Sec-Fetch-Dest", "empty");
+                    headers.put("Sec-Fetch-Mode", "cors");
+                    headers.put("Sec-Fetch-Site", "same-site");
+                    headers.put("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.1 Safari/605.1.15");
+
+                    return headers;
+                }
+            };
+
+            // Add the request to the RequestQueue
+            queue.add(postRequest);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
 
     }
 
@@ -2340,44 +2407,48 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
 
     }
 
+
+    private boolean isStoryURLCheck() {
+        return initialURL.contains("stories") || initialURL.contains("/s/");
+
+    }
+
     static String initialURL;
     boolean fromStoryIGRAM = false;
 
     private void getJSONQueryFromInstagramURL(final String url, VolleyRequestListener listener) {
-        numRetries++;
+        numRetries = 1;
 
         String final_url = "";
         fromStoryIGRAM = false;
 
 
         RequestQueue queue = Volley.newRequestQueue(this);
-        if (numRetries == 1) {
-            initialURL = url;
-            String post = getStringBetweenLastTwoSlashes(initialURL);
 
-            final_url = "https://www.instagram.com/graphql/query?query_hash=2b0673e0dc4580674a88d426fe00ea90&variables=%7B%22shortcode%22%3A%22" + post + "%22%7D";
+        initialURL = url;
+        String post = getStringBetweenLastTwoSlashes(initialURL);
 
-            if (initialURL.contains("stories") || initialURL.contains("/s/")) {
-                final_url = "https://igram.world/api/ig/story?url=" + initialURL;
-                fromStoryIGRAM = true;
-            }
+        final_url = "https://www.instagram.com/graphql/query?query_hash=2b0673e0dc4580674a88d426fe00ea90&variables=%7B%22shortcode%22%3A%22" + post + "%22%7D";
+
+        if (initialURL.contains("stories") || initialURL.contains("/s/")) {
+            // final_url = "https://igram.world/api/ig/story?url=" + initialURL;
+            final_url = "https://pyapp.jaredco.com/rapid_pro_getjson_story/?shortcode=" + post;
+            Log.d("app5", final_url);
+            fromStoryIGRAM = true;
         } else {
-            final_url = url;
-
+            shouldRetryVolley();
+            return;  // don't do anything here unless a story
         }
 
 
-        //  Log.d("app5", numRetries + "   " + final_url);
-        // Request a string response from the provided URL.
         StringRequest stringRequest = new StringRequest(Request.Method.GET, final_url,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
 
-                        if (fromStoryIGRAM)
-                            processStoriesFromIGRAM(response, initialURL);
-                        else
-                            listener.onDataLoaded(response, initialURL);
+
+                        processStoriesFromIGRAM(response, initialURL);
+
                     }
                 }, new Response.ErrorListener() {
             @Override
@@ -2385,8 +2456,8 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
                 int code = 0;
                 try {
                     code = error.networkResponse.statusCode;
-                    sendEvent("scrape_error_code_" + code);
-                    Log.d("app5", "scrape_error_code_" + code);
+
+                    Log.d("app5", "#2469 scrape_error_code_" + code);
                 } catch (Exception e) {
                 }
 
@@ -2460,6 +2531,10 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
         }
 
         int lastSlashIndex = input.lastIndexOf("/");
+        if (isStoryURLCheck())
+            lastSlashIndex = input.lastIndexOf("?");
+
+
         if (lastSlashIndex == -1) {
             return null; // or you could choose to return an empty string ""
         }
@@ -2582,6 +2657,47 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
 
     private boolean getJSONfromBrowser = false;
 
+    public void extractInstagramData(String jsonString) {
+        try {
+            // Parse the entire JSON string to a JSONObject
+            JSONObject jsonObject = new JSONObject(jsonString);
+            JSONObject dataObject = jsonObject.getJSONObject("data");
+
+            // Access items array
+            JSONArray itemsArray = dataObject.getJSONArray("items");
+
+            // Assuming there's at least one item in the array (index 0)
+            if (itemsArray.length() > 0) {
+                JSONObject itemObject = itemsArray.getJSONObject(0);
+
+                // Extracting author (full_name from user object)
+                JSONObject userObject = itemObject.getJSONObject("user");
+                String author = userObject.getString("username");
+                Log.d("app5", "Author: " + author);
+
+                // Extracting title (using username as title if caption is null)
+                String title = itemObject.optString("caption", "No Caption");
+                if (title.equals("No Caption")) {
+                    title = userObject.getString("username");
+                }
+                Log.d("app5", "Title: " + title);
+
+                // Extracting the first video URL from video_versions array
+                JSONArray videoVersionsArray = itemObject.getJSONArray("video_versions");
+                if (videoVersionsArray.length() > 0) {
+                    JSONObject firstVideoObject = videoVersionsArray.getJSONObject(0);
+                    String videoUrl = firstVideoObject.getString("url");
+                    Log.d("app5", "Hi-Res Video URL: " + videoUrl);
+                } else {
+                    System.out.println("No video available.");
+                }
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
     @Override
     public void onDataLoaded(String volleyReturn, String url) {
         //  Log.d("app5", "VOLLEY : " + volleyReturn);
@@ -2617,10 +2733,14 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
                     return;
                 }
 
-                JSONObject shortCode_media_object = graphQlObject.getJSONObject("shortcode_media");
+                JSONObject shortCode_media_object;
+                if (isStoryURLCheck()) {
+                    extractInstagramData(volleyReturn);
+                } else {
 
-
-                processJSON(shortCode_media_object.toString());
+                    shortCode_media_object = graphQlObject.getJSONObject("shortcode_media");
+                    processJSON(shortCode_media_object.toString());
+                }
 
 
             } catch (Exception e) {
@@ -3854,46 +3974,6 @@ v.seekTo(1);
 
     WebView webview;
 
-    private void processNonInstagramURL(String html) {
-        Document doc = Jsoup.parse(html);
-        Elements metaTags = doc.getElementsByTag("meta");
-
-        String videoURL = null;
-        String photoURL = null;
-
-        for (Element metaTag : metaTags) {
-            if (metaTag.attr("property").equals("og:video") || metaTag.attr("name").equals("og:video")) {
-                videoURL = metaTag.attr("content");
-
-
-                Log.d("app5", "Found video URL: " + videoURL);
-                break;
-
-            }
-
-            if (metaTag.attr("property").equals("og:image") || metaTag.attr("name").equals("og:image")) {
-                photoURL = metaTag.attr("content");
-
-
-                Log.d("app5", "Found image URL: " + photoURL);
-                break;
-
-            }
-        }
-
-
-        if (videoURL != null)
-            prepareForSingleVideo(videoURL);
-        else if (photoURL != null)
-            prepareForSinglePhoto(photoURL);
-        else {
-            showErrorToast("There was a problem ", "Unable to find a video or photo at this link.", true);
-
-            // processPotentialPrivate();
-        }
-
-    }
-
 
     private void sendDebugInfo(String html) {
 
@@ -3995,50 +4075,6 @@ v.seekTo(1);
 
     }
 
-    private void processParler(String html) {
-        Document doc = Jsoup.parse(html);
-        Elements metaTags = doc.getElementsByTag("meta");
-
-        String videoURL = null;
-        String photoURL = null;
-
-        for (Element metaTag : metaTags) {
-            if (metaTag.attr("property").equals("og:video") || metaTag.attr("name").equals("og:video")) {
-                videoURL = metaTag.attr("content");
-
-
-                Log.d("app5", "Found video URL: " + videoURL);
-                break;
-
-            }
-
-
-        }
-
-
-        if (videoURL != null) {
-            prepareForSingleVideo(videoURL);
-            return;
-        }
-
-
-        Elements elements = doc.getElementsByTag("img");
-        for (Element e : elements) {
-            String alt = e.attr("alt");
-            if (alt.equals("Article Image")) {
-                photoURL = e.attr("src");
-                break;
-            }
-
-        }
-
-        if (photoURL != null)
-            prepareForSinglePhoto(photoURL);
-        else
-            showErrorToast("There was a problem ", "Unable to find a video or photo at this link.", true);
-        //  processPotentialPrivate();
-
-    }
 
     private void prepareForSinglePhoto(String photoURL) {
 
@@ -4159,7 +4195,12 @@ v.seekTo(1);
 
 
             JSONObject json = new JSONObject(res);
-            JSONObject jsonA = json.getJSONArray("result").getJSONObject(0);
+            JSONObject dataObject = json.getJSONObject("data");
+
+            // Access items array
+            JSONArray itemsArray = dataObject.getJSONArray("items");
+
+            JSONObject jsonA = itemsArray.getJSONObject(0);
 
             url = jsonA.getJSONObject("image_versions2").getJSONArray("candidates").getJSONObject(0).getString("url");
 
