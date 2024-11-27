@@ -2655,6 +2655,127 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
 
     }
 
+
+    public void extractPostDetails(String jsonString) {
+        try {
+            JSONObject jsonObject = new JSONObject(jsonString);
+            JSONObject data = jsonObject.getJSONObject("data");
+            JSONArray items;
+
+            Object itemsObject = data.get("items");
+            if (itemsObject instanceof JSONArray) {
+                // If it's already a JSONArray, use it directly
+                items = (JSONArray) itemsObject;
+            } else if (itemsObject instanceof JSONObject) {
+                // If it's a JSONObject, wrap it into a JSONArray
+                items = new JSONArray();
+                items.put(itemsObject);
+            } else {
+                throw new JSONException("Unexpected type for 'items'");
+            }
+            for (int i = 0; i < items.length(); i++) {
+                JSONObject item = items.getJSONObject(i);
+
+                // Extract the caption text (post title)
+                try {
+                    JSONObject caption = item.getJSONObject("caption");
+                    if (caption != null)
+                        title = caption.getString("text");
+                } catch (Exception e) {
+                }
+
+                // Extract the author's username
+                try {
+                    JSONObject user = item.getJSONObject("user");
+                    if (user != null)
+                        author = user.getString("username");
+
+                    JSONObject owner = item.getJSONObject("owner");
+                    if (owner != null)
+                        profile_pic_url = user.getString("profile_pic_url");
+                    Log.d("app5", "Profile Pic URL: " + profile_pic_url);
+                } catch (Exception e) {
+                }
+
+                // Check the media type: 1 = photo, 2 = video, 8 = carousel
+                int mediaType = item.getInt("media_type");
+
+                if (mediaType == 1) { // Handle photo
+                    // Extract photo URL
+                    JSONArray imageVersions = item.getJSONObject("image_versions2").getJSONArray("candidates");
+                    JSONObject imageObject = imageVersions.getJSONObject(0); // Get the first image candidate
+                    String photoURL = imageObject.getString("url");
+                    downloadSinglePhotoFromURL(photoURL);
+
+                    sendEvent("sh_extract_photo");
+                    // Print photo details (placeholder for further handling)
+                    Log.d("app5", "Post Title: " + title);
+                    Log.d("app5", "Author: " + author);
+                    Log.d("app5", "Photo URL: " + photoURL);
+
+                } else if (mediaType == 2) { // Handle video
+                    // Extract video URL
+                    JSONArray videoVersions = item.getJSONArray("video_versions");
+                    JSONObject videoObject = videoVersions.getJSONObject(0); // Get the first video version
+                    this.videoURL = videoObject.getString("url");
+                    isVideo = true;
+                    LoadVideo();
+                    sendEvent("sh_extract_video");
+
+                    // Print video details (placeholder for further handling)
+                    Log.d("app5", "Post Title: " + title);
+                    Log.d("app5", "Author: " + author);
+                    Log.d("app5", "Video URL: " + videoURL);
+
+                } else if (mediaType == 8) { // Handle carousel (multiple photos/videos)
+                    // Loop through the carousel media
+                    processMultiPhotoJSON(item, 2);
+                    sendEvent("sh_extract_multi");
+                    if (1 == 1) continue;
+
+
+                    JSONArray carouselMedia = item.getJSONArray("carousel_media");
+                    for (int j = 0; j < carouselMedia.length(); j++) {
+                        JSONObject mediaItem = carouselMedia.getJSONObject(j);
+
+                        // Check the media type for each item in the carousel
+                        int carouselMediaType = mediaItem.getInt("media_type");
+
+                        if (carouselMediaType == 2) { // Handle video in carousel
+                            // Extract video URL
+                            JSONArray videoVersions = mediaItem.getJSONArray("video_versions");
+                            JSONObject videoObject = videoVersions.getJSONObject(0); // Get the first video version
+                            String videoUrl = videoObject.getString("url");
+
+                            // Print video details (placeholder for further handling)
+                            Log.d("app5", "Carousel Video URL: " + videoUrl);
+
+                        } else if (carouselMediaType == 1) { // Handle photo in carousel
+                            // Extract photo URL
+                            JSONArray imageVersions = mediaItem.getJSONObject("image_versions2").getJSONArray("candidates");
+                            JSONObject imageObject = imageVersions.getJSONObject(0); // Get the first image candidate
+                            String imageUrl = imageObject.getString("url");
+
+                            // Print photo details (placeholder for further handling)
+                            Log.d("app5", "Carousel Photo URL: " + imageUrl);
+                        }
+
+
+                        // Print the post and author for the carousel
+                        Log.d("app5", "Post Title (Carousel): " + title);
+                        Log.d("app5", "Author (Carousel): " + author);
+                    }
+
+                }
+
+            }
+        } catch (Exception e) {
+            shouldRetryVolley();
+        }
+    }
+
+
+
     private boolean getJSONfromBrowser = false;
 
     public void extractInstagramData(String jsonString) {
@@ -7080,7 +7201,7 @@ v.seekTo(1);
 
         RequestQueue queue = Volley.newRequestQueue(this);
 
-        String final_url = "https://pyapp.jaredco.com/rapid_pro_getjson/?shortcode=" + shortcode;
+        String final_url = "https://pyapp.jaredco.com/rapid_pro_getjson_v2/?shortcode=" + shortcode;
 
         // Request a string response from the provided URL.
         StringRequest stringRequest = new StringRequest(Request.Method.GET, final_url,
@@ -7092,10 +7213,14 @@ v.seekTo(1);
                         if (response.equals("ERROR"))
                             shouldRetryVolley();
                         else
+
                             try {
+                                extractPostDetails(response);
+                                /**
                                 JSONObject json = new JSONObject(response);
-                                JSONObject graphQlObject = json.getJSONObject("data");
+                                 JSONObject graphQlObject = json.getJSONObject("data");
                                 processJSON(graphQlObject.toString());
+                                 **/
                             } catch (Exception e) {
 
                             }
