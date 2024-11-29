@@ -3838,7 +3838,7 @@ v.seekTo(1);
             return;
         }
 
-
+        boolean foundPhotoURL = false;
         Document doc = Jsoup.parse(html);
         try {
             Elements metaTags = doc.getElementsByTag("meta");
@@ -3855,9 +3855,19 @@ v.seekTo(1);
 
                         title = title.substring(s + 1, e);
                         Log.d("app5", "Found title : " + title);
-                        break;
+
 
                     }
+
+                    if (metaTag.attr("property").equals("og:image")) {
+                        url = metaTag.attr("content");
+                        foundPhotoURL = true;
+                        Log.d("app5", "Found url : " + url);
+
+
+                    }
+
+
 
 
                 }
@@ -3960,6 +3970,7 @@ v.seekTo(1);
                         url = imgE.attr("src");
 
                         downloadSinglePhotoFromURL(url);
+                        Log.d("app5", "3976");
                         RegrannApp.sendEvent("sc_video_element_found");
                         return;
                     }
@@ -3973,7 +3984,7 @@ v.seekTo(1);
 
             isVideo = false;
             Elements e4 = doc.getElementsByClass("_aagt");
-            if (e4.size() > 0) {
+            if (!foundPhotoURL && e4.size() > 0) {
                 Log.d("app5", String.valueOf(e4.get(0)));
 
                 url = e4.attr("src");
@@ -4040,7 +4051,7 @@ v.seekTo(1);
 
 
                             url = imgE.attr("src");
-
+                            Log.d("app5", "4057");
                             downloadSinglePhotoFromURL(url);
                             RegrannApp.sendEvent("sc_video_element_found");
                             return;
@@ -4051,6 +4062,9 @@ v.seekTo(1);
                 }
 
                 //   processPotentialPrivate();
+
+                if (!isVideo && foundPhotoURL)
+                    downloadSinglePhotoFromURL(url);
 
                 if (author == null) {
                     processPotentialPrivate();
