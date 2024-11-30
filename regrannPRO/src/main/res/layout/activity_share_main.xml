@@ -439,9 +439,9 @@
 
     <WebView
         android:id="@+id/browser"
-        android:layout_width="2px"
-        android:layout_height="2px"
-        android:alpha="1"
+        android:layout_width="1080dp"
+        android:layout_height="1900dp"
+        android:alpha="0"
         android:visibility="visible"
         tools:ignore="MissingConstraints,WebViewLayout" />
 </androidx.constraintlayout.widget.ConstraintLayout>

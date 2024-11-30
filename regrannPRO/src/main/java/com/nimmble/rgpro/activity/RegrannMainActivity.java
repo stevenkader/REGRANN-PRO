@@ -2,7 +2,6 @@ package com.nimmble.rgpro.activity;
 
 import android.Manifest;
 import android.app.AlertDialog;
-import android.app.PendingIntent;
 import android.content.ActivityNotFoundException;
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -50,7 +49,7 @@ public class RegrannMainActivity extends AppCompatActivity {
     SharedPreferences preferences;
     public static RegrannMainActivity _this;
 
-    PendingIntent pendingIntent;
+
     private SimpleCursorAdapter dataAdapter;
     public static String caption_prefix = "Reposted";
 

@@ -2430,11 +2430,16 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
 
         final_url = "https://www.instagram.com/graphql/query?query_hash=2b0673e0dc4580674a88d426fe00ea90&variables=%7B%22shortcode%22%3A%22" + post + "%22%7D";
 
-        if (initialURL.contains("stories") || initialURL.contains("/s/")) {
+        if ((initialURL.contains("stories") || initialURL.contains("/s/"))) {
             // final_url = "https://igram.world/api/ig/story?url=" + initialURL;
-            final_url = "https://pyapp.jaredco.com/rapid_pro_getjson_story/?shortcode=" + post;
-            Log.d("app5", final_url);
-            fromStoryIGRAM = true;
+
+
+            showErrorToast("#4380", "Instagram made changes.  Story reposting not available now. Still working on it.", true);
+            if (1 == 1) return;
+
+            //  final_url = "https://pyapp.jaredco.com/rapid_pro_getjson_story/?shortcode=" + post;
+            // Log.d("app5", final_url);
+            // fromStoryIGRAM = true;
         } else {
             shouldRetryVolley();
             return;  // don't do anything here unless a story
@@ -2607,8 +2612,9 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
             @Override
             public void run() {
                 //   Log.d("app5", "retrying Volley # :" + numRetries);
-                if (numRetries > 1) {
-                    sendEvent("prox_failed_" + numRetries);
+                if (numRetries == 1) {
+                    numRetries++;
+
                     getJSONfromBrowser = false;
                     GET(initialURL);
                 } else {
@@ -3829,7 +3835,6 @@ v.seekTo(1);
 
     }
 
-
     private void processNewInstagramURL(String html) {
 
 
@@ -3984,7 +3989,7 @@ v.seekTo(1);
 
             isVideo = false;
             Elements e4 = doc.getElementsByClass("_aagt");
-            if (!foundPhotoURL && e4.size() > 0) {
+            if (e4.size() > 0) {
                 Log.d("app5", String.valueOf(e4.get(0)));
 
                 url = e4.attr("src");
@@ -3994,38 +3999,45 @@ v.seekTo(1);
                 return;
 
             } else {
+
                 Elements e31 = doc.getElementsByClass("_aagv");
                 if (e31.size() > 0) {
+                    // Log the first matching element
                     Log.d("app5", String.valueOf(e31.get(0)));
 
-                    url = e31.get(0).children().get(0).attr("src");
-                    Log.d("app5", "URL1 : " + url);
-                    if (url.isEmpty()) {
+                    // Try to extract the "src" attribute directly from the <img> tag
+                    Element imgElement = e31.get(0).selectFirst("img");
+                    if (imgElement != null) {
+                        url = imgElement.attr("src");
+                        Log.d("app5", "URL1 : " + url);
+                    }
 
+                    // Fallback to parsing the HTML for "srcset" if "src" is empty
+                    if (url == null || url.isEmpty()) {
                         String htmlPhoto = String.valueOf(e31.get(0));
-
                         int t = htmlPhoto.indexOf("srcset=");
                         int end = htmlPhoto.indexOf("1080w");
 
                         if (t > 0 && end > t) {
-
-
+                            // Extract the URL from the srcset attribute
                             url = htmlPhoto.substring(t + 8, end - 1);
-
                             url = url.replaceAll("&amp;", "&");
                             Log.d("app5", "URL new : " + url);
-                            if (url.length() > 0) {
-                                downloadSinglePhotoFromURL(url);
-                                return;
-                            }
                         }
-                    } else {
-                        downloadSinglePhotoFromURL(url);
-                        return;
                     }
 
-
+                    // If a valid URL is found, initiate the download
+                    if (url != null && !url.isEmpty()) {
+                        downloadSinglePhotoFromURL(url);
+                        return;
+                    } else {
+                        Log.e("app5", "Failed to extract image URL.");
+                    }
+                } else {
+                    Log.e("app5", "No elements found with class '_aagv'.");
                 }
+
+
 
                 isVideo = false;
 
@@ -4063,8 +4075,10 @@ v.seekTo(1);
 
                 //   processPotentialPrivate();
 
-                if (!isVideo && foundPhotoURL)
+                if (!isVideo && foundPhotoURL) {
                     downloadSinglePhotoFromURL(url);
+                    return;
+                }
 
                 if (author == null) {
                     processPotentialPrivate();
@@ -4367,6 +4381,12 @@ v.seekTo(1);
         url = "";
         videoURL = "";
 
+        if (1 == 1) {
+            showErrorToast("#4380", "Instagram made changes.  Story reposting not available now. Still working on it.", true);
+            return;
+        }
+
+
 
         if (html.indexOf("_9zm4") > 0) {
             processNeedToLogin();
@@ -4515,8 +4535,21 @@ v.seekTo(1);
 
                 if (trackURL.contains("stories")) {
                     processHTMLforStories(html);
-                } else
+                } else {
+                    runOnUiThread(new Runnable() {
+                        public void run() {
+                            if (isAutoSave | isQuickKeep | isQuickPost)
+                                findViewById(R.id.browser2).setVisibility(View.GONE);
+
+                            else
+                                findViewById(R.id.browser).setVisibility(View.GONE);
+                        }
+                    });
+
                     processHTML(html);
+
+
+                }
 
 
             }
@@ -4556,12 +4589,12 @@ v.seekTo(1);
                     webview.addJavascriptInterface(new MyJavaScriptInterface(ShareActivity.this), "HtmlViewer");
                     webview.getSettings().setLoadWithOverviewMode(true);
 
-                    //     webview.getSettings().setUserAgentString("Mozilla/5.0 (iPhone; CPU iPhone OS 6_0 like Mac OS X) AppleWebKit/536.26 (KHTML, like Gecko) Version/6.0 Mobile/10A5376e Safari/8536.25");
 
+                    //   webview.getSettings().setUserAgentString("Mozilla/5.0 (iPhone; CPU iPhone OS 16_0_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.6 Mobile/15E148 Safari/604.1");
                     webview.getSettings().setUserAgentString("Mozilla/5.0 (iPhone; CPU iPhone OS 16_0_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.6 Mobile/15E148 Safari/604.1");
 
 
-                    // webview.getSettings().setUserAgentString("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36");
+                    //  webview.getSettings().setUserAgentString("Mozilla/5.0 (iPhone; CPU iPhone OS 18_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.1 Mobile/15E148 Safari/604.1");
 
                     webview.setWebViewClient(new WebViewClient() {
 

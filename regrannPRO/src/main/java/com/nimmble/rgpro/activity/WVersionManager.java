@@ -14,8 +14,6 @@ import android.preference.PreferenceManager;
 import android.text.Html;
 import android.util.Log;
 
-import com.nimmble.rgpro.BuildConfig;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -80,16 +78,11 @@ public class WVersionManager implements IWVersionManager {
         Calendar c = Calendar.getInstance();
         long currentTimeStamp = c.getTimeInMillis();
         long reminderTimeStamp = getReminderTime();
-        if (BuildConfig.DEBUG) {
-            Log.v(TAG, "currentTimeStamp=" + currentTimeStamp);
-            Log.v(TAG, "reminderTimeStamp=" + reminderTimeStamp);
-        }
+
 
         if ( currentTimeStamp > reminderTimeStamp) {
             // fire request to get update version content
-            if (BuildConfig.DEBUG) {
-                Log.v(TAG, "getting update content...");
-            }
+
             VersionContentRequest request = new VersionContentRequest(activity);
             request.execute(getVersionContentUrl());
         }
@@ -311,10 +304,6 @@ public class WVersionManager implements IWVersionManager {
         c.add(Calendar.MINUTE, reminderTimer);
         long reminderTimeStamp = c.getTimeInMillis();
 
-        if (BuildConfig.DEBUG) {
-            Log.v(TAG, "currentTimeStamp=" + currentTimeStamp);
-            Log.v(TAG, "reminderTimeStamp=" + reminderTimeStamp);
-        }
 
         setReminderTime(reminderTimeStamp);
     }
@@ -409,8 +398,6 @@ public class WVersionManager implements IWVersionManager {
 
             } catch (Exception e) {
                 Log.e(TAG, e.toString());
-            } finally {
-
             }
             return responseBody;
         }

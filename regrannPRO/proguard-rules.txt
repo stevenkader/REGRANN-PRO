@@ -18,8 +18,13 @@
 
 -dontwarn com.google.android.gms.**
 
+-keep class org.conscrypt.** { *; }
+-keep class com.android.org.conscrypt.** { *; }
+-keep class org.apache.harmony.xnet.provider.jsse.** { *; }
+-keep class okhttp3.internal.platform.ConscryptPlatform { *; }
 
-
+-dontwarn com.android.org.conscrypt.SSLParametersImpl
+-dontwarn org.apache.harmony.xnet.provider.jsse.SSLParametersImpl
 -dontwarn com.smaato.**
 -dontwarn com.aviary.**
 

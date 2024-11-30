@@ -13,7 +13,6 @@ import android.widget.CheckBox;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-import com.nimmble.rgpro.BuildConfig;
 import com.nimmble.rgpro.R;
 import com.nimmble.rgpro.util.Util;
 
@@ -37,10 +36,6 @@ public class ModeSettingsActivity extends AppCompatActivity {
         super.onResume();
 
 
-        if (!BuildConfig.DEBUG) {
-            //       noAds = preferences.getBoolean("removeAds", false);
-        }
-
 
     }
 
@@ -55,9 +50,6 @@ public class ModeSettingsActivity extends AppCompatActivity {
 
             noAds = true;
 
-            if (BuildConfig.DEBUG) {
-                //         noAds = false;
-            }
 
             setContentView(R.layout.activity_modesettings);
 

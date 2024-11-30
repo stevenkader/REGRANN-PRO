@@ -17,8 +17,8 @@ android {
         applicationId "com.nimmble.rgpro"
         minSdkVersion 26
         targetSdkVersion 34
-        versionCode 602
-        versionName "6.46"
+        versionCode 610
+        versionName "6.54"
 
         multiDexEnabled true
         resValue 'string', 'pesdk_version', "v$pesdk_version"
@@ -26,12 +26,27 @@ android {
 
     }
 
-
-    /* 2) Compile for Java 1.8 or greater */
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11 // or VERSION_17
-        targetCompatibility JavaVersion.VERSION_11 // or VERSION_17
+    kotlinOptions {
+        jvmTarget = "17" // Ensure this matches the JVM version
     }
+
+    kotlin {
+        jvmToolchain {
+            languageVersion.set(JavaLanguageVersion.of(17))
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17 // Use Java 17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+
+    java {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(17) // Use the JVM toolchain
+        }
+    }
+
     packagingOptions {
         resources {
             excludes += ['META-INF/LICENSE.txt', 'META-INF/LICENSE', 'META-INF/NOTICE.txt', 'META-INF/NOTICE', 'META-INF/DEPENDENCIES']
@@ -147,7 +162,7 @@ dependencies {
 
     implementation 'com.squareup.picasso:picasso:2.5.2'
     implementation 'com.google.android.material:material:1.12.0'
-
+    implementation 'org.conscrypt:conscrypt-android:2.5.2'
     // Import the BoM for the Firebase platform
     implementation platform('com.google.firebase:firebase-bom:33.3.0')
 
