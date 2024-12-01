@@ -2428,31 +2428,24 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
         initialURL = url;
         String post = getStringBetweenLastTwoSlashes(initialURL);
 
-        final_url = "https://www.instagram.com/graphql/query?query_hash=2b0673e0dc4580674a88d426fe00ea90&variables=%7B%22shortcode%22%3A%22" + post + "%22%7D";
 
         if ((initialURL.contains("stories") || initialURL.contains("/s/"))) {
-            // final_url = "https://igram.world/api/ig/story?url=" + initialURL;
+
+            final_url = "https://instagram-premium-api-2023.p.rapidapi.com/v2/media/by/id?id=" + post;
 
 
-            showErrorToast("#4380", "Instagram made changes.  Story reposting not available now. Still working on it.", true);
-            if (1 == 1) return;
-
-            //  final_url = "https://pyapp.jaredco.com/rapid_pro_getjson_story/?shortcode=" + post;
-            // Log.d("app5", final_url);
-            // fromStoryIGRAM = true;
         } else {
-            shouldRetryVolley();
-            return;  // don't do anything here unless a story
+            final_url = "https://instagram-premium-api-2023.p.rapidapi.com/v2/media/by/code?code=" + post;
+
         }
+
 
 
         StringRequest stringRequest = new StringRequest(Request.Method.GET, final_url,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-
-
-                        processStoriesFromIGRAM(response, initialURL);
+                        extractPostDetails(response);
 
                     }
                 }, new Response.ErrorListener() {
@@ -2470,8 +2463,17 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
 
 
             }
-        });
-
+        }) {
+            @Override
+            public java.util.Map<String, String> getHeaders() {
+                // Add headers
+                java.util.Map<String, String> headers = new java.util.HashMap<>();
+                headers.put("X-Rapidapi-Key", "wxwZMMSGD5MzHc5YF1OH3mjdR5BVG7nb");
+                headers.put("X-Rapidapi-Host", "instagram-premium-api-2023.p.rapidapi.com");
+                return headers;
+            }
+        };
+        Log.d("app5", final_url);
 
         stringRequest.setRetryPolicy(new DefaultRetryPolicy(32000,
                 2,
@@ -2612,7 +2614,7 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
             @Override
             public void run() {
                 //   Log.d("app5", "retrying Volley # :" + numRetries);
-                if (numRetries == 1) {
+                if (numRetries > 1) {
                     numRetries++;
 
                     getJSONfromBrowser = false;
@@ -2665,10 +2667,10 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
     public void extractPostDetails(String jsonString) {
         try {
             JSONObject jsonObject = new JSONObject(jsonString);
-            JSONObject data = jsonObject.getJSONObject("data");
+
             JSONArray items;
 
-            Object itemsObject = data.get("items");
+            Object itemsObject = jsonObject.get("items");
             if (itemsObject instanceof JSONArray) {
                 // If it's already a JSONArray, use it directly
                 items = (JSONArray) itemsObject;
@@ -3838,6 +3840,7 @@ v.seekTo(1);
     private void processNewInstagramURL(String html) {
 
 
+
         if (html.indexOf(">Log in<") > 0) {
             processPotentialPrivate();
             return;
@@ -4381,10 +4384,10 @@ v.seekTo(1);
         url = "";
         videoURL = "";
 
-        if (1 == 1) {
-            showErrorToast("#4380", "Instagram made changes.  Story reposting not available now. Still working on it.", true);
-            return;
-        }
+        //   if (1 == 1) {
+        //      showErrorToast("#4380", "Instagram made changes.  Story reposting not available now. Still working on it.", true);
+        //     return;
+        // }
 
 
 
@@ -4408,8 +4411,16 @@ v.seekTo(1);
 
                 }
             });
+
+
             int endPos;
             int startPos;
+
+            startPos = trackURL.indexOf("stories");
+            endPos = trackURL.indexOf("/", startPos + 9);
+
+            author = trackURL.substring(startPos + 8, endPos);
+            Log.d("app5", "author = " + author);
 
             isVideo = false;
             // check for video
@@ -4424,7 +4435,8 @@ v.seekTo(1);
                 videoURL = videoURL.replaceAll("&amp;", "&");
                 Log.d("app5", "VideoURL : " + videoURL);
                 RegrannApp.sendEvent("sc_story_video_found");
-
+                downloadSinglePhotoFromURL("");
+                return;
             }
 
 
@@ -4439,7 +4451,7 @@ v.seekTo(1);
 
 
             if (!isVideo) {
-                startPos = html.indexOf("srcset");
+                startPos = html.indexOf("alt=\"Photo by");
 
                 startPos = html.indexOf("src", startPos + 1);
 
@@ -4465,11 +4477,7 @@ v.seekTo(1);
             }
 
 
-            startPos = trackURL.indexOf("stories");
-            endPos = trackURL.indexOf("/", startPos + 9);
 
-            author = trackURL.substring(startPos + 8, endPos);
-            Log.d("app5", "author = " + author);
 
             if (!url.isEmpty()) {
                 sendEvent("story_found", "", "");
@@ -4693,11 +4701,7 @@ v.seekTo(1);
                                     @Override
                                     public void run() {
                                         Log.d("app5", "Press tap to play");
-                                        webview.loadUrl("javascript: document.getElementsByClassName('sqdOP')[0].click();");
-                                        webview.loadUrl("javascript: document.getElementsByClassName('_42FBe')[0].click();");
-                                        webview.loadUrl("javascript: document.getElementsByClassName('_acav')[0].click();");
-                                        webview.loadUrl("javascript: document.querySelectorAll('[role=\"button\"]')[0].click();");
-
+                                        webview.loadUrl("javascript:let buttons = document.querySelectorAll('div[role=\"button\"]'); targetButton = Array.from(buttons).find(button => button.textContent.trim() === \"View story\");  if (targetButton) { targetButton.click(); console.log('Button clicked!'); } else { console.error('Button not found!'); }");
 
                                         final Handler handler1 = new Handler();
                                         handler1.postDelayed(new Runnable() {
