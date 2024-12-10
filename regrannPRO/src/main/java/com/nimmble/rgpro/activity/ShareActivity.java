@@ -2446,6 +2446,7 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
+                        //       showErrorToast("Resp: " , response);
                         extractPostDetails(response);
 
                     }
@@ -2455,6 +2456,11 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
                 int code = 0;
                 try {
                     code = error.networkResponse.statusCode;
+                    String errorMessage = null;
+                    if (error.networkResponse != null && error.networkResponse.data != null) {
+                        errorMessage = new String(error.networkResponse.data);
+                    }
+                    //   showErrorToast("Error: " ,"Error: " +  errorMessage);
 
                     Log.d("app5", "#2469 scrape_error_code_" + code);
                 } catch (Exception e) {
@@ -2688,23 +2694,22 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
                 // Extract the caption text (post title)
                 try {
                     JSONObject caption = item.getJSONObject("caption");
-                    if (caption != null)
+                    if (caption != null) {
                         title = caption.getString("text");
-                    title = new String(title.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
-                    Log.d("DecodedResponse", title);
+                        title = new String(title.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
+                    }
+
                 } catch (Exception e) {
                 }
 
                 // Extract the author's username
                 try {
                     JSONObject user = item.getJSONObject("user");
-                    if (user != null)
+                    if (user != null) {
                         author = user.getString("username");
-
-                    JSONObject owner = item.getJSONObject("owner");
-                    if (owner != null)
                         profile_pic_url = user.getString("profile_pic_url");
-                    Log.d("app5", "Profile Pic URL: " + profile_pic_url);
+                        Log.d("app5", "Profile Pic URL: " + profile_pic_url);
+                    }
                 } catch (Exception e) {
                 }
 
