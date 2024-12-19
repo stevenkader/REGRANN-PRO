@@ -2423,10 +2423,15 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
         String final_url = "";
         fromStoryIGRAM = false;
 
+        initialURL = url;
+
+        shouldRetryVolley();
+        if (1 == 1) return;
+
 
         RequestQueue queue = Volley.newRequestQueue(this);
 
-        initialURL = url;
+
         String post = getStringBetweenLastTwoSlashes(initialURL);
 
 
@@ -2621,7 +2626,7 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
             @Override
             public void run() {
                 //   Log.d("app5", "retrying Volley # :" + numRetries);
-                if (numRetries > 1) {
+                if (numRetries == 2) {
                     numRetries++;
 
                     getJSONfromBrowser = false;
@@ -7259,9 +7264,18 @@ v.seekTo(1);
     private void proxyRequest(String shortcode) {
 
         RequestQueue queue = Volley.newRequestQueue(this);
+        String post = getStringBetweenLastTwoSlashes(initialURL);
+        Log.d("app5", initialURL + "   " + post);
+        if ((initialURL.contains("stories") || initialURL.contains("/s/"))) {
 
-        String final_url = "https://pyapp.jaredco.com/rapid_pro_getjson_v2/?shortcode=" + shortcode;
+            final_url = "https://pyapp.jaredco.com/rapid_v2/?type=1&code=" + post;
 
+
+        } else {
+            final_url = "https://pyapp.jaredco.com/rapid_v2/?type=2&code=" + post;
+
+
+        }
         // Request a string response from the provided URL.
         StringRequest stringRequest = new StringRequest(Request.Method.GET, final_url,
                 new Response.Listener<String>() {
