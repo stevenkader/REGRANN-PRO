@@ -7264,30 +7264,28 @@ v.seekTo(1);
     private void proxyRequest(String shortcode) {
 
         RequestQueue queue = Volley.newRequestQueue(this);
-        String post = getStringBetweenLastTwoSlashes(initialURL);
-        Log.d("app5", initialURL + "   " + post);
-        if ((initialURL.contains("stories") || initialURL.contains("/s/"))) {
-
-            final_url = "https://pyapp.jaredco.com/rapid_v2/?type=1&code=" + post;
 
 
-        } else {
-            final_url = "https://pyapp.jaredco.com/rapid_v2/?type=2&code=" + post;
+        Log.d("app5", initialURL + "   " + url);
+        //  showErrorToast("", initialURL + " " + post);
 
 
-        }
+        final_url = "https://pyapp.jaredco.com/rapid_v3/?url=" + initialURL;
+
+
         // Request a string response from the provided URL.
         StringRequest stringRequest = new StringRequest(Request.Method.GET, final_url,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
 
-
+                        //     showErrorToast("", response.toString());
                         if (response.equals("ERROR"))
                             shouldRetryVolley();
                         else
 
                             try {
+
                                 extractPostDetails(response);
                                 /**
                                 JSONObject json = new JSONObject(response);
@@ -7304,6 +7302,7 @@ v.seekTo(1);
             public void onErrorResponse(VolleyError error) {
                 int code = 0;
                 try {
+                    //  showErrorToast("", "OnErrorResponse");
                     shouldRetryVolley();
 
 
