@@ -2629,7 +2629,7 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
                 if (numRetries == 2) {
                     numRetries++;
 
-                    getJSONfromBrowser = false;
+
                     GET(initialURL);
                 } else {
                     String final_url = "";
@@ -4720,6 +4720,13 @@ v.seekTo(1);
                                         initialURL = url5;
                                         cancelShowHTML = true;
                                         tryRedirected = true;
+                                        if (isAutoSave | isQuickKeep | isQuickPost)
+                                            findViewById(R.id.browser2).setVisibility(View.GONE);
+
+                                        else
+                                            findViewById(R.id.browser).setVisibility(View.GONE);
+
+                                        spinner.setVisibility(View.INVISIBLE);
                                         shouldRetryVolley();
                                         return;
 
