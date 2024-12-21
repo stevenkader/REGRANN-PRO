@@ -486,7 +486,7 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
         super.onCreate(savedInstanceState);
 
         _this = this;
-
+        tryRedirected = false;
         getJSONfromBrowser = false;
         url = null;
         author = null;
@@ -4524,6 +4524,8 @@ v.seekTo(1);
     boolean toLogin = false;
 
     String urlIn;
+    private Boolean tryRedirected = false;
+    private Boolean cancelShowHTML = false;
 
     public void GET(final String urlOrig) {
         spinner.setVisibility(View.VISIBLE);
@@ -4541,7 +4543,10 @@ v.seekTo(1);
             @JavascriptInterface
             public void showHTML(String html) {
                 alreadyFinished = true;
-
+                if (cancelShowHTML) {
+                    cancelShowHTML = false;
+                    return;
+                }
                 //  Log.d("app5", html);
 
                 if (toLogin)
@@ -4708,6 +4713,19 @@ v.seekTo(1);
 
                                 final String url5 = url;
 
+                                if (!tryRedirected) {
+
+                                    if (initialURL.indexOf("/share") > 0) {
+                                        numRetries = 1;
+                                        initialURL = url5;
+                                        cancelShowHTML = true;
+                                        tryRedirected = true;
+                                        shouldRetryVolley();
+                                        return;
+
+
+                                    }
+                                }
 
                                 final Handler handler = new Handler();
                                 handler.postDelayed(new Runnable() {
