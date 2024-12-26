@@ -130,7 +130,6 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.channels.FileChannel;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -2701,7 +2700,7 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
                     JSONObject caption = item.getJSONObject("caption");
                     if (caption != null) {
                         title = caption.getString("text");
-                        title = new String(title.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
+                        //  title = new String(title.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
                     }
 
                 } catch (Exception e) {
@@ -2740,7 +2739,14 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
                     JSONObject videoObject = videoVersions.getJSONObject(0); // Get the first video version
                     this.videoURL = videoObject.getString("url");
                     isVideo = true;
-                    LoadVideo();
+                    Handler handler = new Handler();
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            //UI Thread work here
+                            postExecute("");
+                        }
+                    });
                     sendEvent("sh_extract_video");
 
                     // Print video details (placeholder for further handling)
