@@ -2724,29 +2724,31 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
                     // Extract photo URL
                     JSONArray imageVersions = item.getJSONObject("image_versions2").getJSONArray("candidates");
                     JSONObject imageObject = imageVersions.getJSONObject(0); // Get the first image candidate
-                    String photoURL = imageObject.getString("url");
-                    downloadSinglePhotoFromURL(photoURL);
+                    url = imageObject.getString("url");
+                    downloadSinglePhotoFromURL(url);
 
                     sendEvent("sh_extract_photo");
                     // Print photo details (placeholder for further handling)
                     Log.d("app5", "Post Title: " + title);
                     Log.d("app5", "Author: " + author);
-                    Log.d("app5", "Photo URL: " + photoURL);
+
 
                 } else if (mediaType == 2) { // Handle video
                     // Extract video URL
+                    JSONArray imageVersions = item.getJSONObject("image_versions2").getJSONArray("candidates");
+                    JSONObject imageObject = imageVersions.getJSONObject(0); // Get the first image candidate
+                    url = imageObject.getString("url");
+
+
+
                     JSONArray videoVersions = item.getJSONArray("video_versions");
                     JSONObject videoObject = videoVersions.getJSONObject(0); // Get the first video version
                     this.videoURL = videoObject.getString("url");
                     isVideo = true;
-                    Handler handler = new Handler();
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
+
                             //UI Thread work here
-                            postExecute("");
-                        }
-                    });
+                    downloadSinglePhotoFromURL(url);
+
                     sendEvent("sh_extract_video");
 
                     // Print video details (placeholder for further handling)
@@ -3718,7 +3720,7 @@ v.seekTo(1);
                 //Background work here
 
 
-                if (!isVideo) {
+                //if (!isVideo) {
                     try {
                         Bitmap bitmap = null;
                         try {
@@ -3765,7 +3767,7 @@ v.seekTo(1);
 
                         return;
                     }
-                }
+                // }
 
                 handler.post(new Runnable() {
                     @Override
