@@ -421,6 +421,24 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
     }
 
 
+    boolean isYouTube(String url) {
+        try {
+            if (url == null)
+                return false;
+            Log.d("app5", url);
+            if (url.contains("youtube.com")) {
+
+                return true;
+            }
+        } catch (Exception e) {
+        }
+
+        return false;
+
+
+    }
+
+
     boolean isDaysMoreThanSeven() {
 
 
@@ -3510,6 +3528,9 @@ v.seekTo(1);
             postExecute("multi");
             if (spinner != null)
                 spinner.setVisibility(View.GONE);
+
+            Log.d("app5", "remove progress dialog");
+            removeProgressDialog();
             showBottomButtons();
         } catch (Exception e) {
             //  processPotentialPrivate();
@@ -4989,7 +5010,7 @@ v.seekTo(1);
         }
 
         try {
-
+            Log.d("app5", "remove progress dialog");
             removeProgressDialog();
 
 
@@ -7358,6 +7379,7 @@ v.seekTo(1);
 
     AlertDialog waitdialog;
 
+
     // TWITTER STUFF
     public void downloadParts(String url) throws IOException {
         RequestQueue queue = Volley.newRequestQueue(this);
@@ -7384,7 +7406,15 @@ v.seekTo(1);
             }
         });
         url = resolveRedirect(url);
-        String final_url = "https://pyapp.jaredco.com/?url=" + url;
+        String final_url;
+
+
+        //    if (isYouTube(url))
+        //      final_url = "https://pyapp.jaredco.com/ytube?url=" + url;
+        //  else
+        final_url = "https://pyapp.jaredco.com/?url=" + url;
+
+        Log.d("app5", final_url);
 
         // Request a string response from the provided URL.
         StringRequest stringRequest = new StringRequest(Request.Method.GET, final_url,
@@ -7490,14 +7520,20 @@ v.seekTo(1);
 
         }
 
-        if (!volleyReturn.equals("error")) {
+        if (!volleyReturn.contains("error")) {
+            String url;
 
-            currentTwitterVideo = volleyReturn;
-
-            if (volleyReturn.equals("twitter_error"))
+            if (volleyReturn.contains("twitter_error"))
                 return;
 
-            String url = "https://pyapp.jaredco.com/public/" + currentTwitterVideo + ".mp4";
+            Log.d("app5", "vollye return " + volleyReturn);
+            //  if (volleyReturn.startsWith("https:"))
+            //     url = volleyReturn ;
+            //  else
+
+            url = "https://pyapp.jaredco.com/public/" + volleyReturn + ".mp4";
+
+
             try {
                 Util.setTempVideoFileName(tempVideoName);
                 // tempVideoFile = new File(Util.getTempVideoFilePath(false));
