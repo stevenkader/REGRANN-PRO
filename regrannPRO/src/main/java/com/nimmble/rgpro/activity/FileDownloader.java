@@ -71,6 +71,8 @@ public class FileDownloader {
                 byte[] buffer = new byte[64 * 1024];  // Read 16 KB chunks
                 int bytesRead;
                 long totalRead = 0; // Track progress
+                float lastP = -1;
+
 
                 while ((bytesRead = inputStream.read(buffer)) != -1) {
                     totalRead += bytesRead;
@@ -80,8 +82,13 @@ public class FileDownloader {
                     if (fileLength > 0) {
                         int progress = (int) (totalRead * 100 / fileLength);
                         float p = (totalRead * 100 / fileLength);
-                        if (p == 25 || p == 50 || p == 75)
-                            publishProgress(progress); // Update UI
+                        Log.d("app5", "fileLength: " + fileLength);
+                        if (p > lastP) {
+                            //    Log.d("app5", "Progress: " + p + "%");
+                            //   if (p == 40 || p == 80)
+                            //     publishProgress(progress); // Update UI
+                            //    lastP = p ;
+                        }
                     }
                 }
 

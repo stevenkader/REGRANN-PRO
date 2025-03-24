@@ -51,6 +51,7 @@ import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.text.SpannableString;
 import android.text.util.Linkify;
+import android.util.Base64;
 import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
@@ -104,6 +105,7 @@ import com.nimmble.rgpro.R;
 import com.nimmble.rgpro.model.InstaItem;
 import com.nimmble.rgpro.sqlite.KeptListAdapter;
 import com.nimmble.rgpro.util.PRO;
+import com.nimmble.rgpro.util.URLRedirectResolver;
 import com.nimmble.rgpro.util.Util;
 import com.potyvideo.slider.library.Animations.DescriptionAnimation;
 import com.potyvideo.slider.library.SliderLayout;
@@ -129,7 +131,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.nio.channels.FileChannel;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -143,6 +148,8 @@ import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import ly.img.android.pesdk.PhotoEditorSettingsList;
 import ly.img.android.pesdk.VideoEditorSettingsList;
@@ -2434,13 +2441,14 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
     static String initialURL;
     boolean fromStoryIGRAM = false;
 
-    private void getJSONQueryFromInstagramURL(final String url, VolleyRequestListener listener) {
+    private void getJSONQueryFromInstagramURL(String url, VolleyRequestListener listener) {
         numRetries = 1;
 
         String final_url = "";
         fromStoryIGRAM = false;
 
         initialURL = url;
+
 
         shouldRetryVolley();
         if (1 == 1) return;
@@ -2642,6 +2650,13 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
         handler1.postDelayed(new Runnable() {
             @Override
             public void run() {
+                try {
+                    initialURL = URLRedirectResolver.resolveRedirectSync(initialURL, 5);
+                    // Use the resolved URL
+                } catch (Exception e) {
+                    // Handle errors
+                }
+
                 //   Log.d("app5", "retrying Volley # :" + numRetries);
                 if (numRetries == 2) {
                     numRetries++;
@@ -4420,6 +4435,42 @@ v.seekTo(1);
 
     }
 
+
+    public static String decodeInstagramUrl(String url) {
+        try {
+            // Extract `efg` parameter using regex
+            Pattern pattern = Pattern.compile("efg=([^&]+)");
+            Matcher matcher = pattern.matcher(url);
+
+            if (matcher.find()) {
+                String encodedEfg = matcher.group(1); // Extract encoded value
+
+                // Step 1: URL Decode to remove `%3D` artifacts
+                String urlDecodedEfg = URLDecoder.decode(encodedEfg, StandardCharsets.UTF_8);
+
+                // Step 2: Base64 Decode to JSON
+                byte[] decodedBytes = Base64.decode(urlDecodedEfg, Base64.DEFAULT);
+                String decodedJson = new String(decodedBytes, StandardCharsets.UTF_8);
+
+                // Step 3: Base64 Encode again (to match Instagram's expected format)
+                String reEncodedBase64 = Base64.encodeToString(decodedJson.getBytes(StandardCharsets.UTF_8), Base64.NO_WRAP);
+
+                // Step 4: URL Encode the Base64 string (to replace in URL)
+                String finalEncodedEfg = URLEncoder.encode(reEncodedBase64, StandardCharsets.UTF_8);
+
+                // Step 5: Replace the old `efg` value with the properly encoded one
+                String newUrl = url.replace(encodedEfg, finalEncodedEfg);
+                return newUrl;
+            } else {
+                return "No 'efg' parameter found in the URL.";
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "Error processing URL: " + e.getMessage();
+        }
+    }
+
+
     private void processHTMLforStories(String html) {
         Log.d("app5", "in processHTML for Stories ");
         isStoryURL = true;
@@ -4471,13 +4522,24 @@ v.seekTo(1);
             if (startPos > -1) {
                 isVideo = true;
                 startPos = html.indexOf("src=", startPos);
-                endPos = html.indexOf(">", startPos);
+                endPos = html.indexOf('"', startPos + 8);
                 videoURL = html.substring((startPos + 5), endPos - 1);
 
                 videoURL = videoURL.replaceAll("&amp;", "&");
+
+                Log.d("app5", videoURL);
+                //videoURL =  decodeInstagramUrl(videoURL);
                 Log.d("app5", "VideoURL : " + videoURL);
                 RegrannApp.sendEvent("sc_story_video_found");
-                downloadSinglePhotoFromURL("");
+                Handler handler = new Handler(Looper.getMainLooper());
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        //UI Thread work here
+                        postExecute("");
+                    }
+                });
+                //  downloadSinglePhotoFromURL("");
                 return;
             }
 
@@ -4588,7 +4650,7 @@ v.seekTo(1);
                 //              }
 
 
-                if (trackURL.contains("stories")) {
+                if (trackURL.contains("stories") || trackURL.contains("?story_media_id=")) {
                     processHTMLforStories(html);
                 } else {
                     runOnUiThread(new Runnable() {
@@ -7187,132 +7249,7 @@ v.seekTo(1);
     }
 
 
-    /**
-     * private void shareWithInstagramChooser() {
-     * <p>
-     * <p>
-     * try {
-     * // flurryAgent.logEvent("Share button pressed");
-     * // Create the new Intent using the 'Send' action.
-     * Intent share = new Intent(Intent.ACTION_SEND);
-     * share.setPackage("com.instagram.android");
-     * //   share.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_NO_ANIMATION);
-     * <p>
-     * <p>
-     * <p>
-     * Uri MediaURI;
-     * <p>
-     * <p>
-     * if (isVideo) {
-     * <p>
-     * File t = new File(Util.getTempVideoFilePath());
-     * <p>
-     * <p>
-     * if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-     * MediaURI = FileProvider.getUriForFile(this, getApplicationContext().getPackageName() + ".provider", t);
-     * } else {
-     * MediaURI = Uri.fromFile(t);
-     * }
-     * <p>
-     * <p>
-     * } else {
-     * Log.d("app5", "tempfile :  " + tempFile.toString());
-     * <p>
-     * <p>
-     * if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-     * MediaURI = FileProvider.getUriForFile(this, getApplicationContext().getPackageName() + ".provider", tempFile);
-     * } else {
-     * MediaURI = Uri.fromFile(tempFile);
-     * }
-     * <p>
-     * <p>
-     * }
-     * <p>
-     * if (isVideo) {
-     * share.setType("video/*");
-     * share.putExtra(Intent.EXTRA_STREAM, MediaURI);
-     * } else {
-     * share.putExtra(Intent.EXTRA_STREAM, MediaURI);
-     * <p>
-     * share.setType("image/*");
-     * }
-     * // Broadcast the Intent.
-     * startActivity(Intent.createChooser(share, "Share to"));
-     * <p>
-     * <p>
-     * final Handler handler = new Handler();
-     * handler.postDelayed(new Runnable() {
-     *
-     * @Override public void run() {
-     * <p>
-     * // finish();
-     * <p>
-     * }
-     * }, 2000);
-     * } catch (Exception e) {
-     * showErrorToast(e.getMessage(), getString(R.string.therewasproblem));
-     * <p>
-     * }
-     * <p>
-     * }
-     **/
 
-
-    public static String resolveRedirect(String initialUrl) throws IOException {
-        String currentUrl = initialUrl;
-        HttpURLConnection connection = null;
-        int redirectCount = 0;
-        final int maxRedirects = 5; // Define a maximum number of redirects to follow
-
-        while (redirectCount < maxRedirects) {
-            URL url = new URL(currentUrl);
-            connection = (HttpURLConnection) url.openConnection();
-
-            // Set the HTTP request method to "HEAD" to only retrieve the headers
-            connection.setRequestMethod("HEAD");
-
-            // Follow redirects (HTTP status codes 301 and 302)
-            int responseCode = connection.getResponseCode();
-            if (responseCode == HttpURLConnection.HTTP_MOVED_PERM || responseCode == HttpURLConnection.HTTP_MOVED_TEMP) {
-                String newLocation = connection.getHeaderField("Location");
-                if (newLocation != null) {
-                    currentUrl = newLocation;
-                } else {
-                    // No "Location" header found; unable to resolve further
-                    break;
-                }
-            } else {
-                // Not a redirect status code; return the current URL
-                break;
-            }
-
-            redirectCount++;
-        }
-
-        if (redirectCount >= maxRedirects) {
-            // Reached the maximum number of redirects; return the last URL
-            return currentUrl;
-        }
-
-
-        // Get the final URL from the HttpURLConnection object
-        if (connection != null) {
-            URL finalUrl = connection.getURL();
-            return finalUrl.toString();
-        }
-
-
-        return currentUrl;
-    }
-
-
-    // private void proxyRequest(String url) {
-
-    //   String res = prox(url);
-    // onDataLoaded(res, url);
-
-
-    //}
 
 
     private void proxyRequest(String shortcode) {
@@ -7405,7 +7342,15 @@ v.seekTo(1);
                 toast.show();
             }
         });
-        url = resolveRedirect(url);
+
+        try {
+            url = URLRedirectResolver.resolveRedirectSync(url, 5);
+        } catch (Exception e) {
+
+        }
+
+
+
         String final_url;
 
 
