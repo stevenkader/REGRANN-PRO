@@ -139,6 +139,7 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
@@ -146,8 +147,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Random;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -316,6 +320,10 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
     private BillingClient billingClient;
 
     final private int REQUEST_CODE_ASK_MULTIPLE_PERMISSIONS = 124;
+
+    // FIX: Track our download IDs so onComplete ignores other apps' downloads
+    Set<Long> activeDownloadIds = Collections.newSetFromMap(new ConcurrentHashMap<>());
+    AtomicInteger pendingWatermarks = new AtomicInteger(0);
 
 
     @Override
@@ -2779,7 +2787,7 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
                     this.videoURL = videoObject.getString("url");
                     isVideo = true;
 
-                            //UI Thread work here
+                    //UI Thread work here
                     downloadSinglePhotoFromURL(url);
 
                     sendEvent("sh_extract_video");
@@ -2955,7 +2963,8 @@ public class ShareActivity extends AppCompatActivity implements VolleyRequestLis
 
                     if (result.compareTo("error") != 0) {
                         if (result.compareTo("multi") == 0) {
-                            photoReady = true;
+                            // FIX: Do NOT set photoReady here — downloads are still in flight.
+                            // checkAllMultiComplete() will set photoReady = true when everything is done.
 
 
                             if (isAutoSave | isQuickPost | isQuickKeep) {
@@ -3293,6 +3302,12 @@ v.seekTo(1);
 
         try {
 
+            // FIX: Reset multi-download tracking state
+            activeDownloadIds.clear();
+            pendingWatermarks.set(0);
+            totalDownloadedAlready = 0;
+            countImages = 0;
+
             // Get the directory for the user's public pictures directory.
             File file = new File(Environment.getExternalStorageDirectory(), Environment.DIRECTORY_DOWNLOADS + Util.RootDirectoryMultiPhoto);
 
@@ -3539,14 +3554,9 @@ v.seekTo(1);
 
             sendEvent("sc_multiphoto");
 
-
+            // FIX: Do NOT show buttons or hide spinner here — downloads are still in flight.
+            // checkAllMultiComplete() will handle UI once all downloads + watermarks finish.
             postExecute("multi");
-            if (spinner != null)
-                spinner.setVisibility(View.GONE);
-
-            Log.d("app5", "remove progress dialog");
-            removeProgressDialog();
-            showBottomButtons();
         } catch (Exception e) {
             //  processPotentialPrivate();
             sendEvent("error_#5a");
@@ -3757,52 +3767,52 @@ v.seekTo(1);
 
 
                 //if (!isVideo) {
+                try {
+                    Bitmap bitmap = null;
                     try {
-                        Bitmap bitmap = null;
-                        try {
-                            URL imageurl = new URL(url);
-                            originalBitmapBeforeNoCrop = BitmapFactory.decodeStream(imageurl.openConnection().getInputStream());
-                            bitmap = originalBitmapBeforeNoCrop;
-                            origBitmap = bitmap;
-                        } catch (Exception e) {
-
-                            showErrorToast("Out of memory", "Sorry not enough memory to continue", true);
-
-                        }
-
-
-                        try {
-                            if (preferences.getBoolean("watermark_checkbox", false) ||
-                                    preferences.getBoolean("custom_watermark", false)) {
-
-                                int textSize = 20;
-                                if (bitmap.getHeight() > 640)
-                                    textSize = 50;
-                                bitmap = mark(bitmap, author, 1, Color.YELLOW, 180, textSize, false);
-                            }
-                        } catch (Exception e99) {
-
-                        }
-
-
-                        Log.d("app5", "before compress");
-                        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-                        bitmap.compress(Bitmap.CompressFormat.JPEG, 99, bytes);
-
-                        lastDownloadedFile = tempFile;
-                        FileUtils.writeByteArrayToFile(tempFile, bytes.toByteArray());
-
-                        Log.d("app5", "after compress");
-                        sendEvent("sc_photo");
-
-
+                        URL imageurl = new URL(url);
+                        originalBitmapBeforeNoCrop = BitmapFactory.decodeStream(imageurl.openConnection().getInputStream());
+                        bitmap = originalBitmapBeforeNoCrop;
+                        origBitmap = bitmap;
                     } catch (Exception e) {
-                        sendEvent("error_#5b");
-                        showErrorToast("#5b - " + e.getMessage(), getString(R.string.problemfindingvideo) + " " + e.getMessage(), true);
-                        //    showErrorToast("#5b - " + e.getMessage(), "#5b - " + e.getMessage(), true);
 
-                        return;
+                        showErrorToast("Out of memory", "Sorry not enough memory to continue", true);
+
                     }
+
+
+                    try {
+                        if (preferences.getBoolean("watermark_checkbox", false) ||
+                                preferences.getBoolean("custom_watermark", false)) {
+
+                            int textSize = 20;
+                            if (bitmap.getHeight() > 640)
+                                textSize = 50;
+                            bitmap = mark(bitmap, author, 1, Color.YELLOW, 180, textSize, false);
+                        }
+                    } catch (Exception e99) {
+
+                    }
+
+
+                    Log.d("app5", "before compress");
+                    ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 99, bytes);
+
+                    lastDownloadedFile = tempFile;
+                    FileUtils.writeByteArrayToFile(tempFile, bytes.toByteArray());
+
+                    Log.d("app5", "after compress");
+                    sendEvent("sc_photo");
+
+
+                } catch (Exception e) {
+                    sendEvent("error_#5b");
+                    showErrorToast("#5b - " + e.getMessage(), getString(R.string.problemfindingvideo) + " " + e.getMessage(), true);
+                    //    showErrorToast("#5b - " + e.getMessage(), "#5b - " + e.getMessage(), true);
+
+                    return;
+                }
                 // }
 
                 handler.post(new Runnable() {
@@ -3869,29 +3879,26 @@ v.seekTo(1);
 
     int countImages = 0;
 
+    // FIX: Track download ID so onComplete can filter our downloads from other apps'.
+    // IMPORTANT: Util.startDownloadMulti() MUST return the long from downloadManager.enqueue().
+    // If it currently returns void, change its return type to long.
     private void downloadImage(String url, final String fname) {
-
         try {
-
             final Handler handler = new Handler();
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     Log.d("app5", "STARTING DOWNLOAD MULTI");
-                    Util.startDownloadMulti(url, "", _this, fname, isAutoSave);
+                    long dlId = Util.startDownloadMulti(url, "", _this, fname, isAutoSave);
+                    if (dlId > 0) {
+                        activeDownloadIds.add(dlId);
+                    }
                 }
             }, countImages * 200L);
             countImages++;
-
-            //  Thread.sleep(2000) ;
-
-
         } catch (Exception e) {
-            int y = 1;
-
+            Log.e("app5", "downloadImage error: " + e.getMessage());
         }
-
-
     }
 
     private void processNewInstagramURL(String html) {
@@ -5292,10 +5299,8 @@ v.seekTo(1);
     }
 
 
+    // FIX: Track download ID for multi-video downloads too
     private void LoadMultiVideo2(final String videoURL, final String fname) {
-        String ThisUrl = videoURL;
-
-
         loadingMultiVideo = true;
 
         runOnUiThread(new Runnable() {
@@ -5303,26 +5308,24 @@ v.seekTo(1);
                 try {
                     if (numMultVideos == 0)
                         startProgressDialog();
-
-
                     numMultVideos += 1;
                 } catch (Exception e4) {
                 }
             }
         });
 
-
         final Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                String str3 = "";
                 Log.d("app5", "STARTING DOWNLOAD MULTI Video");
-                Util.startDownloadMulti(videoURL, str3, _this, fname, isAutoSave);
+                long dlId = Util.startDownloadMulti(videoURL, "", _this, fname, isAutoSave);
+                if (dlId > 0) {
+                    activeDownloadIds.add(dlId);
+                }
             }
         }, countImages * 200L);
         countImages++;
-
 
         isVideo = false;
     }
@@ -5396,80 +5399,8 @@ v.seekTo(1);
     }
 
 
-    private class addWatermarkToFile extends AsyncTask<String, Integer, String> {
-        @Override
-        protected String doInBackground(String... fnames) {
-
-            String fname = fnames[0];
-
-            if (fname.endsWith("mp4"))
-                return "";
-
-            try {
-                Bitmap bitmap = null;
-                try {
-
-                    bitmap = BitmapFactory.decodeFile(fname);
-
-                } catch (Throwable e) {
-                    showErrorToast("Out of memory", "Sorry not enough memory to continue", true);
-
-                }
-
-                try {
-                    if (preferences.getBoolean("watermark_checkbox", false) ||
-                            preferences.getBoolean("custom_watermark", false)) {
-
-                        int textSize = 20;
-                        if (bitmap.getHeight() > 640)
-                            textSize = 50;
-                        bitmap = mark(bitmap, author, 1, Color.YELLOW, 180, textSize, false);
-                    }
-                } catch (Exception e99) {
-
-                }
-
-                ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 99, bytes);
-
-
-                try {
-
-                    byte[] contents = bytes.toByteArray();
-                    Log.d("app5", "in oncomplete photo : " + fname);
-                    /**
-                     FileOutputStream fo = new FileOutputStream(new File(fname), false);
-
-                     fo.write(contents);
-                     fo.flush();
-                     // remember close de FileOutput
-                     fo.close();
-                     **/
-
-                    FileUtils.writeByteArrayToFile(new File(fname), contents);
-
-                } catch (Exception e) {
-                    Log.d("app5", "in  error oncomplete photo : " + e.getMessage());
-                }
-
-            } catch (Exception e) {
-            }
-
-            return fname;
-
-
-        }
-
-        protected void onProgressUpdate(Integer... progress) {
-
-        }
-
-
-        protected void onPostExecute(String result) {
-
-
-        }
-    }
+    // OLD addWatermarkToFile AsyncTask removed — replaced by applyWatermarkToFile() method
+    // which runs synchronously on a background thread with completion tracking.
 
 
     private boolean allDownloadsComplete() {
@@ -5496,92 +5427,63 @@ v.seekTo(1);
     MediaController mediaController = null;
     int totalDownloadedAlready = 0;
 
+    // FIX: Filter by our tracked download IDs, wait for watermarks before enabling save
     BroadcastReceiver onComplete = new BroadcastReceiver() {
 
         @SuppressLint("Range")
         public void onReceive(Context ctxt, Intent intent) {
 
+            long id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
+
+            // FIX: Ignore downloads that aren't ours (other apps, etc.)
+            if (!activeDownloadIds.remove(id)) {
+                Log.d("app5", "onComplete: ignoring foreign download id=" + id);
+                return;
+            }
 
             totalDownloadedAlready++;
-
-            Log.d("app5", "In Oncomplete :  " + totalMultiToDownload + "   " + totalDownloadedAlready);
-
+            Log.d("app5", "onComplete: " + totalDownloadedAlready + "/" + totalMultiToDownload);
 
             if (isMulti) {
 
                 if (!isVideo) {
 
-
                     String fname = "";
-                    Bitmap bitmap = null;
-                    Bitmap originalBitmapBeforeNoCrop;
 
                     Bundle extras = intent.getExtras();
                     DownloadManager.Query q = new DownloadManager.Query();
                     q.setFilterById(extras.getLong(DownloadManager.EXTRA_DOWNLOAD_ID));
                     Cursor c = downloadManager.query(q);
 
-
                     if (c.moveToFirst()) {
                         @SuppressLint("Range") int status = c.getInt(c.getColumnIndex(DownloadManager.COLUMN_STATUS));
                         if (status == DownloadManager.STATUS_SUCCESSFUL) {
-                            // process download
                             fname = c.getString(c.getColumnIndex(DownloadManager.COLUMN_TITLE));
-
                             fname = Environment.getExternalStorageDirectory() + "/" + Environment.DIRECTORY_PICTURES + Util.RootDirectoryMultiPhoto + fname;
-                            // get other required data by changing the constant passed to getColumnIndex
+                        } else {
+                            Log.e("app5", "Download failed for id=" + id + " status=" + status);
+                            if (c != null) c.close();
+                            checkAllMultiComplete();
+                            return;
                         }
                     }
+                    if (c != null) c.close();
 
+                    // FIX: Track pending watermark work so save button waits for completion
+                    pendingWatermarks.incrementAndGet();
+                    final String finalFname = fname;
 
-                    new addWatermarkToFile().execute(fname);
+                    Executors.newSingleThreadExecutor().execute(() -> {
+                        applyWatermarkToFile(finalFname);
+                        int remaining = pendingWatermarks.decrementAndGet();
+                        Log.d("app5", "Watermark done, remaining=" + remaining);
+                        checkAllMultiComplete();
+                    });
 
-
+                } else {
+                    checkAllMultiComplete();
                 }
 
-
-                if (totalDownloadedAlready == totalMultiToDownload) {
-                    if (isQuickPost) {
-
-                        scanMultiPostFolder();
-
-
-                        showMultiDialog();
-                        return;
-                    } else if (isAutoSave) {
-
-                        scanRegrannFolder();
-
-
-                        finish();
-                        return;
-                    } else {
-
-
-                        runOnUiThread(new Runnable() {
-                            public void run() {
-                                try {
-                                    showBottomButtons();
-                                    Log.d("app5", "all downloads complete");
-                                    if (spinner != null)
-                                        spinner.setVisibility(View.GONE);
-
-
-                                    removeProgressDialog();
-
-
-                                } catch (Exception e4) {
-                                }
-
-
-                            }
-
-                        });
-
-                    }
-
-
-                }
                 return;
             }
 
@@ -5589,108 +5491,142 @@ v.seekTo(1);
                 if (isVideo)
                     removeProgressDialog();
 
-
                 clearClipboard();
-
                 copyPostLaterToPictureFolder();
-
 
                 Toast toast = Toast.makeText(ShareActivity.this, R.string.postlaterconfirmtoastvideo, Toast.LENGTH_LONG);
                 toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
-
                 toast.show();
                 finish();
                 return;
-
             }
 
 
             if (isVideo) {
                 removeProgressDialog();
-                long id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
 
                 Cursor cursor = downloadManager.query(new DownloadManager.Query().setFilterById(id));
                 if (cursor != null && cursor.moveToNext()) {
                     @SuppressLint("Range") int status = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS));
                     cursor.close();
                     if (status == DownloadManager.STATUS_FAILED) {
-                        // do something when failed
                         sendEvent("download_failed");
                         GET(initialURL);
                         return;
-                    } else if (status == DownloadManager.STATUS_PENDING || status == DownloadManager.STATUS_PAUSED) {
-                        // do something pending or paused
-                    } else if (status == DownloadManager.STATUS_SUCCESSFUL) {
-                        // do something when successful
-                    } else if (status == DownloadManager.STATUS_RUNNING) {
-                        // do something when running
                     }
                 }
-
 
                 scanRegrannFolder();
 
-
                 if (isAutoSave) {
                     new CopyFileTask(_this).execute();
-                    //   finish();
                 } else if (isQuickPost) {
                     if (isVideo) {
-
                         quickPostSendToInstagram();
-
                     }
                 } else {
-
-
-                    Log.d("app5", "preparing video player");
-                    videoPlayer = findViewById(R.id.videoplayer);
-                    videoPlayer.setOnPreparedListener(PreparedListener);
-                    videoPlayer.setKeepScreenOn(true);
-                    // creating object of
-                    // media controller class
-
-
-                    mediaController = new MediaController(_this) {
-
-                        @Override
-                        public boolean dispatchKeyEvent(KeyEvent event) {
-                            if (event.getKeyCode() == KeyEvent.KEYCODE_BACK) {
-                                super.hide();
-                                ((Activity) getContext()).finish();
-                                return true;
-                            }
-                            return super.dispatchKeyEvent(event);
-                        }
-                    };
-
-                    // sets the anchor view
-                    // anchor view for the videoView
-                    mediaController.setAnchorView(videoPlayer);
-
-                    // sets the media player to the videoView
-                    mediaController.setMediaPlayer(videoPlayer);
-
-
-                    videoPlayer.setMediaController(mediaController);
-                    mediaController.setVisibility(View.VISIBLE);
-                    mediaController.setEnabled(true);
-
-                    videoPlayer.setVideoPath(Util.getTempVideoFilePath());
-                    videoPlayer.setVisibility(View.VISIBLE);
-
-
-                    photoReady = true;
-
-
+                    setupVideoPlayer();
                 }
-
-
             }
-
-
         }
     };
+
+    // FIX: Centralized check — only proceed when ALL downloads AND ALL watermarks are done
+    private void checkAllMultiComplete() {
+        if (totalDownloadedAlready < totalMultiToDownload) return;
+        if (pendingWatermarks.get() > 0) return;
+
+        Log.d("app5", "All multi downloads + watermarks complete");
+
+        if (isQuickPost) {
+            scanMultiPostFolder();
+            runOnUiThread(() -> showMultiDialog());
+            return;
+        }
+
+        if (isAutoSave) {
+            scanRegrannFolder();
+            runOnUiThread(() -> finish());
+            return;
+        }
+
+        runOnUiThread(new Runnable() {
+            public void run() {
+                try {
+                    photoReady = true;
+                    showBottomButtons();
+                    if (spinner != null)
+                        spinner.setVisibility(View.GONE);
+                    removeProgressDialog();
+                } catch (Exception e4) {
+                    Log.e("app5", "checkAllMultiComplete UI error: " + e4.getMessage());
+                }
+            }
+        });
+    }
+
+    // FIX: Synchronous watermark application (called from background thread).
+    // Replaces the old addWatermarkToFile AsyncTask which had no completion tracking.
+    private void applyWatermarkToFile(String fname) {
+        if (fname == null || fname.isEmpty() || fname.endsWith("mp4")) return;
+
+        try {
+            Bitmap bitmap = BitmapFactory.decodeFile(fname);
+            if (bitmap == null) {
+                Log.e("app5", "applyWatermark: couldn't decode " + fname);
+                return;
+            }
+
+            try {
+                if (preferences.getBoolean("watermark_checkbox", false) ||
+                        preferences.getBoolean("custom_watermark", false)) {
+                    int textSize = bitmap.getHeight() > 640 ? 50 : 20;
+                    bitmap = mark(bitmap, author, 1, Color.YELLOW, 180, textSize, false);
+                }
+            } catch (Exception e) {
+                Log.e("app5", "Watermark apply error: " + e.getMessage());
+            }
+
+            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 99, bytes);
+            FileUtils.writeByteArrayToFile(new File(fname), bytes.toByteArray());
+            bitmap.recycle();
+
+            Log.d("app5", "Watermark written: " + fname);
+        } catch (Exception e) {
+            Log.e("app5", "applyWatermarkToFile error: " + e.getMessage());
+        }
+    }
+
+    // FIX: Extracted video player setup to eliminate duplication
+    private void setupVideoPlayer() {
+        Log.d("app5", "preparing video player");
+        videoPlayer = findViewById(R.id.videoplayer);
+        videoPlayer.setOnPreparedListener(PreparedListener);
+        videoPlayer.setKeepScreenOn(true);
+
+        mediaController = new MediaController(_this) {
+            @Override
+            public boolean dispatchKeyEvent(KeyEvent event) {
+                if (event.getKeyCode() == KeyEvent.KEYCODE_BACK) {
+                    super.hide();
+                    ((Activity) getContext()).finish();
+                    return true;
+                }
+                return super.dispatchKeyEvent(event);
+            }
+        };
+
+        mediaController.setAnchorView(videoPlayer);
+        mediaController.setMediaPlayer(videoPlayer);
+        videoPlayer.setMediaController(mediaController);
+        mediaController.setVisibility(View.VISIBLE);
+        mediaController.setEnabled(true);
+
+        videoPlayer.setVideoPath(Util.getTempVideoFilePath());
+        videoPlayer.setVisibility(View.VISIBLE);
+        photoReady = true;
+    }
 
     public void videoDownloadComplete(boolean done, boolean fromSocial) {
         removeProgressDialog();
@@ -5704,71 +5640,25 @@ v.seekTo(1);
             sendEvent("download_failed_vid_complete_" + fromSocial);
             if (!fromSocial) {
                 showErrorToast("error", "There was a problem finding this video from Instagram.  Please try another one.", true);
-                //   GET(initialURL);
             }
             return;
         }
 
-
         scanRegrannFolder();
-
 
         if (isAutoSave) {
             new CopyFileTask(_this).execute();
-            //   finish();
         } else if (isQuickPost) {
             if (isVideo) {
-
                 quickPostSendToInstagram();
-
             }
         } else {
-
-
-            Log.d("app5", "preparing video player");
-            videoPlayer = findViewById(R.id.videoplayer);
-            videoPlayer.setOnPreparedListener(PreparedListener);
-            videoPlayer.setKeepScreenOn(true);
-            // creating object of
-            // media controller class
-
-
-            mediaController = new MediaController(_this) {
-
-                @Override
-                public boolean dispatchKeyEvent(KeyEvent event) {
-                    if (event.getKeyCode() == KeyEvent.KEYCODE_BACK) {
-                        super.hide();
-                        ((Activity) getContext()).finish();
-                        return true;
-                    }
-                    return super.dispatchKeyEvent(event);
-                }
-            };
-
-            // sets the anchor view
-            // anchor view for the videoView
-            mediaController.setAnchorView(videoPlayer);
-
-            // sets the media player to the videoView
-            mediaController.setMediaPlayer(videoPlayer);
-
-
-            videoPlayer.setMediaController(mediaController);
-            mediaController.setVisibility(View.VISIBLE);
-            mediaController.setEnabled(true);
-
-            videoPlayer.setVideoPath(Util.getTempVideoFilePath());
-            videoPlayer.setVisibility(View.VISIBLE);
-
-
-            photoReady = true;
+            setupVideoPlayer();
 
             final Handler handler = new Handler();
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-
                     try {
                         showBottomButtons();
                     } catch (Exception e) {
@@ -5776,7 +5666,6 @@ v.seekTo(1);
                     }
                 }
             }, 1000);
-
         }
     }
 
@@ -5897,137 +5786,87 @@ v.seekTo(1);
     }
 
 
+    // FIX: Moved all file I/O into doInBackground() (was running on UI thread in onPostExecute)
     private class LongOperation extends AsyncTask<String, Void, String> {
 
         @Override
+        protected void onPreExecute() {
+            if (!isAutoSave)
+                startProgressDialog();
+        }
+
+        @Override
         protected String doInBackground(String... params) {
+            try {
+                File dir = new File(regrannMultiPostFolder);
+                if (!dir.isDirectory()) return "no_dir";
 
+                File[] children = dir.listFiles();
+                if (children == null || children.length == 0) return "empty";
 
-            return "Executed";
+                // FIX: Ascending sort — last carousel item copied last, gets newest timestamp,
+                // appears first in gallery → user sees reverse of Instagram order
+                Arrays.sort(children, new Comparator<File>() {
+                    @Override
+                    public int compare(File object1, File object2) {
+                        return object1.getName().compareTo(object2.getName());
+                    }
+                });
+
+                int copied = 0;
+                for (int i = 0; i < children.length; i++) {
+                    if (children[i].getName().contains("nomedia")) continue;
+                    if (!children[i].exists() || children[i].length() == 0) {
+                        Log.w("app5", "Skipping missing/empty file: " + children[i].getName());
+                        continue;
+                    }
+
+                    File destination = new File(regrannPictureFolder + File.separator + children[i].getName());
+                    try {
+                        copy(children[i], destination);
+                        copied++;
+
+                        MediaScannerConnection.scanFile(
+                                getApplicationContext(),
+                                new String[]{destination.getAbsolutePath()},
+                                null, null);
+                    } catch (IOException e) {
+                        Log.e("app5", "Failed to copy " + children[i].getName() + ": " + e.getMessage());
+                    }
+                }
+
+                Log.i("app5", "LongOperation: copied " + copied + " files");
+                return "ok";
+
+            } catch (Exception e) {
+                Log.e("app5", "LongOperation error: " + e.getMessage());
+                return "error";
+            }
         }
 
         @Override
         protected void onPostExecute(String result) {
-
-            File dir = new File(regrannMultiPostFolder);
-            if (dir.isDirectory()) {
-
-
-                // String[] children = dir.list();
-                File[] children = dir.listFiles();
-
-
-                if (children != null && children.length > 1) {
-                    Arrays.sort(children, new Comparator<File>() {
-                        @Override
-                        public int compare(File object1, File object2) {
-                            return object1.getName().compareTo(object2.getName());
-                        }
-                    });
-
-
-                    for (int i = 0; i < children.length; i++) {
-
-                        try {
-
-                            if (!children[i].getName().contains("nomedia")) {
-                                File source = children[i];
-
-
-                                File destination = new File(regrannPictureFolder + File.separator + children[i].getName());
-                                try {
-                                    copy(source, destination);
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                            //   Thread.sleep(1000) ;
-                        } catch (Exception e) {
-                            int i4 = 1;
-                        }
-
-                    }
-                }
-            }
-
-            Log.i("app5", "done copy multi");
-
             scanRegrannFolder();
-
-            if (noAds && isAutoSave) {
-                // user is premium and we are in quick save mode
-                removeProgressDialog();
-                Toast toast = Toast.makeText(ShareActivity.this, "Saving multi-post complete.", Toast.LENGTH_LONG);
-                toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
-                toast.show();
-                if (spinner != null) {
-                    Log.d("app5", "remove spinne 4635r");
-                    spinner.setVisibility(View.GONE);
-                }
-
-                finish();
-                return;
-            }
-
+            removeProgressDialog();
 
             if (isAutoSave) {
-                // user is premium and we are in quick save mode
-                if (false) {
-                } else {
-                    if (spinner != null) {
-                        Log.d("app5", "remove spinner");
-                        spinner.setVisibility(View.GONE);
-                    }
-                    Toast toast = Toast.makeText(ShareActivity.this, "Saving multi-post complete.", Toast.LENGTH_LONG);
-                    toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
-                    toast.show();
+                if (spinner != null) spinner.setVisibility(View.GONE);
 
-                }
+                Toast toast = Toast.makeText(ShareActivity.this,
+                        "Saving multi-post complete.", Toast.LENGTH_LONG);
+                toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+                toast.show();
 
-
+                if (noAds) finish();
                 return;
-
             }
-
 
             changeSaveButton();
 
-
-            removeProgressDialog();
-            Toast toast = Toast.makeText(ShareActivity.this, "Saving multi-post complete.", Toast.LENGTH_LONG);
+            Toast toast = Toast.makeText(ShareActivity.this,
+                    "Saving multi-post complete.", Toast.LENGTH_LONG);
             toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
             toast.show();
-
-
-            //    Toast toast = Toast.makeText(ShareActivity.this, "Saving multi-post photos and videos.", Toast.LENGTH_LONG);
-            //  toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
-            //  toast.show();
-
-
-            int numWarnings = sharedPref.getInt("countOfRuns", 0);
-
-            //    numWarnings = 5;
-
-            if (numWarnings < 3) {
-                addToNumSessions();
-                return;
-            }
-
-
-            if (showInterstitial) {
-
-
-            }
-
-
-        }
-
-        @Override
-        protected void onPreExecute() {
-
-
-            if (!isAutoSave)
-                startProgressDialog();
         }
 
         @Override
@@ -7279,9 +7118,9 @@ v.seekTo(1);
 
                                 extractPostDetails(response);
                                 /**
-                                JSONObject json = new JSONObject(response);
+                                 JSONObject json = new JSONObject(response);
                                  JSONObject graphQlObject = json.getJSONObject("data");
-                                processJSON(graphQlObject.toString());
+                                 processJSON(graphQlObject.toString());
                                  **/
                             } catch (Exception e) {
 
